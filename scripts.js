@@ -89,8 +89,8 @@ nextBtn.addEventListener('click', (event) => {
   if (slider.classList.contains('animating')) {
     return
   }
-  const next1 = currentIndex + itemsPerSlide // 3 + 3 = 6
-  const remaining = totalItems - (next1 - itemsPerSlide) // 7 - 6 = 1
+
+  const remaining = totalItems - currentIndex
 
   let s = itemsPerSlide < remaining ? itemsPerSlide : remaining
 

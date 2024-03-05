@@ -25,6 +25,7 @@
 
 .animating {
     transition: 700ms;
+    transition-timing-function: ease;
 }
 
 .clone {
