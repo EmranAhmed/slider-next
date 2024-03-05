@@ -25,10 +25,6 @@ const prevBtn = document.querySelector('.left')
 
 let currentIndex = 0
 
-function setIndex (index) {
-  sliderWrapper.style.setProperty('--slide-index', currentIndex)
-}
-
 for (let index = 0; index < showItem; index++) {
   const firstClone = sliderItems[index].cloneNode(true)
   firstClone.classList.add('clone')
@@ -48,8 +44,7 @@ const sliderItemsWithCloned = slider.querySelectorAll('li')
 sliderItemsWithCloned.forEach((item, indx) => {
   if (item.classList.contains('active')) {
     currentIndex = indx
-    setIndex(currentIndex)
-    slider.style.transform = `translateX(-${sliderItemWidth * indx}px)`
+    slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
   }
 })
 
@@ -76,7 +71,6 @@ prevBtn.addEventListener('click', (event) => {
   }
 
   currentIndex -= s
-  setIndex(currentIndex)
 
   slider.classList.add('animating')
   slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
@@ -99,7 +93,6 @@ nextBtn.addEventListener('click', (event) => {
   }
 
   currentIndex += s
-  setIndex(currentIndex)
 
   slider.classList.add('animating')
   slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
@@ -107,8 +100,10 @@ nextBtn.addEventListener('click', (event) => {
 
 // before slide
 slider.addEventListener('transitionstart', (event) => {
+
   sliderItemsWithCloned.forEach((item) => {
     item.classList.remove('active')
+    item.classList.remove('current')
   })
 })
 
@@ -120,18 +115,16 @@ slider.addEventListener('transitionend', (event) => {
 
   if (currentIndex === 0) {
     currentIndex = sliderItems.length
-    setIndex(currentIndex)
     slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
-    return
   }
 
 // fix next
   if (currentIndex > sliderItems.length) {
     currentIndex = currentIndex - sliderItems.length
-    setIndex(currentIndex)
     slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
   }
 
+  sliderItemsWithCloned[currentIndex].classList.add('current')
   for (let i = 0; i < showItem; i++) {
     const x = i + currentIndex
 
@@ -152,7 +145,6 @@ function goto (index, isCenter = true) {
   slider.classList.add('animating')
   const centerIndex = isCenter ? 1 : 0
   currentIndex = index + showItem - 1 - centerIndex
-  setIndex(currentIndex)
   slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
 }
 
