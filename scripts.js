@@ -44,7 +44,8 @@ const sliderItemsWithCloned = slider.querySelectorAll('li')
 sliderItemsWithCloned.forEach((item, indx) => {
   if (item.classList.contains('active')) {
     currentIndex = indx
-    slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+    sliderWrapper.style.setProperty('--_slide', currentIndex)
+    // slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
   }
 })
 
@@ -73,7 +74,8 @@ prevBtn.addEventListener('click', (event) => {
   currentIndex -= s
 
   slider.classList.add('animating')
-  slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+  sliderWrapper.style.setProperty('--_slide', currentIndex)
+  //slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
 })
 
 // Next
@@ -95,7 +97,8 @@ nextBtn.addEventListener('click', (event) => {
   currentIndex += s
 
   slider.classList.add('animating')
-  slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+  //slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+  sliderWrapper.style.setProperty('--_slide', currentIndex)
 })
 
 // before slide
@@ -115,13 +118,15 @@ slider.addEventListener('transitionend', (event) => {
 
   if (currentIndex === 0) {
     currentIndex = sliderItems.length
-    slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+    sliderWrapper.style.setProperty('--_slide', currentIndex)
+    //slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
   }
 
 // fix next
   if (currentIndex > sliderItems.length) {
     currentIndex = currentIndex - sliderItems.length
-    slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+    //slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+    sliderWrapper.style.setProperty('--_slide', currentIndex)
   }
 
   sliderItemsWithCloned[currentIndex].classList.add('current')
@@ -145,6 +150,7 @@ function goto (index, isCenter = true) {
   slider.classList.add('animating')
   const centerIndex = isCenter ? 1 : 0
   currentIndex = index + showItem - 1 - centerIndex
-  slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
+  sliderWrapper.style.setProperty('--_slide', currentIndex)
+  //slider.style.transform = `translateX(-${sliderItemWidth * currentIndex}px)`
 }
 
