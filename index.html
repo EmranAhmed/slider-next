@@ -6,12 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Slider Next</title>
 	<link rel="stylesheet" href="assets/style-slider.css">
+	<script src="aziz-control.js"></script>
 </head>
 
 <body>
 
 <div class="container">
-	<div class="slider-wrapper">
+	<div class="slider-wrapper" data-slider-settings="{}">
 		<ul class="slider">
 			<li class="active">Section - 1</li>
 			<li>Section - 2</li>
@@ -24,8 +25,8 @@
 			<li>Section - 7</li>
 		</ul>
 		<div class="control">
-			<div class="arrow left">&#10094;</div>
-			<div class="arrow right">&#10095;</div>
+			<div class="arrow left prev">&#10094;</div>
+			<div class="arrow right next">&#10095;</div>
 			<!--<ul>
 			  <li class="selected"></li>
 			  <li></li>
@@ -35,7 +36,11 @@
 	</div>
 </div>
 
+
+<a id="aziz-next" href="#">NEXT</a>
+
 <script src="assets/slider.js"></script>
+
 </body>
 
 </html>
