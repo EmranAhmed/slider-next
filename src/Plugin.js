@@ -143,22 +143,22 @@ function Plugin( element, options ) {
 
 	const addEvents = () => {
 		this.$element
-			.querySelectorAll( this.settings.$nextControlSelector )
+			.querySelectorAll( this.settings.$prevControlSelector )
 			.forEach( ( el ) => {
-				el.addEventListener( 'click', slideNext );
+				el.addEventListener( 'click', handlePrev );
 			} );
 
 		this.$element
-			.querySelectorAll( this.settings.$prevControlSelector )
+			.querySelectorAll( this.settings.$nextControlSelector )
 			.forEach( ( el ) => {
-				el.addEventListener( 'click', slidePrev );
+				el.addEventListener( 'click', handleNext );
 			} );
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
 	};
 
-	const beforeSlide = ( event ) => {
+	const beforeSlide = () => {
 		const $items = this.$slider.querySelectorAll( 'li' );
 		$items.forEach( ( item ) => {
 			item.classList.remove( 'active' );
@@ -166,7 +166,7 @@ function Plugin( element, options ) {
 		} );
 	};
 
-	const afterSlide = ( event ) => {
+	const afterSlide = () => {
 		this.$slider.classList.remove( 'animating' );
 
 		// Reset Prev
@@ -181,9 +181,7 @@ function Plugin( element, options ) {
 		}
 	};
 
-	const slidePrev = ( event ) => {
-		event.preventDefault();
-
+	const slidePrev = () => {
 		if ( this.$slider.classList.contains( 'animating' ) ) {
 			return;
 		}
@@ -207,9 +205,7 @@ function Plugin( element, options ) {
 		setCurrentIndex( index );
 	};
 
-	const slideNext = ( event ) => {
-		event.preventDefault();
-
+	const slideNext = () => {
 		if ( this.$slider.classList.contains( 'animating' ) ) {
 			return;
 		}
@@ -235,17 +231,27 @@ function Plugin( element, options ) {
 		setCurrentIndex( index );
 	};
 
-	const removeEvents = () => {
-		this.$element
-			.querySelectorAll( this.settings.$nextControlSelector )
-			.forEach( ( el ) => {
-				el.removeEventListener( 'click', slideNext );
-			} );
+	const handleNext = ( event ) => {
+		event.preventDefault();
+		slideNext();
+	};
 
+	const handlePrev = ( event ) => {
+		event.preventDefault();
+		slidePrev();
+	};
+
+	const removeEvents = () => {
 		this.$element
 			.querySelectorAll( this.settings.$prevControlSelector )
 			.forEach( ( el ) => {
-				el.removeEventListener( 'click', slidePrev );
+				el.removeEventListener( 'click', handlePrev );
+			} );
+
+		this.$element
+			.querySelectorAll( this.settings.$nextControlSelector )
+			.forEach( ( el ) => {
+				el.removeEventListener( 'click', handleNext );
 			} );
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );

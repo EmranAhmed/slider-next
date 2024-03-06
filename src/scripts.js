@@ -9,7 +9,7 @@ import { createPluginInstance } from '@storepress/utils';
  */
 import { Plugin } from './Plugin';
 
-document.addEventListener( 'DOMContentLoaded', ( event ) => {
+document.addEventListener( 'DOMContentLoaded', () => {
 	const Slider = {
 		getInstance( element, options ) {
 			return createPluginInstance( element, options, Plugin );
@@ -45,31 +45,54 @@ document.addEventListener( 'DOMContentLoaded', ( event ) => {
 			}
 		},
 
-		next( ev ) {
-			for ( const { slideNext } of this.getInstance(
-				'.slider-wrapper'
-			) ) {
+		nextWith( el, ev ) {
+			for ( const { slideNext } of this.getInstance( el ) ) {
 				slideNext( ev );
+			}
+		},
+
+		prevWith( el, ev ) {
+			for ( const { slidePrev } of this.getInstance( el ) ) {
+				slidePrev( ev );
 			}
 		},
 	};
 
-	window.Slider = Slider;
-
+	// Add event like this:
 	document.addEventListener( 'slider_init', ( event ) => {
-		Slider.init( {} );
+		const defaultSettings = {};
+		const settings = { ...defaultSettings, ...event.detail?.settings };
+		const element = event.detail?.element;
+
+		console.log( element );
+
+		Slider.initWith( element, settings );
 	} );
 
-	// Dispatch / Trigger Events:
+	// Dispatch / trigger Events:
 
-	document.dispatchEvent( new Event( 'slider_init' ) );
+	document.dispatchEvent(
+		new CustomEvent( 'slider_init', {
+			detail: {
+				element: '.one',
+				settings: {},
+			},
+		} )
+	);
 
-	/*	document.getElementById( 'next' ).addEventListener( 'click', ( event ) => {
-		event.preventDefault();
-		const fn = window.Slider.init( '.slider-wrapper', {} );
+	// Next Slide
+	document.addEventListener( 'slider_next', ( event ) => {
+		const element = event.detail?.element;
 
-		fn.map( ( { slideNext } ) => {
-			slideNext( event );
-		} );
-	} );*/
+		Slider.nextWith( element, event );
+	} );
+
+	// Prev Slide
+	document.addEventListener( 'slider_prev', ( event ) => {
+		const element = event.detail?.element;
+
+		Slider.prevWith( element, event );
+	} );
+
+	////
 } );
