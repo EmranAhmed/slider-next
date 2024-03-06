@@ -1,0 +1,56 @@
+{
+  "name": "@storepress/slider",
+  "version": "0.0.1",
+  "description": "StorePress Slider Plugin",
+  "author": "Emran Ahmed",
+  "private": true,
+  "license": "GPLv3",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EmranAhmed/slider-next"
+  },
+  "bin": {
+    "package": "./bin/package.js"
+  },
+  "scripts": {
+    "clean": "rimraf assets",
+    "ready": "npm run clean && npm run build",
+    "build": "wp-scripts build --webpack-copy-php --output-path=assets --webpack-no-externals",
+    "check-engines": "wp-scripts check-engines",
+    "check-licenses": "wp-scripts check-licenses",
+    "format": "wp-scripts format",
+    "lint:css": "wp-scripts lint-style",
+    "lint:js": "wp-scripts lint-js",
+    "lint:md:docs": "wp-scripts lint-md-docs",
+    "lint:pkg-json": "wp-scripts lint-pkg-json",
+    "packages-update": "wp-scripts packages-update",
+    "plugin-zip": "wp-scripts plugin-zip",
+    "prepackage": "npm run ready",
+    "package": "./bin/package.js",
+    "prezip": "npm run ready",
+    "zip": "./bin/package.js --zip",
+    "test:e2e": "wp-scripts test-e2e",
+    "test:unit": "wp-scripts test-unit-js",
+    "rimraf": "./node_modules/rimraf/bin.js",
+    "start": "rimraf assets && wp-scripts start --webpack-copy-php --output-path=assets --webpack-no-externals"
+  },
+  "dependencies": {
+    "@storepress/utils": "^0.1.0"
+  },
+  "devDependencies": {
+    "@woocommerce/eslint-plugin": "^2.2.0",
+    "@wordpress/browserslist-config": "^5.33.0",
+    "@wordpress/prettier-config": "^3.7.0",
+    "@wordpress/scripts": "^27.1.0",
+    "@wordpress/stylelint-config": "^21.33.0",
+    "eslint": "^8.52.0",
+    "eslint-import-resolver-webpack": "0.13.8",
+    "eslint-plugin-import": "2.29.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-you-dont-need-lodash-underscore": "6.13.0",
+    "fs-extra": "^11.1.1",
+    "prettier": "npm:wp-prettier@latest",
+    "rimraf": "3.0.2",
+    "webpack-remove-empty-scripts": "^1.0.4"
+  }
+}
