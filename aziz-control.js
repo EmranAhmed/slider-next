@@ -37,6 +37,27 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 
 	document
+		.getElementById( 'goto-one-5' )
+		.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+
+			/*document.dispatchEvent(
+				new CustomEvent( 'slider_goto', {
+					detail: {
+						element: '.one',
+						index: 5,
+					},
+				} )*/
+			document.dispatchEvent(
+				new CustomEvent( 'slider_destroy', {
+					detail: {
+						element: '.one',
+					},
+				} )
+			);
+		} );
+
+	document
 		.getElementById( 'aziz-next' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();

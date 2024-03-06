@@ -274,12 +274,23 @@ function Plugin( element, options ) {
 		setCurrentIndex( newIndex );
 	};
 
+	const destroy2 = () => {
+		removeEvents();
+		this.$slider.querySelectorAll( 'li.clone' ).forEach( ( clonned ) => {
+			console.log( clonned );
+			clonned.remove();
+		} );
+
+		setCurrentIndex( 0 );
+	};
+
 	// Expose to public.
 	const expose = () => ( {
 		slidePrev,
 		slideNext,
 		removeEvents,
 		to,
+		destroy2,
 	} );
 
 	return ( () => init() )();

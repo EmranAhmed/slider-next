@@ -56,6 +56,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 				slidePrev( ev );
 			}
 		},
+
+		gotoWith( el, index ) {
+			for ( const { to } of this.getInstance( el ) ) {
+				to( index );
+			}
+		},
 	};
 
 	// Add event like this:
@@ -64,21 +70,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const settings = { ...defaultSettings, ...event.detail?.settings };
 		const element = event.detail?.element;
 
-		console.log( element );
-
 		Slider.initWith( element, settings );
 	} );
-
-	// Dispatch / trigger Events:
-
-	document.dispatchEvent(
-		new CustomEvent( 'slider_init', {
-			detail: {
-				element: '.one',
-				settings: {},
-			},
-		} )
-	);
 
 	// Next Slide
 	document.addEventListener( 'slider_next', ( event ) => {
@@ -90,9 +83,37 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	// Prev Slide
 	document.addEventListener( 'slider_prev', ( event ) => {
 		const element = event.detail?.element;
-
 		Slider.prevWith( element, event );
 	} );
 
-	////
+	// Goto
+	document.addEventListener( 'slider_goto', ( event ) => {
+		const element = event.detail?.element;
+		const index = event.detail?.index;
+
+		Slider.gotoWith( element, index );
+	} );
+
+	// Destroy
+	document.addEventListener( 'slider_destroy', ( event ) => {
+		const element = event.detail?.element;
+
+		Slider.destroyWith( element );
+	} );
+
+	document.querySelectorAll( '.one' ).forEach( ( el ) => {
+		el.addEventListener( 'destroy', () => {
+			console.log( 'F' );
+		} );
+	} );
+
+	// Dispatch / trigger Events:
+	document.dispatchEvent(
+		new CustomEvent( 'slider_init', {
+			detail: {
+				element: '.one',
+				settings: {},
+			},
+		} )
+	);
 } );
