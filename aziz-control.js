@@ -41,20 +41,22 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
-			/*document.dispatchEvent(
+			document.dispatchEvent(
 				new CustomEvent( 'slider_goto', {
 					detail: {
 						element: '.one',
 						index: 5,
 					},
-				} )*/
-			document.dispatchEvent(
+				} )
+			);
+
+			/*document.dispatchEvent(
 				new CustomEvent( 'slider_destroy', {
 					detail: {
 						element: '.one',
 					},
 				} )
-			);
+			);*/
 		} );
 
 	document

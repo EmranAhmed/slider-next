@@ -12,9 +12,19 @@
 	margin: 20px auto;
 }
 
-.slider-wrapper {
+.slider-wrapper.one {
+	--slide-item: 1;
+	--show-item: 1;
+}
+
+.slider-wrapper.two {
 	--slide-item: 3;
 	--show-item: 3;
+}
+
+.slider-wrapper {
+	/*--slide-item: 3;
+	--show-item: 3;*/
 	--show-infinite: true;
 	--_current-item-index: 0;
 	--item-width: calc(100% / var(--show-item));
