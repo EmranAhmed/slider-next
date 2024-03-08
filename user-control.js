@@ -9,7 +9,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	);
 
 	document
-		.getElementById( 'aziz-next1' )
+		.getElementById( 'next2' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
@@ -23,7 +23,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 
 	document
-		.getElementById( 'aziz-prev1' )
+		.getElementById( 'prev2' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
@@ -37,7 +37,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 
 	document
-		.getElementById( 'goto-one-5' )
+		.getElementById( 'goto-one-4' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
@@ -45,22 +45,14 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				new CustomEvent( 'slider_goto', {
 					detail: {
 						element: '.one',
-						index: 5,
+						index: 3,
 					},
 				} )
 			);
-
-			/*document.dispatchEvent(
-				new CustomEvent( 'slider_destroy', {
-					detail: {
-						element: '.one',
-					},
-				} )
-			);*/
 		} );
 
 	document
-		.getElementById( 'aziz-next' )
+		.getElementById( 'next1' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
@@ -74,7 +66,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 
 	document
-		.getElementById( 'aziz-prev' )
+		.getElementById( 'prev1' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 

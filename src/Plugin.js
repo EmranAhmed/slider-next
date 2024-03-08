@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getOptionsFromAttribute } from '@storepress/utils';
+import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
 
 function Plugin( element, options ) {
 	// Default Settings
@@ -9,8 +9,9 @@ function Plugin( element, options ) {
 		moveItemsCSSProperty: '--slide-item',
 		visibleItemsCSSProperty: '--show-item',
 		isInfiniteCSSProperty: '--show-infinite',
-		$prevControlSelector: '.prev',
-		$nextControlSelector: '.next',
+		prevControlSelector: '.prev',
+		nextControlSelector: '.next',
+		syncWith: null,
 	};
 
 	// Collecting settings from html attribute
@@ -38,7 +39,52 @@ function Plugin( element, options ) {
 
 		addEvents();
 
+		syncItemsClick();
+
 		return expose();
+	};
+
+	const syncItemsClick = () => {
+		if ( ! this.settings.syncWith ) {
+			return;
+		}
+
+		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+			$li.addEventListener( 'click', handleSyncItemsClick );
+		} );
+	};
+
+	const handleSyncItemsClick = ( event ) => {
+		const index = parseInt(
+			event.target.closest( 'li' ).dataset.index,
+			10
+		);
+
+		syncIndex( index );
+	};
+
+	const syncIndex = ( index ) => {
+		if ( ! this.settings.syncWith ) {
+			return;
+		}
+
+		const $synced = getPluginInstance( this.settings.syncWith );
+		$synced.forEach( ( { to } ) => {
+			to( index );
+		} );
+	};
+
+	const syncCurrent = () => {
+		if ( ! this.settings.syncWith ) {
+			return;
+		}
+
+		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+			if ( $li.classList.contains( 'current' ) ) {
+				const index = parseInt( $li.dataset.index, 10 );
+				syncIndex( index );
+			}
+		} );
 	};
 
 	const afterLoaded = () => {
@@ -78,9 +124,9 @@ function Plugin( element, options ) {
 	};
 
 	const initialCloneItems = () => {
-		if ( ! this.isInfinite ) {
-			return;
-		}
+		this.$items.forEach( ( $item, index ) => {
+			$item.setAttribute( 'data-index', index );
+		} );
 
 		const lastItemsIndex = this.totalItems - 1;
 
@@ -90,16 +136,18 @@ function Plugin( element, options ) {
 			clone.classList.add( 'clone' );
 			clone.classList.remove( 'current' );
 			clone.classList.remove( 'active' );
+			// clone.removeAttribute( 'data-index' );
 			this.$slider.append( clone );
 		}
 
-		// Prepend last Items
+		// Prepend Last Items
 		for ( let index = 0; index < this.visibleItem; index++ ) {
 			const clone =
 				this.$items[ lastItemsIndex - index ].cloneNode( true );
 			clone.classList.add( 'clone' );
 			clone.classList.remove( 'active' );
 			clone.classList.remove( 'current' );
+			//clone.removeAttribute( 'data-index' );
 			this.$slider.prepend( clone );
 		}
 	};
@@ -110,8 +158,6 @@ function Plugin( element, options ) {
 		$items.forEach( ( item, index ) => {
 			if ( item.classList.contains( 'active' ) ) {
 				this.currentIndex = index;
-
-				// setCurrentIndex( index );
 
 				$items[ this.currentIndex ].classList.add( 'current' );
 				this.$element.style.setProperty(
@@ -128,10 +174,16 @@ function Plugin( element, options ) {
 	};
 
 	const setCurrentIndex = ( index ) => {
-		this.currentIndex = index;
-		const $items = this.$slider.querySelectorAll( 'li' );
+		this.currentIndex = parseInt( index, 10 );
 
-		this.$element.style.setProperty( '--_current-item-index', index );
+		this.$element.style.setProperty(
+			'--_current-item-index',
+			this.currentIndex
+		);
+	};
+
+	const addClasses = () => {
+		const $items = this.$slider.querySelectorAll( 'li' );
 
 		$items[ this.currentIndex ].classList.add( 'current' );
 
@@ -139,17 +191,28 @@ function Plugin( element, options ) {
 			const key = i + this.currentIndex;
 			$items[ key ].classList.add( 'active' );
 		}
+
+		syncCurrent();
+	};
+
+	const removeClasses = () => {
+		this.$slider.classList.remove( 'animating' );
+		const $items = this.$slider.querySelectorAll( 'li' );
+		$items.forEach( ( $item ) => {
+			$item.classList.remove( 'active' );
+			$item.classList.remove( 'current' );
+		} );
 	};
 
 	const addEvents = () => {
 		this.$element
-			.querySelectorAll( this.settings.$prevControlSelector )
+			.querySelectorAll( this.settings.prevControlSelector )
 			.forEach( ( el ) => {
 				el.addEventListener( 'click', handlePrev );
 			} );
 
 		this.$element
-			.querySelectorAll( this.settings.$nextControlSelector )
+			.querySelectorAll( this.settings.nextControlSelector )
 			.forEach( ( el ) => {
 				el.addEventListener( 'click', handleNext );
 			} );
@@ -179,6 +242,8 @@ function Plugin( element, options ) {
 			const index = this.currentIndex - this.$items.length;
 			setCurrentIndex( index );
 		}
+
+		addClasses();
 	};
 
 	const slidePrev = () => {
@@ -243,23 +308,27 @@ function Plugin( element, options ) {
 
 	const removeEvents = () => {
 		this.$element
-			.querySelectorAll( this.settings.$prevControlSelector )
+			.querySelectorAll( this.settings.prevControlSelector )
 			.forEach( ( el ) => {
 				el.removeEventListener( 'click', handlePrev );
 			} );
 
 		this.$element
-			.querySelectorAll( this.settings.$nextControlSelector )
+			.querySelectorAll( this.settings.nextControlSelector )
 			.forEach( ( el ) => {
 				el.removeEventListener( 'click', handleNext );
 			} );
+
+		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+			$li.removeEventListener( 'click', handleSyncItemsClick );
+		} );
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
 		this.$slider.removeEventListener( 'transitionend', afterSlide );
 	};
 
-	const to = ( index, isCenter = true ) => {
-		if ( index < 1 ) {
+	const to = ( index ) => {
+		if ( index < 0 ) {
 			return;
 		}
 
@@ -267,21 +336,28 @@ function Plugin( element, options ) {
 			return;
 		}
 
-		const centerIndex = isCenter ? 1 : 0;
-		const newIndex = index + this.visibleItem - 1 - centerIndex;
+		const $withClonedItemsLength =
+			this.$slider.querySelectorAll( 'li' ).length;
+
+		const actualIndex = ( $withClonedItemsLength - this.totalItems ) / 2;
+
+		// const centerIndex = this.visibleItem > 1 && this.visibleItem % 2 === 1 ? -2 : -1;
+
+		const newIndex = index + actualIndex;
 
 		this.$slider.classList.add( 'animating' );
 		setCurrentIndex( newIndex );
 	};
 
-	const destroy2 = () => {
+	const reset = () => {
 		removeEvents();
-		this.$slider.querySelectorAll( 'li.clone' ).forEach( ( clonned ) => {
-			console.log( clonned );
-			clonned.remove();
+		this.$slider.querySelectorAll( 'li.clone' ).forEach( ( $cloned ) => {
+			$cloned.remove();
 		} );
 
 		setCurrentIndex( 0 );
+		removeClasses();
+		this.$slider.querySelector( 'li' ).classList.add( 'active' );
 	};
 
 	// Expose to public.
@@ -290,7 +366,7 @@ function Plugin( element, options ) {
 		slideNext,
 		removeEvents,
 		to,
-		destroy2,
+		reset,
 	} );
 
 	return ( () => init() )();

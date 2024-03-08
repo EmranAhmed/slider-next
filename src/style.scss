@@ -18,7 +18,7 @@
 }
 
 .slider-wrapper.two {
-	--slide-item: 3;
+	--slide-item: 2;
 	--show-item: 3;
 }
 
@@ -39,6 +39,12 @@
 
 .animating {
 	transition: 700ms;
+}
+
+.clone{
+	* {
+		pointer-events: none;
+	}
 }
 
 .slider {

@@ -34,13 +34,17 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		},
 
 		destroyWith( el ) {
-			for ( const { destroy } of this.getInstance( el ) ) {
+			for ( const { destroy, reset } of this.getInstance( el ) ) {
+				reset();
 				destroy();
 			}
 		},
 
 		destroy() {
-			for ( const { destroy } of this.getInstance( '.slider-wrapper' ) ) {
+			for ( const { destroy, reset } of this.getInstance(
+				'.slider-wrapper'
+			) ) {
+				reset();
 				destroy();
 			}
 		},
@@ -64,7 +68,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		},
 	};
 
-	// Add event like this:
+	// Slider Init.
 	document.addEventListener( 'slider_init', ( event ) => {
 		const defaultSettings = {};
 		const settings = { ...defaultSettings, ...event.detail?.settings };
@@ -90,7 +94,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	document.addEventListener( 'slider_goto', ( event ) => {
 		const element = event.detail?.element;
 		const index = event.detail?.index;
-
 		Slider.gotoWith( element, index );
 	} );
 
@@ -99,12 +102,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const element = event.detail?.element;
 
 		Slider.destroyWith( element );
-	} );
-
-	document.querySelectorAll( '.one' ).forEach( ( el ) => {
-		el.addEventListener( 'destroy', () => {
-			console.log( 'F' );
-		} );
 	} );
 
 	// Dispatch / trigger Events:

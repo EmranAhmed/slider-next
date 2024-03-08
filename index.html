@@ -37,16 +37,14 @@
 </div>
 
 <div class="container">
-	<div class="two slider-wrapper">
-		<ul class="slider">
+	<div class="two slider-wrapper" data-slider-settings="{'syncWith': '.one'}">
+		<ul class="slider" id="slider-2">
 			<li class="active">Section - 1</li>
 			<li>Section - 2</li>
 			<li>Section - 3</li>
-
-			<li>Section - 4</li>
+			<li>Section - 4 <span>IN SPAN</span></li>
 			<li>Section - 5</li>
-			<li><a href="#" id="goto-one-5">5</a></li>
-
+			<li>Section - 6</li>
 			<li>Section - 7</li>
 		</ul>
 		<div class="control">
@@ -62,18 +60,21 @@
 </div>
 
 
-<a id="aziz-prev" href="#">PREV 1</a>
-<a id="aziz-next" href="#">NEXT 1</a>
+<a id="prev1" href="#">PREV 1</a>
+<a id="next1" href="#">NEXT 1</a>
 
 --
 
-<a id="aziz-prev1" href="#">PREV 2</a>
-<a id="aziz-next1" href="#">NEXT 2</a>
+<a id="prev2" href="#">PREV 2</a>
+<a id="next2" href="#">NEXT 2</a>
 
+--
+
+Goto <a id="goto-one-4" href="#">Slide 4</a>
 
 
 <script src="assets/slider.js"></script>
-<script src="aziz-control.js"></script>
+<script src="user-control.js"></script>
 
 </body>
 
