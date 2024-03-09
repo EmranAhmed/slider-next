@@ -41,27 +41,20 @@
 	transition: 700ms;
 }
 
-.clone{
-	* {
-		pointer-events: none;
-	}
-}
-
 .slider {
 
-	will-change: translateX, translateY;
+	will-change: transform;
 
 	--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index)) * -1);
 	--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)) * -1);
 
 	transform: translateX(var(--horizontal-value));
 
-	/* list-style: none; */
+	list-style: none;
 	height: 100%;
 	display: grid;
 	grid-auto-flow: column;
 	grid-auto-columns: var(--item-width);
-	/* transition: 0.7s; */
 
 	& li {
 		border: 2px solid green;
@@ -81,6 +74,7 @@
 		/* background-color: aqua; */
 		cursor: pointer;
 		user-select: none;
+		z-index: 1;
 
 		&.right {
 			right: 0;

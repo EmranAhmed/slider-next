@@ -1,7 +1,103 @@
 /**
  * External dependencies
  */
-import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
+import {
+	getElements,
+	getOptionsFromAttribute,
+	getPluginInstance,
+} from '@storepress/utils';
+
+function SwipeEvent( elements ) {
+	const $elements = getElements( elements );
+
+	$elements.forEach( ( $element, index ) => {
+		let isMoving = false;
+		let xStart = 0;
+		let xEnd = 0;
+		let yStart = 0;
+		let yEnd = 0;
+		const $slider = $element.querySelector( 'ul' );
+		let currentPosition = 0;
+		const offset = 50;
+
+		const itemWidth = $element.getBoundingClientRect().width;
+		const itemHeight = $element.getBoundingClientRect().height;
+
+		$element.addEventListener( 'pointerdown', ( event ) => {
+			isMoving = true;
+			xStart = event.x;
+			yStart = event.y;
+
+			currentPosition =
+				parseInt(
+					$element.querySelector( 'li.current' ).dataset.index,
+					10
+				) + 1;
+		} );
+		$element.addEventListener( 'pointermove', ( event ) => {
+			if ( ! isMoving ) {
+				return;
+			}
+
+			const positionWidth = currentPosition * itemWidth;
+			const positionHeight = currentPosition * itemHeight;
+
+			const horizontalDiff = event.x - xStart;
+			const verticalDiff = event.y - yStart;
+
+			const horizontalValue = positionWidth - horizontalDiff;
+			const verticalValue = positionHeight - verticalDiff;
+
+			//$slider.classList.add( 'animating' );
+			$slider.style.setProperty(
+				'--horizontal-value',
+				`-${ horizontalValue }px`
+			);
+
+			$slider.style.setProperty(
+				'--vertical-value',
+				`-${ verticalValue }px`
+			);
+		} );
+		$element.addEventListener( 'pointerup', ( event ) => {
+			if ( isMoving ) {
+				xEnd = event.x;
+				yEnd = event.y;
+
+				const xDiff = xEnd - xStart;
+				const yDiff = yEnd - yStart;
+
+				console.log( xDiff );
+
+				$slider.classList.add( 'animating' );
+				$slider.style.removeProperty( '--horizontal-value' );
+				$slider.style.removeProperty( '--vertical-value' );
+
+				if ( yDiff + offset < 0 ) {
+					console.log( 'to top', xDiff );
+				}
+
+				if ( yDiff - offset > 0 ) {
+					console.log( 'to bottom', yDiff );
+				}
+
+				if ( xDiff + offset < 0 ) {
+					console.log( 'to left', xDiff );
+				}
+
+				if ( xDiff - offset > 0 ) {
+					console.log( 'to right', xDiff );
+				}
+			}
+
+			isMoving = false;
+		} );
+
+		$element.addEventListener( 'pointerleave', ( event ) => {
+			// same as pointerup
+		} );
+	} );
+}
 
 function Plugin( element, options ) {
 	// Default Settings
@@ -37,6 +133,11 @@ function Plugin( element, options ) {
 
 		afterLoaded();
 
+		// Clone Items for Infinite Scroll.
+		initialCloneItems();
+
+		setInitialIndex();
+
 		addEvents();
 
 		syncItemsClick();
@@ -50,15 +151,12 @@ function Plugin( element, options ) {
 		}
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.addEventListener( 'click', handleSyncItemsClick );
+			$li.addEventListener( 'pointerup', handleSyncItemsClick );
 		} );
 	};
 
 	const handleSyncItemsClick = ( event ) => {
-		const index = parseInt(
-			event.target.closest( 'li' ).dataset.index,
-			10
-		);
+		const index = event.target.closest( 'li' ).dataset.index;
 
 		syncIndex( index );
 	};
@@ -116,11 +214,6 @@ function Plugin( element, options ) {
 		if ( this.visibleItem < this.itemsPerSlide ) {
 			this.itemsPerSlide = this.visibleItem;
 		}
-
-		// Clone Items for Infinite Scroll.
-		initialCloneItems();
-
-		setInitialIndex();
 	};
 
 	const initialCloneItems = () => {
@@ -219,6 +312,8 @@ function Plugin( element, options ) {
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
+
+		SwipeEvent( this.$element );
 	};
 
 	const beforeSlide = () => {
@@ -343,7 +438,9 @@ function Plugin( element, options ) {
 
 		// const centerIndex = this.visibleItem > 1 && this.visibleItem % 2 === 1 ? -2 : -1;
 
-		const newIndex = index + actualIndex;
+		const i = parseInt( index, 10 );
+
+		const newIndex = i + actualIndex;
 
 		this.$slider.classList.add( 'animating' );
 		setCurrentIndex( newIndex );
