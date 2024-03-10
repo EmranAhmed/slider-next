@@ -1,119 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	getElements,
-	getOptionsFromAttribute,
-	getPluginInstance,
-} from '@storepress/utils';
+import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
 
-function __SwipeEvent( elements ) {
-	const $elements = getElements( elements );
-
-	$elements.forEach( ( $element, index ) => {
-		let isMoving = false;
-		let isMoved = false;
-		let xStart = 0;
-		let xEnd = 0;
-		let yStart = 0;
-		let yEnd = 0;
-		const $slider = $element;
-		let currentPosition = 0;
-		const offset = 50;
-
-		const itemWidth = $element.parentElement.getBoundingClientRect().width;
-		const itemHeight =
-			$element.parentElement.getBoundingClientRect().height;
-
-		$element.addEventListener( 'pointerdown', ( event ) => {
-			isMoving = true;
-			xStart = event.x;
-			yStart = event.y;
-
-			// console.log( event.target );
-
-			currentPosition =
-				parseInt(
-					$element.querySelector( 'li.current' ).dataset.index,
-					10
-				) + 1;
-		} );
-		$element.addEventListener( 'pointermove', ( event ) => {
-			if ( ! isMoving ) {
-				return;
-			}
-
-			const positionWidth = currentPosition * itemWidth;
-			const positionHeight = currentPosition * itemHeight;
-
-			const horizontalDiff = event.x - xStart;
-			const verticalDiff = event.y - yStart;
-
-			const horizontalValue = Math.ceil( positionWidth - horizontalDiff );
-			const verticalValue = Math.ceil( positionHeight - verticalDiff );
-
-			$slider.style.setProperty(
-				'--horizontal-value',
-				`-${ horizontalValue }px`
-			);
-
-			$slider.style.setProperty(
-				'--vertical-value',
-				`-${ verticalValue }px`
-			);
-
-			isMoved = true;
-		} );
-		$element.addEventListener( 'pointerup', ( event ) => {
-			if ( isMoving ) {
-				xEnd = event.x;
-				yEnd = event.y;
-
-				const xDiff = event.x - xStart;
-				const yDiff = event.y - yStart;
-
-				console.log( xDiff );
-
-				console.log(
-					'p',
-					$slider.style.hasOwnProperty( '--horizontal-value' )
-				);
-
-				if ( isMoved ) {
-					$slider.classList.add( 'animating' );
-					$slider.style.removeProperty( '--horizontal-value' );
-					$slider.style.removeProperty( '--vertical-value' );
-				}
-
-				isMoved = false;
-
-				if ( yDiff + offset < 0 ) {
-					console.log( 'to top', xDiff );
-				}
-
-				if ( yDiff - offset > 0 ) {
-					console.log( 'to bottom', yDiff );
-				}
-
-				if ( xDiff + offset < 0 ) {
-					console.log( 'to left', xDiff );
-				}
-
-				if ( xDiff - offset > 0 ) {
-					console.log( 'to right', xDiff );
-				}
-			}
-
-			isMoving = false;
-		} );
-
-		$element.addEventListener( 'pointerleave', ( event ) => {
-			// same as pointerup
-		} );
-	} );
-}
-
-function initSwipe( $element, offset = 50 ) {
+function initSwipe( $element, offset = 10 ) {
 	let readyToMove = false;
 	let isMoved = false;
 	let xStart = 0;
@@ -446,6 +336,10 @@ function Plugin( element, options ) {
 		}
 
 		const { x, y, left, right, moving, done } = event.detail;
+
+		if ( done ) {
+			console.log( event.detail );
+		}
 
 		const currentWidth =
 			( this.currentIndex * this.sliderWidth ) / this.visibleItem;
