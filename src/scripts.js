@@ -50,14 +50,14 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		},
 
 		nextWith( el, ev ) {
-			for ( const { slideNext } of this.getInstance( el ) ) {
-				slideNext( ev );
+			for ( const { handleNext } of this.getInstance( el ) ) {
+				handleNext( ev );
 			}
 		},
 
 		prevWith( el, ev ) {
-			for ( const { slidePrev } of this.getInstance( el ) ) {
-				slidePrev( ev );
+			for ( const { handlePrev } of this.getInstance( el ) ) {
+				handlePrev( ev );
 			}
 		},
 

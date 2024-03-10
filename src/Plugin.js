@@ -7,26 +7,30 @@ import {
 	getPluginInstance,
 } from '@storepress/utils';
 
-function SwipeEvent( elements ) {
+function __SwipeEvent( elements ) {
 	const $elements = getElements( elements );
 
 	$elements.forEach( ( $element, index ) => {
 		let isMoving = false;
+		let isMoved = false;
 		let xStart = 0;
 		let xEnd = 0;
 		let yStart = 0;
 		let yEnd = 0;
-		const $slider = $element.querySelector( 'ul' );
+		const $slider = $element;
 		let currentPosition = 0;
 		const offset = 50;
 
-		const itemWidth = $element.getBoundingClientRect().width;
-		const itemHeight = $element.getBoundingClientRect().height;
+		const itemWidth = $element.parentElement.getBoundingClientRect().width;
+		const itemHeight =
+			$element.parentElement.getBoundingClientRect().height;
 
 		$element.addEventListener( 'pointerdown', ( event ) => {
 			isMoving = true;
 			xStart = event.x;
 			yStart = event.y;
+
+			// console.log( event.target );
 
 			currentPosition =
 				parseInt(
@@ -45,10 +49,9 @@ function SwipeEvent( elements ) {
 			const horizontalDiff = event.x - xStart;
 			const verticalDiff = event.y - yStart;
 
-			const horizontalValue = positionWidth - horizontalDiff;
-			const verticalValue = positionHeight - verticalDiff;
+			const horizontalValue = Math.ceil( positionWidth - horizontalDiff );
+			const verticalValue = Math.ceil( positionHeight - verticalDiff );
 
-			//$slider.classList.add( 'animating' );
 			$slider.style.setProperty(
 				'--horizontal-value',
 				`-${ horizontalValue }px`
@@ -58,20 +61,31 @@ function SwipeEvent( elements ) {
 				'--vertical-value',
 				`-${ verticalValue }px`
 			);
+
+			isMoved = true;
 		} );
 		$element.addEventListener( 'pointerup', ( event ) => {
 			if ( isMoving ) {
 				xEnd = event.x;
 				yEnd = event.y;
 
-				const xDiff = xEnd - xStart;
-				const yDiff = yEnd - yStart;
+				const xDiff = event.x - xStart;
+				const yDiff = event.y - yStart;
 
 				console.log( xDiff );
 
-				$slider.classList.add( 'animating' );
-				$slider.style.removeProperty( '--horizontal-value' );
-				$slider.style.removeProperty( '--vertical-value' );
+				console.log(
+					'p',
+					$slider.style.hasOwnProperty( '--horizontal-value' )
+				);
+
+				if ( isMoved ) {
+					$slider.classList.add( 'animating' );
+					$slider.style.removeProperty( '--horizontal-value' );
+					$slider.style.removeProperty( '--vertical-value' );
+				}
+
+				isMoved = false;
 
 				if ( yDiff + offset < 0 ) {
 					console.log( 'to top', xDiff );
@@ -97,6 +111,98 @@ function SwipeEvent( elements ) {
 			// same as pointerup
 		} );
 	} );
+}
+
+function initSwipe( $element, offset = 50 ) {
+	let readyToMove = false;
+	let isMoved = false;
+	let xStart = 0;
+	let yStart = 0;
+
+	const handleStart = ( event ) => {
+		readyToMove = true;
+		isMoved = false;
+		xStart = event.x;
+		yStart = event.y;
+	};
+
+	const handleMove = ( event ) => {
+		if ( ! readyToMove ) {
+			return;
+		}
+
+		const horizontalDiff = event.x - xStart;
+		const verticalDiff = event.y - yStart;
+
+		isMoved = true;
+
+		$element.dispatchEvent(
+			new CustomEvent( 'swipe', {
+				detail: {
+					x: horizontalDiff,
+					y: verticalDiff,
+					top: verticalDiff + offset < 0, // to top
+					bottom: verticalDiff - offset > 0, // to bottom
+					left: horizontalDiff + offset < 0, // to left
+					right: horizontalDiff - offset > 0, // to right
+					moving: true,
+					done: false,
+				},
+			} )
+		);
+	};
+
+	const handleEnd = ( event ) => {
+		if ( ! readyToMove ) {
+			return;
+		}
+
+		const horizontalDiff = event.x - xStart;
+		const verticalDiff = event.y - yStart;
+
+		if ( isMoved ) {
+			$element.dispatchEvent(
+				new CustomEvent( 'swipe', {
+					detail: {
+						x: horizontalDiff,
+						y: verticalDiff,
+						top: verticalDiff + offset < 0, // to top
+						bottom: verticalDiff - offset > 0, // to bottom
+						left: horizontalDiff + offset < 0, // to left
+						right: horizontalDiff - offset > 0, // to right
+						moving: false,
+						done: true,
+					},
+				} )
+			);
+		}
+
+		isMoved = false;
+
+		readyToMove = false;
+	};
+
+	const remove = () => {
+		$element.removeEventListener( 'pointerdown', handleStart );
+
+		$element.removeEventListener( 'pointermove', handleMove );
+
+		$element.removeEventListener( 'pointerup', handleEnd );
+
+		$element.removeEventListener( 'pointerleave', handleEnd );
+	};
+
+	remove();
+
+	$element.addEventListener( 'pointerdown', handleStart );
+
+	$element.addEventListener( 'pointermove', handleMove );
+
+	$element.addEventListener( 'pointerup', handleEnd );
+
+	$element.addEventListener( 'pointerleave', handleEnd );
+
+	return remove;
 }
 
 function Plugin( element, options ) {
@@ -128,6 +234,8 @@ function Plugin( element, options ) {
 		this.isInfinite = true;
 		this.$slider = null;
 		this.$items = null;
+		this.sliderWidth = 0;
+		this.sliderHeight = 0;
 		this.totalItems = 0;
 		this.currentIndex = 0;
 
@@ -137,6 +245,8 @@ function Plugin( element, options ) {
 		initialCloneItems();
 
 		setInitialIndex();
+
+		this.removeSwipe = initSwipe( this.$slider );
 
 		addEvents();
 
@@ -243,6 +353,11 @@ function Plugin( element, options ) {
 			//clone.removeAttribute( 'data-index' );
 			this.$slider.prepend( clone );
 		}
+
+		// Add slider width after clone
+		const { width, height } = this.$slider.getBoundingClientRect();
+		this.sliderWidth = width;
+		this.sliderHeight = height;
 	};
 
 	const setInitialIndex = () => {
@@ -252,7 +367,7 @@ function Plugin( element, options ) {
 			if ( item.classList.contains( 'active' ) ) {
 				this.currentIndex = index;
 
-				$items[ this.currentIndex ].classList.add( 'current' );
+				// $items[ this.currentIndex ].classList.add( 'current' );
 				this.$element.style.setProperty(
 					'--_current-item-index',
 					this.currentIndex
@@ -260,10 +375,17 @@ function Plugin( element, options ) {
 			}
 		} );
 
-		for ( let i = 0; i < this.visibleItem; i++ ) {
+		/*for ( let i = 0; i < this.visibleItem; i++ ) {
 			const key = i + this.currentIndex;
 			$items[ key ].classList.add( 'active' );
-		}
+
+			const { width, height } = $items[ key ].getBoundingClientRect();
+
+			this.visibleItemsWidth += width;
+			this.visibleItemsHeight += height;
+		}*/
+
+		addClasses();
 	};
 
 	const setCurrentIndex = ( index ) => {
@@ -283,9 +405,12 @@ function Plugin( element, options ) {
 		for ( let i = 0; i < this.visibleItem; i++ ) {
 			const key = i + this.currentIndex;
 			$items[ key ].classList.add( 'active' );
-		}
 
-		syncCurrent();
+			const { width, height } = $items[ key ].getBoundingClientRect();
+
+			this.visibleItemsWidth += width;
+			this.visibleItemsHeight += height;
+		}
 	};
 
 	const removeClasses = () => {
@@ -312,8 +437,49 @@ function Plugin( element, options ) {
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
+		this.$slider.addEventListener( 'swipe', handleSwipe );
+	};
 
-		SwipeEvent( this.$element );
+	const handleSwipe = ( event ) => {
+		if ( this.$slider.classList.contains( 'animating' ) ) {
+			return;
+		}
+
+		const { x, y, left, right, moving, done } = event.detail;
+
+		const currentWidth =
+			( this.currentIndex * this.sliderWidth ) / this.visibleItem;
+		const currentHeight =
+			( this.currentIndex * this.sliderHeight ) / this.visibleItem;
+
+		const horizontalValue = Math.ceil( currentWidth - x );
+		const verticalValue = Math.ceil( currentHeight - y );
+
+		if ( moving ) {
+			this.$slider.style.setProperty(
+				'--horizontal-value',
+				`-${ horizontalValue }px`
+			);
+
+			this.$slider.style.setProperty(
+				'--vertical-value',
+				`-${ verticalValue }px`
+			);
+		}
+
+		if ( done ) {
+			this.$slider.classList.add( 'animating' );
+			this.$slider.style.removeProperty( '--horizontal-value' );
+			this.$slider.style.removeProperty( '--vertical-value' );
+		}
+
+		if ( done && left ) {
+			slideNext();
+		}
+
+		if ( done && right ) {
+			slidePrev();
+		}
 	};
 
 	const beforeSlide = () => {
@@ -339,13 +505,10 @@ function Plugin( element, options ) {
 		}
 
 		addClasses();
+		syncCurrent();
 	};
 
 	const slidePrev = () => {
-		if ( this.$slider.classList.contains( 'animating' ) ) {
-			return;
-		}
-
 		const remaining = this.currentIndex - this.itemsPerSlide;
 		let increment =
 			this.itemsPerSlide < remaining ? this.itemsPerSlide : remaining;
@@ -366,10 +529,6 @@ function Plugin( element, options ) {
 	};
 
 	const slideNext = () => {
-		if ( this.$slider.classList.contains( 'animating' ) ) {
-			return;
-		}
-
 		const remaining = this.totalItems - this.currentIndex;
 
 		let increment =
@@ -393,11 +552,17 @@ function Plugin( element, options ) {
 
 	const handleNext = ( event ) => {
 		event.preventDefault();
+		if ( this.$slider.classList.contains( 'animating' ) ) {
+			return;
+		}
 		slideNext();
 	};
 
 	const handlePrev = ( event ) => {
 		event.preventDefault();
+		if ( this.$slider.classList.contains( 'animating' ) ) {
+			return;
+		}
 		slidePrev();
 	};
 
@@ -420,6 +585,7 @@ function Plugin( element, options ) {
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
 		this.$slider.removeEventListener( 'transitionend', afterSlide );
+		this.$slider.removeEventListener( 'swipe', handleSwipe );
 	};
 
 	const to = ( index ) => {
@@ -455,12 +621,13 @@ function Plugin( element, options ) {
 		setCurrentIndex( 0 );
 		removeClasses();
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
+		this.removeSwipe();
 	};
 
 	// Expose to public.
 	const expose = () => ( {
-		slidePrev,
-		slideNext,
+		handlePrev,
+		handleNext,
 		removeEvents,
 		to,
 		reset,
