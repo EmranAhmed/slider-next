@@ -127,10 +127,10 @@ function initSwipe( $element, offset = 10 ) {
 	cleanup();
 
 	$element.addEventListener( 'pointerdown', handleStart );
-	$element.addEventListener( 'touchstart', handleStart );
+	$element.addEventListener( 'touchstart', handleStart, { passive: true } );
 
 	$element.addEventListener( 'pointermove', handleMove );
-	$element.addEventListener( 'touchmove', handleMove );
+	$element.addEventListener( 'touchmove', handleMove, { passive: true } );
 
 	$element.addEventListener( 'pointerup', handleEnd );
 	$element.addEventListener( 'touchend', handleEnd );
@@ -147,9 +147,11 @@ function Plugin( element, options ) {
 		moveItemsCSSProperty: '--slide-item',
 		visibleItemsCSSProperty: '--show-item',
 		isInfiniteCSSProperty: '--show-infinite',
+		isHorizontalCSSProperty: '--is-horizontal',
 		prevControlSelector: '.prev',
 		nextControlSelector: '.next',
 		syncWith: null,
+		mode: 'horizontal', // horizontal | vertical
 	};
 
 	// Collecting settings from html attribute
@@ -238,7 +240,15 @@ function Plugin( element, options ) {
 			.getPropertyValue( this.settings.isInfiniteCSSProperty )
 			.toLowerCase();
 
+		const horizontalString = window
+			.getComputedStyle( this.$element )
+			.getPropertyValue( this.settings.isHorizontalCSSProperty )
+			.toLowerCase();
+
 		this.isInfinite = infiniteString === 'true' || infiniteString === '1';
+
+		this.isHorizontal =
+			horizontalString === 'true' || horizontalString === '1';
 
 		this.visibleItem = parseInt(
 			window
@@ -258,6 +268,25 @@ function Plugin( element, options ) {
 
 		if ( this.visibleItem < this.itemsPerSlide ) {
 			this.itemsPerSlide = this.visibleItem;
+		}
+
+		if (
+			! this.$element.classList.contains( 'is-horizontal' ) ||
+			! this.$element.classList.contains( 'is-vertical' )
+		) {
+			if ( this.isHorizontal ) {
+				this.$element.classList.add( 'is-horizontal' );
+			} else {
+				this.$element.classList.add( 'is-vertical' );
+			}
+		}
+
+		if ( this.$element.classList.contains( 'is-horizontal' ) ) {
+			this.settings.mode = 'horizontal';
+		}
+
+		if ( this.$element.classList.contains( 'is-vertical' ) ) {
+			this.settings.mode = 'vertical';
 		}
 	};
 
@@ -370,7 +399,7 @@ function Plugin( element, options ) {
 			return;
 		}
 
-		const { x, y, left, right, moving, done } = event.detail;
+		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
 		// document.querySelector( '#log' ).innerHTML = JSON.stringify( event );
 
@@ -406,11 +435,11 @@ function Plugin( element, options ) {
 			this.$slider.style.removeProperty( '--vertical-value' );
 		}
 
-		if ( done && left ) {
+		if ( done && ( left || top ) ) {
 			slideNext();
 		}
 
-		if ( done && right ) {
+		if ( done && ( right || bottom ) ) {
 			slidePrev();
 		}
 	};
@@ -518,7 +547,7 @@ function Plugin( element, options ) {
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
 		this.$slider.removeEventListener( 'transitionend', afterSlide );
-		this.$slider.removeEventListener( 'swipe', handleSwipe );
+		this.$element.removeEventListener( 'swipe', handleSwipe );
 	};
 
 	const to = ( index ) => {
@@ -554,9 +583,11 @@ function Plugin( element, options ) {
 		setCurrentIndex( 0 );
 		removeClasses();
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
-		// this.cleanupSwipe();
+		this.cleanupSwipe();
+		this.$element.classList.remove( 'is-horizontal' );
+		this.$element.classList.remove( 'is-vertical' );
+		this.settings.mode = 'horizontal';
 	};
-
 	// Expose to public.
 	const expose = () => ( {
 		handlePrev,

@@ -8,6 +8,22 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} )
 	);
 
+	let timer;
+	window.addEventListener( 'resize', ( event ) => {
+		clearTimeout( timer );
+
+		timer = setTimeout( () => {
+			document.dispatchEvent(
+				new CustomEvent( 'slider_re_init', {
+					detail: {
+						element: '.two',
+						settings: {},
+					},
+				} )
+			);
+		}, 200 );
+	} );
+
 	document
 		.getElementById( 'next2' )
 		.addEventListener( 'click', function ( event ) {

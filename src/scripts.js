@@ -15,6 +15,16 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			return createPluginInstance( element, options, Plugin );
 		},
 
+		reInit( options ) {
+			this.destroy();
+			this.init( options );
+		},
+
+		reInitWith( el, options ) {
+			this.destroyWith( el );
+			this.initWith( el, options );
+		},
+
 		initWith( el, options ) {
 			const instance = this.getInstance( el, options );
 
@@ -67,6 +77,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			}
 		},
 	};
+
+	// Slider ReInit.
+	document.addEventListener( 'slider_re_init', ( event ) => {
+		const defaultSettings = {};
+		const settings = { ...defaultSettings, ...event.detail?.settings };
+		const element = event.detail?.element;
+
+		Slider.reInitWith( element, settings );
+	} );
 
 	// Slider Init.
 	document.addEventListener( 'slider_init', ( event ) => {

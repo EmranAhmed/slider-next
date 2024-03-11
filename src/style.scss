@@ -6,7 +6,7 @@
 	box-sizing: border-box;
 }
 
-#swipe-test{
+#swipe-test {
 	width: 300px;
 	height: 300px;
 	background-color: red;
@@ -16,22 +16,37 @@
 	max-width: 600px;
 	height: 200px;
 	margin: 20px auto;
+	display: flex;
+	flex-direction: row;
+
+	@media (max-width: 800px) {
+		flex-direction: column;
+	}
 }
 
 .slider-wrapper.one {
 	--slide-item: 1;
 	--show-item: 1;
+	max-width: 600px;
+	height: 400px;
 }
 
 .slider-wrapper.two {
 	--slide-item: 2;
 	--show-item: 3;
+	--is-horizontal: false;
+	max-width: 600px;
+	height: 400px;
+
+	@media (max-width: 800px) {
+		--is-horizontal: true;
+	}
 }
 
 .slider-wrapper {
-	/*--slide-item: 3;
-	--show-item: 3;*/
+
 	--show-infinite: true;
+	--is-horizontal: true;
 	--_current-item-index: 0;
 	--item-width: calc(100% / var(--show-item));
 	--item-height: calc(100% / var(--show-item));
@@ -43,6 +58,110 @@
 	position: relative;
 	width: 100%;
 	height: 100%;
+
+	.animating {
+		transition: 800ms;
+		transition-timing-function: ease;
+	}
+
+	.slider {
+
+
+		will-change: transform;
+
+		--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index)) * -1);
+		--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)) * -1);
+
+		 transform: translateX(var(--horizontal-value));
+		// transform: translateY(var(--vertical-value));
+
+		list-style: none;
+		height: 100%;
+		display: grid;
+		/*grid-auto-flow: column;
+		grid-auto-columns: var(--item-width);*/
+
+		/*grid-auto-flow: row;
+		grid-auto-rows: var(--item-height);*/
+
+		grid-auto-flow: column;
+		grid-auto-columns: var(--item-width);
+
+
+		user-select: none;
+
+		& li {
+			/*scroll-snap-align: start;*/
+			border: 2px solid green;
+			display: grid;
+			place-items: center;
+		}
+	}
+
+	&.is-horizontal{
+		.slider{
+			transform: translateX(var(--horizontal-value));
+			grid-auto-flow: column;
+			grid-auto-columns: var(--item-width);
+			grid-auto-rows: auto;
+		}
+	}
+
+	&.is-vertical{
+		.slider{
+			transform: translateY(var(--vertical-value));
+			grid-auto-flow: row;
+			grid-auto-rows: var(--item-height);
+			grid-auto-columns: auto;
+		}
+	}
+
+	.control {
+		& .arrow {
+			font-size: 24px;
+			position: absolute;
+			top: 50%;
+			transform: translateY(-50%);
+			padding: 5px;
+			/* background-color: aqua; */
+			cursor: pointer;
+			user-select: none;
+			z-index: 1;
+
+			&.right {
+				right: 0;
+			}
+
+			&.left {
+				left: 0;
+			}
+		}
+
+		& ul {
+			list-style: none;
+			position: absolute;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 3px;
+
+			li {
+				width: 15px;
+				height: 15px;
+				border: 2px solid #333;
+				background-color: #333;
+				border-radius: 100%;
+				cursor: pointer;
+
+				&.selected {
+					background-color: red;
+					transition: 0.3s;
+				}
+			}
+		}
+	}
+
 }
 
 .slider-container {
@@ -53,80 +172,4 @@
 	scroll-snap-type: x mandatory;
 	scroll-behavior: smooth;
 	scrollbar-width: none;
-}
-
-.animating {
-	transition: 800ms;
-	transition-timing-function: ease;
-}
-
-.slider {
-
-
-	will-change: transform;
-
-	--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index)) * -1);
-	--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)) * -1);
-
-	transform: translateX(var(--horizontal-value));
-
-	list-style: none;
-	height: 100%;
-	display: grid;
-	grid-auto-flow: column;
-	grid-auto-columns: var(--item-width);
-	user-select: none;
-
-	& li {
-		/*scroll-snap-align: start;*/
-		border: 2px solid green;
-		display: grid;
-		place-items: center;
-	}
-}
-
-.control {
-	& .arrow {
-		font-size: 24px;
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		padding: 5px;
-		/* background-color: aqua; */
-		cursor: pointer;
-		user-select: none;
-		z-index: 1;
-
-		&.right {
-			right: 0;
-		}
-
-		&.left {
-			left: 0;
-		}
-	}
-
-	& ul {
-		list-style: none;
-		position: absolute;
-		bottom: 20px;
-		left: 50%;
-		transform: translateX(-50%);
-		display: flex;
-		gap: 3px;
-
-		li {
-			width: 15px;
-			height: 15px;
-			border: 2px solid #333;
-			background-color: #333;
-			border-radius: 100%;
-			cursor: pointer;
-
-			&.selected {
-				background-color: red;
-				transition: 0.3s;
-			}
-		}
-	}
 }
