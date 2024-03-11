@@ -401,14 +401,6 @@ function Plugin( element, options ) {
 
 		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
-		// document.querySelector( '#log' ).innerHTML = JSON.stringify( event );
-
-		if ( done ) {
-			/*document.querySelector( '#log' ).innerText = JSON.stringify(
-				event.detail
-			);*/
-		}
-
 		const currentWidth =
 			( this.currentIndex * this.sliderWidth ) / this.visibleItem;
 		const currentHeight =
@@ -569,6 +561,10 @@ function Plugin( element, options ) {
 		const i = parseInt( index, 10 );
 
 		const newIndex = i + actualIndex;
+
+		if ( newIndex === this.currentIndex ) {
+			return;
+		}
 
 		this.$slider.classList.add( 'animating' );
 		setCurrentIndex( newIndex );
