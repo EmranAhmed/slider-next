@@ -12,7 +12,9 @@
 <body>
 
 <div class="container">
+
 	<div class="one slider-wrapper">
+
 		<ul class="slider">
 			<li class="active">Section - 1</li>
 			<li>Section - 2</li>
@@ -24,6 +26,32 @@
 
 			<li>Section - 7</li>
 		</ul>
+
+		<div class="control">
+			<div class="arrow left prev">&#10094;</div>
+			<div class="arrow right next">&#10095;</div>
+			<!--<ul>
+			  <li class="selected"></li>
+			  <li></li>
+			  <li></li>
+		   </ul>-->
+		</div>
+	</div>
+
+	<div class="two slider-wrapper" data-slider-settings="{'syncWith': '.one'}">
+
+		<ul class="slider">
+			<li class="active">Section - 1</li>
+			<li>Section - 2</li>
+			<li>Section - 3</li>
+
+			<li>Section - 4</li>
+			<li>Section - 5</li>
+			<li>Section - 6</li>
+
+			<li>Section - 7</li>
+		</ul>
+
 		<div class="control">
 			<div class="arrow left prev">&#10094;</div>
 			<div class="arrow right next">&#10095;</div>
@@ -36,28 +64,6 @@
 	</div>
 </div>
 
-<div class="container">
-	<div class="two slider-wrapper" data-slider-settings="{'syncWith': '.one'}">
-		<ul class="slider" id="slider-2">
-			<li class="active">Section - 1</li>
-			<li>Section - 2</li>
-			<li>Section - 3</li>
-			<li>Section - 4 <span>IN SPAN</span></li>
-			<li>Section - 5</li>
-			<li>Section - 6</li>
-			<li>Section - 7</li>
-		</ul>
-		<div class="control">
-			<div class="arrow left prev">&#10094;</div>
-			<div class="arrow right next">&#10095;</div>
-			<!--<ul>
-			  <li class="selected"></li>
-			  <li></li>
-			  <li></li>
-		   </ul>-->
-		</div>
-	</div>
-</div>
 
 
 <a id="prev1" href="#">PREV 1</a>
@@ -72,9 +78,11 @@
 
 Goto <a id="goto-one-4" href="#">Slide 4</a>
 
+<pre id="log"></pre>
 
 <script src="assets/slider.js"></script>
 <script src="user-control.js"></script>
+
 
 </body>
 

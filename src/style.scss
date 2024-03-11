@@ -6,6 +6,12 @@
 	box-sizing: border-box;
 }
 
+#swipe-test{
+	width: 300px;
+	height: 300px;
+	background-color: red;
+}
+
 .container {
 	max-width: 600px;
 	height: 200px;
@@ -30,11 +36,23 @@
 	--item-width: calc(100% / var(--show-item));
 	--item-height: calc(100% / var(--show-item));
 	border: 2px solid red;
-	width: 100%;
-	height: 100%;
+
 
 	overflow: hidden;
+
 	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.slider-container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	scrollbar-width: none;
 }
 
 .animating {
@@ -43,6 +61,7 @@
 }
 
 .slider {
+
 
 	will-change: transform;
 
@@ -59,8 +78,8 @@
 	user-select: none;
 
 	& li {
+		/*scroll-snap-align: start;*/
 		border: 2px solid green;
-
 		display: grid;
 		place-items: center;
 	}

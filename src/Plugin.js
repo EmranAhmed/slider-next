@@ -8,12 +8,25 @@ function initSwipe( $element, offset = 10 ) {
 	let isMoved = false;
 	let xStart = 0;
 	let yStart = 0;
+	let isMobile = false;
 
 	const handleStart = ( event ) => {
 		readyToMove = true;
 		isMoved = false;
+
 		xStart = event.x;
 		yStart = event.y;
+		isMobile = event.type === 'touchstart';
+
+		if ( event.type === 'pointerdown' && isMobile ) {
+			return false;
+		}
+
+		if ( isMobile ) {
+			const touch = event.changedTouches[ 0 ];
+			xStart = touch.clientX;
+			yStart = touch.clientY;
+		}
 	};
 
 	const handleMove = ( event ) => {
@@ -21,8 +34,19 @@ function initSwipe( $element, offset = 10 ) {
 			return;
 		}
 
-		const horizontalDiff = event.x - xStart;
-		const verticalDiff = event.y - yStart;
+		if ( event.type === 'pointermove' && isMobile ) {
+			return false;
+		}
+
+		let horizontalDiff = event.x - xStart;
+		let verticalDiff = event.y - yStart;
+
+		if ( isMobile ) {
+			//console.log( event.changedTouches );
+			const touch = event.changedTouches[ 0 ];
+			horizontalDiff = touch.clientX - xStart;
+			verticalDiff = touch.clientY - yStart;
+		}
 
 		isMoved = true;
 
@@ -47,8 +71,22 @@ function initSwipe( $element, offset = 10 ) {
 			return;
 		}
 
-		const horizontalDiff = event.x - xStart;
-		const verticalDiff = event.y - yStart;
+		if ( event.type === 'pointerleave' && isMobile ) {
+			return false;
+		}
+
+		if ( event.type === 'pointerup' && isMobile ) {
+			return false;
+		}
+
+		let horizontalDiff = event.x - xStart;
+		let verticalDiff = event.y - yStart;
+
+		if ( isMobile ) {
+			const touch = event.changedTouches[ 0 ];
+			horizontalDiff = touch.clientX - xStart;
+			verticalDiff = touch.clientY - yStart;
+		}
 
 		if ( isMoved ) {
 			$element.dispatchEvent(
@@ -72,27 +110,35 @@ function initSwipe( $element, offset = 10 ) {
 		readyToMove = false;
 	};
 
-	const remove = () => {
+	const cleanup = () => {
 		$element.removeEventListener( 'pointerdown', handleStart );
+		$element.removeEventListener( 'touchstart', handleStart );
 
 		$element.removeEventListener( 'pointermove', handleMove );
+		$element.removeEventListener( 'touchmove', handleMove );
 
 		$element.removeEventListener( 'pointerup', handleEnd );
+		$element.removeEventListener( 'touchend', handleEnd );
 
 		$element.removeEventListener( 'pointerleave', handleEnd );
+		$element.removeEventListener( 'touchcancel', handleEnd );
 	};
 
-	remove();
+	cleanup();
 
 	$element.addEventListener( 'pointerdown', handleStart );
+	$element.addEventListener( 'touchstart', handleStart );
 
 	$element.addEventListener( 'pointermove', handleMove );
+	$element.addEventListener( 'touchmove', handleMove );
 
 	$element.addEventListener( 'pointerup', handleEnd );
+	$element.addEventListener( 'touchend', handleEnd );
 
 	$element.addEventListener( 'pointerleave', handleEnd );
+	$element.addEventListener( 'touchcancel', handleEnd );
 
-	return remove;
+	return cleanup;
 }
 
 function Plugin( element, options ) {
@@ -122,10 +168,11 @@ function Plugin( element, options ) {
 		this.visibleItem = 0;
 		this.itemsPerSlide = 0;
 		this.isInfinite = true;
-		this.$slider = null;
-		this.$items = null;
-		this.sliderWidth = 0;
-		this.sliderHeight = 0;
+		this.$container = this.$element.querySelector( '.slider-container' );
+		this.$slider = this.$element.querySelector( '.slider' );
+		this.$items = this.$element.querySelectorAll( 'li' );
+		this.sliderWidth = this.$slider.getBoundingClientRect().width;
+		this.sliderHeight = this.$slider.getBoundingClientRect().height;
 		this.totalItems = 0;
 		this.currentIndex = 0;
 
@@ -136,7 +183,7 @@ function Plugin( element, options ) {
 
 		setInitialIndex();
 
-		this.removeSwipe = initSwipe( this.$slider );
+		this.cleanupSwipe = initSwipe( this.$element );
 
 		addEvents();
 
@@ -207,8 +254,6 @@ function Plugin( element, options ) {
 			10
 		);
 
-		this.$slider = this.$element.querySelector( '.slider' );
-		this.$items = this.$slider.querySelectorAll( 'li' );
 		this.totalItems = this.$items.length;
 
 		if ( this.visibleItem < this.itemsPerSlide ) {
@@ -222,7 +267,7 @@ function Plugin( element, options ) {
 		} );
 
 		const lastItemsIndex = this.totalItems - 1;
-
+		//return;
 		// Append First Items
 		for ( let index = 0; index < this.visibleItem; index++ ) {
 			const clone = this.$items[ index ].cloneNode( true );
@@ -243,11 +288,6 @@ function Plugin( element, options ) {
 			//clone.removeAttribute( 'data-index' );
 			this.$slider.prepend( clone );
 		}
-
-		// Add slider width after clone
-		const { width, height } = this.$slider.getBoundingClientRect();
-		this.sliderWidth = width;
-		this.sliderHeight = height;
 	};
 
 	const setInitialIndex = () => {
@@ -295,11 +335,6 @@ function Plugin( element, options ) {
 		for ( let i = 0; i < this.visibleItem; i++ ) {
 			const key = i + this.currentIndex;
 			$items[ key ].classList.add( 'active' );
-
-			const { width, height } = $items[ key ].getBoundingClientRect();
-
-			this.visibleItemsWidth += width;
-			this.visibleItemsHeight += height;
 		}
 	};
 
@@ -316,18 +351,18 @@ function Plugin( element, options ) {
 		this.$element
 			.querySelectorAll( this.settings.prevControlSelector )
 			.forEach( ( el ) => {
-				el.addEventListener( 'click', handlePrev );
+				el.addEventListener( 'pointerup', handlePrev );
 			} );
 
 		this.$element
 			.querySelectorAll( this.settings.nextControlSelector )
 			.forEach( ( el ) => {
-				el.addEventListener( 'click', handleNext );
+				el.addEventListener( 'pointerup', handleNext );
 			} );
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
-		this.$slider.addEventListener( 'swipe', handleSwipe );
+		this.$element.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
@@ -337,8 +372,12 @@ function Plugin( element, options ) {
 
 		const { x, y, left, right, moving, done } = event.detail;
 
+		// document.querySelector( '#log' ).innerHTML = JSON.stringify( event );
+
 		if ( done ) {
-			console.log( event.detail );
+			/*document.querySelector( '#log' ).innerText = JSON.stringify(
+				event.detail
+			);*/
 		}
 
 		const currentWidth =
@@ -464,17 +503,17 @@ function Plugin( element, options ) {
 		this.$element
 			.querySelectorAll( this.settings.prevControlSelector )
 			.forEach( ( el ) => {
-				el.removeEventListener( 'click', handlePrev );
+				el.removeEventListener( 'pointerup', handlePrev );
 			} );
 
 		this.$element
 			.querySelectorAll( this.settings.nextControlSelector )
 			.forEach( ( el ) => {
-				el.removeEventListener( 'click', handleNext );
+				el.removeEventListener( 'pointerup', handleNext );
 			} );
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.removeEventListener( 'click', handleSyncItemsClick );
+			$li.removeEventListener( 'pointerup', handleSyncItemsClick );
 		} );
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
@@ -515,7 +554,7 @@ function Plugin( element, options ) {
 		setCurrentIndex( 0 );
 		removeClasses();
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
-		this.removeSwipe();
+		// this.cleanupSwipe();
 	};
 
 	// Expose to public.
