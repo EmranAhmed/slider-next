@@ -32,7 +32,7 @@
 }
 
 .slider-wrapper.two {
-	--slide-item: 2;
+	--slide-item: 1;
 	--show-item: 3;
 	--is-horizontal: false;
 	max-width: 600px;
@@ -72,7 +72,7 @@
 		--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index)) * -1);
 		--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)) * -1);
 
-		 transform: translateX(var(--horizontal-value));
+		transform: translateX(var(--horizontal-value));
 		// transform: translateY(var(--vertical-value));
 
 		list-style: none;
@@ -98,8 +98,8 @@
 		}
 	}
 
-	&.is-horizontal{
-		.slider{
+	&.is-horizontal {
+		.slider {
 			transform: translateX(var(--horizontal-value));
 			grid-auto-flow: column;
 			grid-auto-columns: var(--item-width);
@@ -107,8 +107,8 @@
 		}
 	}
 
-	&.is-vertical{
-		.slider{
+	&.is-vertical {
+		.slider {
 			transform: translateY(var(--vertical-value));
 			grid-auto-flow: row;
 			grid-auto-rows: var(--item-height);
@@ -116,48 +116,34 @@
 		}
 	}
 
-	.control {
-		& .arrow {
-			font-size: 24px;
+	.control{
+		position: absolute;
+		top: 50%;
+		left: 0;
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+		font-size: 1.5rem;
+	}
+
+	&.is-vertical{
+		.control{
 			position: absolute;
-			top: 50%;
-			transform: translateY(-50%);
-			padding: 5px;
-			/* background-color: aqua; */
-			cursor: pointer;
-			user-select: none;
-			z-index: 1;
-
-			&.right {
-				right: 0;
-			}
-
-			&.left {
-				left: 0;
-			}
-		}
-
-		& ul {
-			list-style: none;
-			position: absolute;
-			bottom: 20px;
-			left: 50%;
-			transform: translateX(-50%);
+			top: 0;
 			display: flex;
-			gap: 3px;
+			height: 100%;
+			font-size: 1.5rem;
+			flex-direction: column;
+			justify-content: space-between;
+			left: 50%;
+			.left{
+				width: 20px;
+				rotate: 90deg;
+			}
 
-			li {
-				width: 15px;
-				height: 15px;
-				border: 2px solid #333;
-				background-color: #333;
-				border-radius: 100%;
-				cursor: pointer;
-
-				&.selected {
-					background-color: red;
-					transition: 0.3s;
-				}
+			.right{
+				width: 20px;
+				rotate: 90deg;
 			}
 		}
 	}
