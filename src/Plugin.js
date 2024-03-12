@@ -3,7 +3,7 @@
  */
 import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
 
-function initSwipe( $element, offset = 10 ) {
+function initSwipe( $element, offset = 10, mobileOnly = false ) {
 	let readyToMove = false;
 	let isMoved = false;
 	let xStart = 0;
@@ -111,31 +111,30 @@ function initSwipe( $element, offset = 10 ) {
 	};
 
 	const cleanup = () => {
-		$element.removeEventListener( 'pointerdown', handleStart );
 		$element.removeEventListener( 'touchstart', handleStart );
-
-		$element.removeEventListener( 'pointermove', handleMove );
 		$element.removeEventListener( 'touchmove', handleMove );
-
-		$element.removeEventListener( 'pointerup', handleEnd );
 		$element.removeEventListener( 'touchend', handleEnd );
-
-		$element.removeEventListener( 'pointerleave', handleEnd );
 		$element.removeEventListener( 'touchcancel', handleEnd );
+
+		if ( ! mobileOnly ) {
+			$element.removeEventListener( 'pointerdown', handleStart );
+			$element.removeEventListener( 'pointermove', handleMove );
+			$element.removeEventListener( 'pointerup', handleEnd );
+			$element.removeEventListener( 'pointerleave', handleEnd );
+		}
 	};
 
 	cleanup();
 
-	$element.addEventListener( 'pointerdown', handleStart );
+	if ( ! mobileOnly ) {
+		$element.addEventListener( 'pointerdown', handleStart );
+		$element.addEventListener( 'pointermove', handleMove );
+		$element.addEventListener( 'pointerup', handleEnd );
+		$element.addEventListener( 'pointerleave', handleEnd );
+	}
 	$element.addEventListener( 'touchstart', handleStart, { passive: true } );
-
-	$element.addEventListener( 'pointermove', handleMove );
 	$element.addEventListener( 'touchmove', handleMove, { passive: true } );
-
-	$element.addEventListener( 'pointerup', handleEnd );
-	$element.addEventListener( 'touchend', handleEnd );
-
-	$element.addEventListener( 'pointerleave', handleEnd );
+	$element.addEventListener( 'touchend', handleEnd, { passive: true } );
 	$element.addEventListener( 'touchcancel', handleEnd );
 
 	return cleanup;
@@ -184,7 +183,7 @@ function Plugin( element, options ) {
 
 		setInitialIndex();
 
-		this.cleanupSwipe = initSwipe( this.$slider, 50 );
+		this.cleanupSwipe = initSwipe( this.$element, 50, true );
 
 		addEvents();
 
@@ -392,7 +391,7 @@ function Plugin( element, options ) {
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
-		this.$slider.addEventListener( 'swipe', handleSwipe );
+		this.$element.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
