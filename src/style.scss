@@ -127,11 +127,13 @@
 				left: 0;
 				border-right-color: blue;
 				border-left-width: 0;
+				user-select: none;
 			}
 			&.next{
 				right: 0;
 				border-left-color: blue;
 				border-right-width: 0;
+				user-select: none;
 			}
 		}
 	}
@@ -145,11 +147,13 @@
 				transform: translateX(-50%);
 
 				&.prev{
+					user-select: none;
 					top:0;
 					border-bottom-color: blue;
 					border-top-width: 0;
 				}
 				&.next{
+					user-select: none;
 					bottom: 0;
 					right: auto;
 					top:auto;

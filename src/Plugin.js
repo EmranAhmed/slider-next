@@ -184,7 +184,7 @@ function Plugin( element, options ) {
 
 		setInitialIndex();
 
-		this.cleanupSwipe = initSwipe( this.$element );
+		this.cleanupSwipe = initSwipe( this.$slider, 50 );
 
 		addEvents();
 
@@ -378,11 +378,11 @@ function Plugin( element, options ) {
 	const addEvents = () => {
 		this.$element
 			.querySelector( this.settings.prevControlSelector )
-			.addEventListener( 'pointerup', handlePrev );
+			.addEventListener( 'click', handlePrev );
 
 		this.$element
 			.querySelector( this.settings.nextControlSelector )
-			.addEventListener( 'pointerup', handleNext );
+			.addEventListener( 'click', handleNext );
 
 		if ( this.settings.syncWith ) {
 			this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
@@ -392,7 +392,7 @@ function Plugin( element, options ) {
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
-		this.$element.addEventListener( 'swipe', handleSwipe );
+		this.$slider.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
@@ -507,7 +507,7 @@ function Plugin( element, options ) {
 
 	const handleNext = ( event ) => {
 		event.preventDefault();
-		if ( this.$slider.classList.contains( 'animating' ) ) {
+		if ( isAnimating() ) {
 			return;
 		}
 		slideNext();
@@ -515,8 +515,8 @@ function Plugin( element, options ) {
 
 	const handlePrev = ( event ) => {
 		event.preventDefault();
-		if ( this.$slider.classList.contains( 'animating' ) ) {
-			return false;
+		if ( isAnimating() ) {
+			return;
 		}
 		slidePrev();
 	};
