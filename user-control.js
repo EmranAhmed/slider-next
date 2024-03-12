@@ -68,6 +68,21 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 
 	document
+		.getElementById( 'goto-one-5' )
+		.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+
+			document.dispatchEvent(
+				new CustomEvent( 'slider_goto', {
+					detail: {
+						element: '.one',
+						index: 4,
+					},
+				} )
+			);
+		} );
+
+	document
 		.getElementById( 'next1' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();

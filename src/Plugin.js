@@ -170,7 +170,6 @@ function Plugin( element, options ) {
 		this.visibleItem = 0;
 		this.itemsPerSlide = 0;
 		this.isInfinite = true;
-		this.$container = this.$element.querySelector( '.slider-container' );
 		this.$slider = this.$element.querySelector( '.slider' );
 		this.$items = this.$element.querySelectorAll( 'li' );
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
@@ -189,24 +188,14 @@ function Plugin( element, options ) {
 
 		addEvents();
 
-		syncItemsClick();
-
 		return expose();
 	};
 
-	const syncItemsClick = () => {
-		if ( ! this.settings.syncWith ) {
-			return;
-		}
-
-		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.addEventListener( 'pointerup', handleSyncItemsClick );
-		} );
-	};
-
 	const handleSyncItemsClick = ( event ) => {
-		const index = event.target.closest( 'li' ).dataset.index;
-
+		const index = parseInt(
+			event.target.closest( 'li' ).dataset.index,
+			10
+		);
 		syncIndex( index );
 	};
 
@@ -216,7 +205,19 @@ function Plugin( element, options ) {
 		}
 
 		const $synced = getPluginInstance( this.settings.syncWith );
-		$synced.forEach( ( { to } ) => {
+		$synced.forEach( ( { to, currentElement, isAnimating } ) => {
+			if ( isAnimating() ) {
+				return;
+			}
+
+			const syncCurrentIndex = parseInt(
+				currentElement().dataset.index,
+				10
+			);
+
+			if ( syncCurrentIndex === index ) {
+				return;
+			}
 			to( index );
 		} );
 	};
@@ -334,17 +335,15 @@ function Plugin( element, options ) {
 			}
 		} );
 
-		/*for ( let i = 0; i < this.visibleItem; i++ ) {
-			const key = i + this.currentIndex;
-			$items[ key ].classList.add( 'active' );
-
-			const { width, height } = $items[ key ].getBoundingClientRect();
-
-			this.visibleItemsWidth += width;
-			this.visibleItemsHeight += height;
-		}*/
-
 		addClasses();
+	};
+
+	const currentElement = () => {
+		return this.$slider.querySelector( 'li.current' );
+	};
+
+	const isAnimating = () => {
+		return this.$slider.classList.contains( 'animating' );
 	};
 
 	const setCurrentIndex = ( index ) => {
@@ -378,16 +377,18 @@ function Plugin( element, options ) {
 
 	const addEvents = () => {
 		this.$element
-			.querySelectorAll( this.settings.prevControlSelector )
-			.forEach( ( el ) => {
-				el.addEventListener( 'pointerup', handlePrev );
-			} );
+			.querySelector( this.settings.prevControlSelector )
+			.addEventListener( 'pointerup', handlePrev );
 
 		this.$element
-			.querySelectorAll( this.settings.nextControlSelector )
-			.forEach( ( el ) => {
-				el.addEventListener( 'pointerup', handleNext );
+			.querySelector( this.settings.nextControlSelector )
+			.addEventListener( 'pointerup', handleNext );
+
+		if ( this.settings.syncWith ) {
+			this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+				$li.addEventListener( 'click', handleSyncItemsClick );
 			} );
+		}
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
@@ -395,7 +396,7 @@ function Plugin( element, options ) {
 	};
 
 	const handleSwipe = ( event ) => {
-		if ( this.$slider.classList.contains( 'animating' ) ) {
+		if ( isAnimating() ) {
 			return;
 		}
 
@@ -515,23 +516,19 @@ function Plugin( element, options ) {
 	const handlePrev = ( event ) => {
 		event.preventDefault();
 		if ( this.$slider.classList.contains( 'animating' ) ) {
-			return;
+			return false;
 		}
 		slidePrev();
 	};
 
 	const removeEvents = () => {
 		this.$element
-			.querySelectorAll( this.settings.prevControlSelector )
-			.forEach( ( el ) => {
-				el.removeEventListener( 'pointerup', handlePrev );
-			} );
+			.querySelector( this.settings.prevControlSelector )
+			.removeEventListener( 'pointerup', handlePrev );
 
 		this.$element
-			.querySelectorAll( this.settings.nextControlSelector )
-			.forEach( ( el ) => {
-				el.removeEventListener( 'pointerup', handleNext );
-			} );
+			.querySelector( this.settings.nextControlSelector )
+			.removeEventListener( 'pointerup', handleNext );
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
 			$li.removeEventListener( 'pointerup', handleSyncItemsClick );
@@ -562,6 +559,10 @@ function Plugin( element, options ) {
 
 		const newIndex = i + actualIndex;
 
+		if ( isAnimating() ) {
+			return;
+		}
+
 		if ( newIndex === this.currentIndex ) {
 			return;
 		}
@@ -589,6 +590,8 @@ function Plugin( element, options ) {
 		handlePrev,
 		handleNext,
 		removeEvents,
+		currentElement,
+		isAnimating,
 		to,
 		reset,
 	} );
