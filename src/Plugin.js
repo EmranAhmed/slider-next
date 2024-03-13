@@ -169,6 +169,7 @@ function Plugin( element, options ) {
 		this.visibleItem = 0;
 		this.itemsPerSlide = 0;
 		this.isInfinite = true;
+		this.$container = this.$element.querySelector( '.slider-container' );
 		this.$slider = this.$element.querySelector( '.slider' );
 		this.$items = this.$element.querySelectorAll( 'li' );
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
@@ -182,8 +183,6 @@ function Plugin( element, options ) {
 		initialCloneItems();
 
 		setInitialIndex();
-
-		this.cleanupSwipe = initSwipe( this.$element, 50, true );
 
 		addEvents();
 
@@ -234,6 +233,10 @@ function Plugin( element, options ) {
 		} );
 	};
 
+	const cssVariableIsTrue = ( string ) => {
+		return string === 'true' || string === '1' || string === 'yes';
+	};
+
 	const afterLoaded = () => {
 		const infiniteString = window
 			.getComputedStyle( this.$element )
@@ -245,10 +248,9 @@ function Plugin( element, options ) {
 			.getPropertyValue( this.settings.isHorizontalCSSProperty )
 			.toLowerCase();
 
-		this.isInfinite = infiniteString === 'true' || infiniteString === '1';
+		this.isInfinite = cssVariableIsTrue( infiniteString );
 
-		this.isHorizontal =
-			horizontalString === 'true' || horizontalString === '1';
+		const isHorizontal = cssVariableIsTrue( horizontalString );
 
 		this.visibleItem = parseInt(
 			window
@@ -270,23 +272,17 @@ function Plugin( element, options ) {
 			this.itemsPerSlide = this.visibleItem;
 		}
 
-		if (
-			! this.$element.classList.contains( 'is-horizontal' ) ||
-			! this.$element.classList.contains( 'is-vertical' )
-		) {
-			if ( this.isHorizontal ) {
-				this.$element.classList.add( 'is-horizontal' );
-			} else {
-				this.$element.classList.add( 'is-vertical' );
-			}
-		}
+		// Control from CSS
 
-		if ( this.$element.classList.contains( 'is-horizontal' ) ) {
+		this.$element.classList.remove( 'is-vertical' );
+		this.$element.classList.remove( 'is-horizontal' );
+
+		if ( isHorizontal ) {
 			this.settings.mode = 'horizontal';
-		}
-
-		if ( this.$element.classList.contains( 'is-vertical' ) ) {
+			this.$element.classList.add( 'is-horizontal' );
+		} else {
 			this.settings.mode = 'vertical';
+			this.$element.classList.add( 'is-vertical' );
 		}
 	};
 
@@ -391,7 +387,9 @@ function Plugin( element, options ) {
 
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
-		this.$element.addEventListener( 'swipe', handleSwipe );
+
+		this.cleanupSwipe = initSwipe( this.$container, 50 );
+		this.$container.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
@@ -535,7 +533,9 @@ function Plugin( element, options ) {
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
 		this.$slider.removeEventListener( 'transitionend', afterSlide );
-		this.$element.removeEventListener( 'swipe', handleSwipe );
+
+		this.cleanupSwipe();
+		this.$container.removeEventListener( 'swipe', handleSwipe );
 	};
 
 	const to = ( index ) => {
@@ -579,7 +579,6 @@ function Plugin( element, options ) {
 		setCurrentIndex( 0 );
 		removeClasses();
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
-		this.cleanupSwipe();
 		this.$element.classList.remove( 'is-horizontal' );
 		this.$element.classList.remove( 'is-vertical' );
 		this.settings.mode = 'horizontal';
