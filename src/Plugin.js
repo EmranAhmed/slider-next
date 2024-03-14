@@ -150,7 +150,7 @@ function Plugin( element, options ) {
 		prevControlSelector: '.prev',
 		nextControlSelector: '.next',
 		syncWith: null,
-		mode: 'horizontal', // horizontal | vertical
+		visibleActiveSlideOnSync: true,
 	};
 
 	// Collecting settings from html attribute
@@ -203,21 +203,37 @@ function Plugin( element, options ) {
 		}
 
 		const $synced = getPluginInstance( this.settings.syncWith );
-		$synced.forEach( ( { to, currentElement, isAnimating } ) => {
-			if ( isAnimating() ) {
-				return;
-			}
+		$synced.forEach(
+			( { to, currentElement, isAnimating, visibleItems } ) => {
+				if ( isAnimating() ) {
+					return;
+				}
 
-			const syncCurrentIndex = parseInt(
-				currentElement().dataset.index,
-				10
-			);
+				const syncCurrentIndex = parseInt(
+					currentElement().dataset.index,
+					10
+				);
 
-			if ( syncCurrentIndex === index ) {
-				return;
+				if ( syncCurrentIndex === index ) {
+					return;
+				}
+
+				const visibleIndexes = [];
+				visibleItems().forEach( ( $item ) => {
+					const itemIndex = parseInt( $item.dataset.index, 10 );
+					visibleIndexes.push( itemIndex );
+				} );
+
+				if (
+					! this.settings.visibleActiveSlideOnSync &&
+					visibleIndexes.includes( index )
+				) {
+					return;
+				}
+
+				to( index );
 			}
-			to( index );
-		} );
+		);
 	};
 
 	const syncCurrent = () => {
@@ -250,7 +266,7 @@ function Plugin( element, options ) {
 
 		this.isInfinite = cssVariableIsTrue( infiniteString );
 
-		const isHorizontal = cssVariableIsTrue( horizontalString );
+		this.isHorizontal = cssVariableIsTrue( horizontalString );
 
 		this.visibleItem = parseInt(
 			window
@@ -277,11 +293,9 @@ function Plugin( element, options ) {
 		this.$element.classList.remove( 'is-vertical' );
 		this.$element.classList.remove( 'is-horizontal' );
 
-		if ( isHorizontal ) {
-			this.settings.mode = 'horizontal';
+		if ( this.isHorizontal ) {
 			this.$element.classList.add( 'is-horizontal' );
 		} else {
-			this.settings.mode = 'vertical';
 			this.$element.classList.add( 'is-vertical' );
 		}
 	};
@@ -322,7 +336,6 @@ function Plugin( element, options ) {
 			if ( item.classList.contains( 'active' ) ) {
 				this.currentIndex = index;
 
-				// $items[ this.currentIndex ].classList.add( 'current' );
 				this.$element.style.setProperty(
 					'--_current-item-index',
 					this.currentIndex
@@ -335,6 +348,10 @@ function Plugin( element, options ) {
 
 	const currentElement = () => {
 		return this.$slider.querySelector( 'li.current' );
+	};
+
+	const visibleItems = () => {
+		return this.$slider.querySelectorAll( 'li.active' );
 	};
 
 	const isAnimating = () => {
@@ -521,14 +538,14 @@ function Plugin( element, options ) {
 	const removeEvents = () => {
 		this.$element
 			.querySelector( this.settings.prevControlSelector )
-			.removeEventListener( 'pointerup', handlePrev );
+			.removeEventListener( 'click', handlePrev );
 
 		this.$element
 			.querySelector( this.settings.nextControlSelector )
-			.removeEventListener( 'pointerup', handleNext );
+			.removeEventListener( 'click', handleNext );
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.removeEventListener( 'pointerup', handleSyncItemsClick );
+			$li.removeEventListener( 'click', handleSyncItemsClick );
 		} );
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
@@ -581,14 +598,15 @@ function Plugin( element, options ) {
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
 		this.$element.classList.remove( 'is-horizontal' );
 		this.$element.classList.remove( 'is-vertical' );
-		this.settings.mode = 'horizontal';
 	};
+
 	// Expose to public.
 	const expose = () => ( {
 		handlePrev,
 		handleNext,
 		removeEvents,
 		currentElement,
+		visibleItems,
 		isAnimating,
 		to,
 		reset,

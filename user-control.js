@@ -21,7 +21,16 @@ document.addEventListener( 'DOMContentLoaded', function () {
 					},
 				} )
 			);
-		}, 200 );
+
+			document.dispatchEvent(
+				new CustomEvent( 'slider_re_init', {
+					detail: {
+						element: '.one',
+						settings: {},
+					},
+				} )
+			);
+		}, 300 );
 	} );
 
 	document
