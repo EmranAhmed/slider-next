@@ -15,11 +15,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			return createPluginInstance( element, options, Plugin );
 		},
 
-		reInit( options ) {
-			this.destroy();
-			this.init( options );
-		},
-
 		reInitWith( el, options ) {
 			this.destroyWith( el );
 			this.initWith( el, options );
@@ -28,33 +23,15 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		initWith( el, options ) {
 			const instance = this.getInstance( el, options );
 
-			for ( const { element, removeEvents } of instance ) {
-				element.addEventListener( 'destroy', removeEvents );
+			for ( const { element, reset } of instance ) {
+				element.addEventListener( 'destroy', reset );
 			}
 
-			return instance;
-		},
-
-		init( options ) {
-			const instance = this.getInstance( '.slider-wrapper', options );
-			for ( const { element, removeEvents } of instance ) {
-				element.addEventListener( 'destroy', removeEvents );
-			}
 			return instance;
 		},
 
 		destroyWith( el ) {
-			for ( const { destroy, reset } of this.getInstance( el ) ) {
-				reset();
-				destroy();
-			}
-		},
-
-		destroy() {
-			for ( const { destroy, reset } of this.getInstance(
-				'.slider-wrapper'
-			) ) {
-				reset();
+			for ( const { destroy } of this.getInstance( el ) ) {
 				destroy();
 			}
 		},
@@ -123,13 +100,18 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		Slider.destroyWith( element );
 	} );
 
+	function triggerEvent( target, eventType, eventDetails = {} ) {
+		target.dispatchEvent(
+			new CustomEvent( eventType, {
+				detail: { ...eventDetails },
+			} )
+		);
+	}
+
 	// Dispatch / trigger Events:
-	document.dispatchEvent(
-		new CustomEvent( 'slider_init', {
-			detail: {
-				element: '.one',
-				settings: {},
-			},
-		} )
-	);
+
+	triggerEvent( document, 'slider_init', {
+		element: '.one',
+		settings: {},
+	} );
 } );

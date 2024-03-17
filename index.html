@@ -13,7 +13,7 @@
 
 <div class="container">
 
-	<div class="one slider-wrapper" data-slider-settings="{'syncWith': '.two', 'visibleActiveSlideOnSync': false}">
+	<div role="region" aria-label="Carousel" class="one slider-wrapper" data-slider-settings="{'syncWith': '.two', 'visibleActiveSlideOnSync': false}">
 
 		<div class="slider-container">
 			<ul class="slider">
@@ -29,9 +29,9 @@
 			</ul>
 		</div>
 
-		<div class="control">
-			<a href="#" class="arrow prev"></a>
-			<a href="#" class="arrow next"></a>
+		<div role="group" aria-label="Slide controls" class="control">
+			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
 			<!--<ul>
 			  <li class="selected"></li>
 			  <li></li>
@@ -40,7 +40,7 @@
 		</div>
 	</div>
 
-	<div class="two slider-wrapper" data-slider-settings="{'syncWith': '.one'}">
+	<div role="region" aria-label="Carousel" class="two slider-wrapper" data-slider-settings="{'syncWith': '.one'}">
 
 		<div class="slider-container">
 			<ul class="slider">
@@ -56,9 +56,9 @@
 			</ul>
 		</div>
 
-		<div class="control">
-			<a href="#" class="arrow prev"></a>
-			<a href="#" class="arrow next"></a>
+		<div role="group" aria-label="Slide controls" class="control">
+			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
 			<!--<ul>
 			  <li class="selected"></li>
 			  <li></li>

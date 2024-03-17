@@ -3,7 +3,7 @@
  */
 import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
 
-function initSwipe( $element, offset = 10, mobileOnly = false ) {
+function swipeEvent( $element, offset = 10, mobileOnly = false ) {
 	let readyToMove = false;
 	let isMoved = false;
 	let xStart = 0;
@@ -23,9 +23,9 @@ function initSwipe( $element, offset = 10, mobileOnly = false ) {
 		}
 
 		if ( isMobile ) {
-			const touch = event.changedTouches[ 0 ];
-			xStart = touch.clientX;
-			yStart = touch.clientY;
+			const { clientX, clientY } = event.changedTouches[ 0 ];
+			xStart = clientX;
+			yStart = clientY;
 		}
 	};
 
@@ -71,11 +71,10 @@ function initSwipe( $element, offset = 10, mobileOnly = false ) {
 			return;
 		}
 
-		if ( event.type === 'pointerleave' && isMobile ) {
-			return false;
-		}
+		const isPointerEvent =
+			event.type === 'pointerleave' || event.type === 'pointerup';
 
-		if ( event.type === 'pointerup' && isMobile ) {
+		if ( isPointerEvent && isMobile ) {
 			return false;
 		}
 
@@ -83,9 +82,9 @@ function initSwipe( $element, offset = 10, mobileOnly = false ) {
 		let verticalDiff = event.y - yStart;
 
 		if ( isMobile ) {
-			const touch = event.changedTouches[ 0 ];
-			horizontalDiff = touch.clientX - xStart;
-			verticalDiff = touch.clientY - yStart;
+			const { clientX, clientY } = event.changedTouches[ 0 ];
+			horizontalDiff = clientX - xStart;
+			verticalDiff = clientY - yStart;
 		}
 
 		if ( isMoved ) {
@@ -110,7 +109,7 @@ function initSwipe( $element, offset = 10, mobileOnly = false ) {
 		readyToMove = false;
 	};
 
-	const cleanup = () => {
+	const unregister = () => {
 		$element.removeEventListener( 'touchstart', handleStart );
 		$element.removeEventListener( 'touchmove', handleMove );
 		$element.removeEventListener( 'touchend', handleEnd );
@@ -124,20 +123,24 @@ function initSwipe( $element, offset = 10, mobileOnly = false ) {
 		}
 	};
 
-	cleanup();
+	const register = () => {
+		if ( ! mobileOnly ) {
+			$element.addEventListener( 'pointerdown', handleStart );
+			$element.addEventListener( 'pointermove', handleMove );
+			$element.addEventListener( 'pointerup', handleEnd );
+			$element.addEventListener( 'pointerleave', handleEnd );
+		}
+		$element.addEventListener( 'touchstart', handleStart, {
+			passive: true,
+		} );
+		$element.addEventListener( 'touchmove', handleMove, { passive: true } );
+		$element.addEventListener( 'touchend', handleEnd, { passive: true } );
+		$element.addEventListener( 'touchcancel', handleEnd );
 
-	if ( ! mobileOnly ) {
-		$element.addEventListener( 'pointerdown', handleStart );
-		$element.addEventListener( 'pointermove', handleMove );
-		$element.addEventListener( 'pointerup', handleEnd );
-		$element.addEventListener( 'pointerleave', handleEnd );
-	}
-	$element.addEventListener( 'touchstart', handleStart, { passive: true } );
-	$element.addEventListener( 'touchmove', handleMove, { passive: true } );
-	$element.addEventListener( 'touchend', handleEnd, { passive: true } );
-	$element.addEventListener( 'touchcancel', handleEnd );
+		return unregister;
+	};
 
-	return cleanup;
+	return register();
 }
 
 function Plugin( element, options ) {
@@ -254,6 +257,13 @@ function Plugin( element, options ) {
 	};
 
 	const afterLoaded = () => {
+		this.$container.setAttribute( 'aria-live', 'polite' );
+
+		this.$items.forEach( ( $item, index ) => {
+			$item.setAttribute( 'aria-hidden', 'true' );
+			$item.setAttribute( 'data-index', index );
+		} );
+
 		const infiniteString = window
 			.getComputedStyle( this.$element )
 			.getPropertyValue( this.settings.isInfiniteCSSProperty )
@@ -301,19 +311,14 @@ function Plugin( element, options ) {
 	};
 
 	const initialCloneItems = () => {
-		this.$items.forEach( ( $item, index ) => {
-			$item.setAttribute( 'data-index', index );
-		} );
-
 		const lastItemsIndex = this.totalItems - 1;
-		//return;
+
 		// Append First Items
 		for ( let index = 0; index < this.visibleItem; index++ ) {
 			const clone = this.$items[ index ].cloneNode( true );
 			clone.classList.add( 'clone' );
 			clone.classList.remove( 'current' );
 			clone.classList.remove( 'active' );
-			// clone.removeAttribute( 'data-index' );
 			this.$slider.append( clone );
 		}
 
@@ -324,7 +329,6 @@ function Plugin( element, options ) {
 			clone.classList.add( 'clone' );
 			clone.classList.remove( 'active' );
 			clone.classList.remove( 'current' );
-			//clone.removeAttribute( 'data-index' );
 			this.$slider.prepend( clone );
 		}
 	};
@@ -332,9 +336,11 @@ function Plugin( element, options ) {
 	const setInitialIndex = () => {
 		const $items = this.$slider.querySelectorAll( 'li' );
 
-		$items.forEach( ( item, index ) => {
-			if ( item.classList.contains( 'active' ) ) {
+		$items.forEach( ( $item, index ) => {
+			if ( $item.classList.contains( 'active' ) ) {
 				this.currentIndex = index;
+
+				$item.setAttribute( 'aria-hidden', 'false' );
 
 				this.$element.style.setProperty(
 					'--_current-item-index',
@@ -370,10 +376,12 @@ function Plugin( element, options ) {
 	const addClasses = () => {
 		const $items = this.$slider.querySelectorAll( 'li' );
 
+		$items[ this.currentIndex ].setAttribute( 'aria-hidden', 'false' );
 		$items[ this.currentIndex ].classList.add( 'current' );
 
 		for ( let i = 0; i < this.visibleItem; i++ ) {
 			const key = i + this.currentIndex;
+			$items[ key ].setAttribute( 'aria-hidden', 'false' );
 			$items[ key ].classList.add( 'active' );
 		}
 	};
@@ -382,6 +390,7 @@ function Plugin( element, options ) {
 		this.$slider.classList.remove( 'animating' );
 		const $items = this.$slider.querySelectorAll( 'li' );
 		$items.forEach( ( $item ) => {
+			$item.setAttribute( 'aria-hidden', 'true' );
 			$item.classList.remove( 'active' );
 			$item.classList.remove( 'current' );
 		} );
@@ -405,7 +414,7 @@ function Plugin( element, options ) {
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
 
-		this.cleanupSwipe = initSwipe( this.$container, 50 );
+		this.cleanupSwipe = swipeEvent( this.$container, 50 );
 		this.$container.addEventListener( 'swipe', handleSwipe );
 	};
 
@@ -453,9 +462,10 @@ function Plugin( element, options ) {
 
 	const beforeSlide = () => {
 		const $items = this.$slider.querySelectorAll( 'li' );
-		$items.forEach( ( item ) => {
-			item.classList.remove( 'active' );
-			item.classList.remove( 'current' );
+		$items.forEach( ( $item ) => {
+			$item.setAttribute( 'aria-hidden', 'true' );
+			$item.classList.remove( 'active' );
+			$item.classList.remove( 'current' );
 		} );
 	};
 
@@ -612,7 +622,7 @@ function Plugin( element, options ) {
 		reset,
 	} );
 
-	return ( () => init() )();
+	return init();
 }
 
 export { Plugin };
