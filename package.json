@@ -35,7 +35,7 @@
     "start": "rimraf assets && wp-scripts start --webpack-copy-php --output-path=assets --webpack-no-externals"
   },
   "dependencies": {
-    "@storepress/utils": "^0.2.0"
+    "@storepress/utils": "^0.2.4"
   },
   "devDependencies": {
     "@woocommerce/eslint-plugin": "^2.2.0",

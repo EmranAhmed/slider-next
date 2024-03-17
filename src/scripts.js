@@ -2,7 +2,7 @@
  * External dependencies
  */
 
-import { createPluginInstance } from '@storepress/utils';
+import { createPluginInstance, triggerEvent } from '@storepress/utils';
 
 /**
  * Internal dependencies
@@ -99,14 +99,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 		Slider.destroyWith( element );
 	} );
-
-	function triggerEvent( target, eventType, eventDetails = {} ) {
-		target.dispatchEvent(
-			new CustomEvent( eventType, {
-				detail: { ...eventDetails },
-			} )
-		);
-	}
 
 	// Dispatch / trigger Events:
 

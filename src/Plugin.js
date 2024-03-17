@@ -1,147 +1,11 @@
 /**
  * External dependencies
  */
-import { getOptionsFromAttribute, getPluginInstance } from '@storepress/utils';
-
-function swipeEvent( $element, offset = 10, mobileOnly = false ) {
-	let readyToMove = false;
-	let isMoved = false;
-	let xStart = 0;
-	let yStart = 0;
-	let isMobile = false;
-
-	const handleStart = ( event ) => {
-		readyToMove = true;
-		isMoved = false;
-
-		xStart = event.x;
-		yStart = event.y;
-		isMobile = event.type === 'touchstart';
-
-		if ( event.type === 'pointerdown' && isMobile ) {
-			return false;
-		}
-
-		if ( isMobile ) {
-			const { clientX, clientY } = event.changedTouches[ 0 ];
-			xStart = clientX;
-			yStart = clientY;
-		}
-	};
-
-	const handleMove = ( event ) => {
-		if ( ! readyToMove ) {
-			return;
-		}
-
-		if ( event.type === 'pointermove' && isMobile ) {
-			return false;
-		}
-
-		let horizontalDiff = event.x - xStart;
-		let verticalDiff = event.y - yStart;
-
-		if ( isMobile ) {
-			//console.log( event.changedTouches );
-			const touch = event.changedTouches[ 0 ];
-			horizontalDiff = touch.clientX - xStart;
-			verticalDiff = touch.clientY - yStart;
-		}
-
-		isMoved = true;
-
-		$element.dispatchEvent(
-			new CustomEvent( 'swipe', {
-				detail: {
-					x: horizontalDiff,
-					y: verticalDiff,
-					top: verticalDiff + offset < 0, // to top
-					bottom: verticalDiff - offset > 0, // to bottom
-					left: horizontalDiff + offset < 0, // to left
-					right: horizontalDiff - offset > 0, // to right
-					moving: true,
-					done: false,
-				},
-			} )
-		);
-	};
-
-	const handleEnd = ( event ) => {
-		if ( ! readyToMove ) {
-			return;
-		}
-
-		const isPointerEvent =
-			event.type === 'pointerleave' || event.type === 'pointerup';
-
-		if ( isPointerEvent && isMobile ) {
-			return false;
-		}
-
-		let horizontalDiff = event.x - xStart;
-		let verticalDiff = event.y - yStart;
-
-		if ( isMobile ) {
-			const { clientX, clientY } = event.changedTouches[ 0 ];
-			horizontalDiff = clientX - xStart;
-			verticalDiff = clientY - yStart;
-		}
-
-		if ( isMoved ) {
-			$element.dispatchEvent(
-				new CustomEvent( 'swipe', {
-					detail: {
-						x: horizontalDiff,
-						y: verticalDiff,
-						top: verticalDiff + offset < 0, // to top
-						bottom: verticalDiff - offset > 0, // to bottom
-						left: horizontalDiff + offset < 0, // to left
-						right: horizontalDiff - offset > 0, // to right
-						moving: false,
-						done: true,
-					},
-				} )
-			);
-		}
-
-		isMoved = false;
-
-		readyToMove = false;
-	};
-
-	const unregister = () => {
-		$element.removeEventListener( 'touchstart', handleStart );
-		$element.removeEventListener( 'touchmove', handleMove );
-		$element.removeEventListener( 'touchend', handleEnd );
-		$element.removeEventListener( 'touchcancel', handleEnd );
-
-		if ( ! mobileOnly ) {
-			$element.removeEventListener( 'pointerdown', handleStart );
-			$element.removeEventListener( 'pointermove', handleMove );
-			$element.removeEventListener( 'pointerup', handleEnd );
-			$element.removeEventListener( 'pointerleave', handleEnd );
-		}
-	};
-
-	const register = () => {
-		if ( ! mobileOnly ) {
-			$element.addEventListener( 'pointerdown', handleStart );
-			$element.addEventListener( 'pointermove', handleMove );
-			$element.addEventListener( 'pointerup', handleEnd );
-			$element.addEventListener( 'pointerleave', handleEnd );
-		}
-		$element.addEventListener( 'touchstart', handleStart, {
-			passive: true,
-		} );
-		$element.addEventListener( 'touchmove', handleMove, { passive: true } );
-		$element.addEventListener( 'touchend', handleEnd, { passive: true } );
-		$element.addEventListener( 'touchcancel', handleEnd );
-
-		return unregister;
-	};
-
-	return register();
-}
+import {
+	getOptionsFromAttribute,
+	getPluginInstance,
+	swipeEvent,
+} from '@storepress/utils';
 
 function Plugin( element, options ) {
 	// Default Settings
@@ -162,12 +26,11 @@ function Plugin( element, options ) {
 	// Do what you need and return expose fn.
 	const init = () => {
 		this.$element = element; // slider-wrapper
-		this.settings = Object.assign(
-			{},
-			DEFAULTS,
-			options,
-			getOptionsFromAttribute( this.$element, ATTRIBUTE )
-		);
+		this.settings = {
+			...DEFAULTS,
+			...options,
+			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
+		};
 
 		this.visibleItem = 0;
 		this.itemsPerSlide = 0;
@@ -192,11 +55,70 @@ function Plugin( element, options ) {
 		return expose();
 	};
 
+	const afterLoaded = () => {
+		this.$container.setAttribute( 'aria-live', 'polite' );
+
+		this.$items.forEach( ( $item, index ) => {
+			$item.setAttribute( 'aria-hidden', 'true' );
+			$item.setAttribute( 'data-index', index );
+		} );
+
+		const infiniteString = window
+			.getComputedStyle( this.$element )
+			.getPropertyValue( this.settings.isInfiniteCSSProperty )
+			.toLowerCase();
+
+		const horizontalString = window
+			.getComputedStyle( this.$element )
+			.getPropertyValue( this.settings.isHorizontalCSSProperty )
+			.toLowerCase();
+
+		this.isInfinite = cssVariableIsTrue( infiniteString );
+
+		this.isHorizontal = cssVariableIsTrue( horizontalString );
+
+		this.visibleItem = parseInt(
+			window
+				.getComputedStyle( this.$element )
+				.getPropertyValue( this.settings.visibleItemsCSSProperty ),
+			10
+		);
+
+		this.itemsPerSlide = parseInt(
+			window
+				.getComputedStyle( this.$element )
+				.getPropertyValue( this.settings.moveItemsCSSProperty ),
+			10
+		);
+
+		this.totalItems = this.$items.length;
+
+		if ( this.visibleItem < this.itemsPerSlide ) {
+			this.itemsPerSlide = this.visibleItem;
+		}
+
+		// Control from CSS
+
+		this.$element.classList.remove( 'is-vertical' );
+		this.$element.classList.remove( 'is-horizontal' );
+
+		if ( this.isHorizontal ) {
+			this.$element.classList.add( 'is-horizontal' );
+		} else {
+			this.$element.classList.add( 'is-vertical' );
+		}
+	};
+
 	const handleSyncItemsClick = ( event ) => {
+		if ( isAnimating() ) {
+			return;
+		}
+
 		const index = parseInt(
 			event.target.closest( 'li' ).dataset.index,
 			10
 		);
+
 		syncIndex( index );
 	};
 
@@ -254,60 +176,6 @@ function Plugin( element, options ) {
 
 	const cssVariableIsTrue = ( string ) => {
 		return string === 'true' || string === '1' || string === 'yes';
-	};
-
-	const afterLoaded = () => {
-		this.$container.setAttribute( 'aria-live', 'polite' );
-
-		this.$items.forEach( ( $item, index ) => {
-			$item.setAttribute( 'aria-hidden', 'true' );
-			$item.setAttribute( 'data-index', index );
-		} );
-
-		const infiniteString = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isInfiniteCSSProperty )
-			.toLowerCase();
-
-		const horizontalString = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isHorizontalCSSProperty )
-			.toLowerCase();
-
-		this.isInfinite = cssVariableIsTrue( infiniteString );
-
-		this.isHorizontal = cssVariableIsTrue( horizontalString );
-
-		this.visibleItem = parseInt(
-			window
-				.getComputedStyle( this.$element )
-				.getPropertyValue( this.settings.visibleItemsCSSProperty ),
-			10
-		);
-
-		this.itemsPerSlide = parseInt(
-			window
-				.getComputedStyle( this.$element )
-				.getPropertyValue( this.settings.moveItemsCSSProperty ),
-			10
-		);
-
-		this.totalItems = this.$items.length;
-
-		if ( this.visibleItem < this.itemsPerSlide ) {
-			this.itemsPerSlide = this.visibleItem;
-		}
-
-		// Control from CSS
-
-		this.$element.classList.remove( 'is-vertical' );
-		this.$element.classList.remove( 'is-horizontal' );
-
-		if ( this.isHorizontal ) {
-			this.$element.classList.add( 'is-horizontal' );
-		} else {
-			this.$element.classList.add( 'is-vertical' );
-		}
 	};
 
 	const initialCloneItems = () => {
@@ -414,8 +282,10 @@ function Plugin( element, options ) {
 		this.$slider.addEventListener( 'transitionstart', beforeSlide );
 		this.$slider.addEventListener( 'transitionend', afterSlide );
 
-		this.cleanupSwipe = swipeEvent( this.$container, 50 );
-		this.$container.addEventListener( 'swipe', handleSwipe );
+		this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
+			offset: 50,
+		} );
+		// this.$container.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
@@ -562,7 +432,7 @@ function Plugin( element, options ) {
 		this.$slider.removeEventListener( 'transitionend', afterSlide );
 
 		this.cleanupSwipe();
-		this.$container.removeEventListener( 'swipe', handleSwipe );
+		// this.$container.removeEventListener( 'swipe', handleSwipe );
 	};
 
 	const to = ( index ) => {
