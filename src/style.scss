@@ -12,9 +12,14 @@
 	background-color: red;
 }
 
+img{
+	display: block;
+	width: 100%;
+
+}
+
 .container {
-	max-width: 600px;
-	height: 200px;
+	width: 600px;
 	margin: 20px auto;
 	display: flex;
 	flex-direction: row;
@@ -96,10 +101,12 @@
 		user-select: none;
 
 		& li {
-			/*scroll-snap-align: start;*/
-			border: 2px solid green;
 			display: grid;
 			place-items: center;
+			/*scroll-snap-align: start;*/
+			/*border: 2px solid green;
+			display: grid;
+			place-items: center;*/
 		}
 	}
 
