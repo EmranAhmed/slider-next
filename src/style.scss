@@ -12,14 +12,9 @@
 	background-color: red;
 }
 
-img{
-	display: block;
-	width: 100%;
-
-}
-
 .container {
 	width: 600px;
+	height: 600px;
 	margin: 20px auto;
 	display: flex;
 	flex-direction: row;
@@ -32,16 +27,16 @@ img{
 .slider-wrapper.one {
 	--slide-item: 1;
 	--show-item: 1;
-	max-width: 600px;
-	height: 400px;
+	/*max-width: 600px;*/
+	/*height: 400px;*/
 }
 
 .slider-wrapper.two {
 	--slide-item: 3;
 	--show-item: 3;
 	--is-horizontal: false;
-	max-width: 600px;
-	height: 400px;
+	/*max-width: 600px;
+	max-height: 300px;*/
 
 	@media (max-width: 800px) {
 		--is-horizontal: true;
@@ -55,8 +50,9 @@ img{
 	--_current-item-index: 0;
 	--item-width: calc(100% / var(--show-item));
 	--item-height: calc(100% / var(--show-item));
-	border: 2px solid red;
-
+	--control-color: green;
+	--sliding-speed: 800ms;
+	--sliding-style: ease;
 
 	overflow: hidden;
 
@@ -65,8 +61,8 @@ img{
 	height: 100%;
 
 	.animating {
-		transition: 800ms;
-		transition-timing-function: ease;
+		transition: var(--sliding-speed);
+		transition-timing-function: var(--sliding-style);
 	}
 
 	.slider-container{
@@ -77,7 +73,7 @@ img{
 
 	.slider {
 
-		will-change: transform;
+		/*will-change: transform;*/
 
 		--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index)) * -1);
 		--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)) * -1);
@@ -103,6 +99,12 @@ img{
 		& li {
 			display: grid;
 			place-items: center;
+			img{
+				display: block;
+				width: 100%;
+				object-fit: cover;
+				user-select: none;
+			}
 			/*scroll-snap-align: start;*/
 			/*border: 2px solid green;
 			display: grid;
@@ -138,13 +140,13 @@ img{
 
 			&.prev{
 				left: 0;
-				border-right-color: blue;
+				border-right-color: var(--control-color);
 				border-left-width: 0;
 				user-select: none;
 			}
 			&.next{
 				right: 0;
-				border-left-color: blue;
+				border-left-color: var(--control-color);
 				border-right-width: 0;
 				user-select: none;
 			}
@@ -153,7 +155,6 @@ img{
 
 	&.is-vertical{
 		.control{
-
 			.arrow{
 				border: 1rem solid transparent;
 				left: 50%;
@@ -162,7 +163,7 @@ img{
 				&.prev{
 					user-select: none;
 					top:0;
-					border-bottom-color: blue;
+					border-bottom-color: var(--control-color);
 					border-top-width: 0;
 				}
 				&.next{
@@ -170,7 +171,7 @@ img{
 					bottom: 0;
 					right: auto;
 					top:auto;
-					border-top-color: blue;
+					border-top-color: var(--control-color);
 					border-bottom-width: 0;
 				}
 			}
