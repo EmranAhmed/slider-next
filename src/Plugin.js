@@ -61,6 +61,9 @@ function Plugin( element, options ) {
 		this.$items.forEach( ( $item, index ) => {
 			$item.setAttribute( 'aria-hidden', 'true' );
 			$item.setAttribute( 'data-index', index );
+			$item.querySelectorAll( 'img' ).forEach( ( $img ) => {
+				$img.setAttribute( 'draggable', false );
+			} );
 		} );
 
 		const infiniteString = window
