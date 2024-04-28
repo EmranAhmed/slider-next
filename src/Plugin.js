@@ -18,9 +18,9 @@ function Plugin( element, options ) {
 		prevControlSelector: '.prev',
 		nextControlSelector: '.next',
 		syncWith: null,
-		syncOnSlide: false,
-		syncAfterSlide: true,
-		visibleActiveSlideOnSync: true,
+		syncOnSlide: true,
+		syncAfterSlide: false,
+		visibleActiveSlideOnSync: false,
 	};
 
 	// Collecting settings from html attribute
@@ -44,6 +44,7 @@ function Plugin( element, options ) {
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
 		this.totalItems = 0;
+		this.direction = ''; // prev | next
 		this.currentIndex = 0;
 		this.itemGap = 0;
 
@@ -186,49 +187,24 @@ function Plugin( element, options ) {
 			return;
 		}
 
-		let index = this.currentIndex;
+		syncSlide();
+	};
 
-		// Reset prev
-		if ( this.currentIndex === 0 ) {
-			index = this.$items.length;
-		}
-
-		// Reset next
-		if ( this.currentIndex > this.$items.length ) {
-			index = this.currentIndex - this.$items.length;
+	const syncSlide = () => {
+		if ( ! this.settings.syncWith ) {
+			return;
 		}
 
 		const $synced = getPluginInstance( this.settings.syncWith );
 		$synced.forEach(
-			( { to, isAnimating, currentElement, visibleElements } ) => {
+			( { isAnimating, goto, getCurrentIndex, visibleElements } ) => {
 				if ( isAnimating() ) {
 					return;
 				}
 
-				console.log(
-					index,
-					this.visibleItem,
-					index - this.visibleItem,
-					this.$items.length
-				);
+				let index = 0;
 
-				if ( this.visibleItem > index ) {
-					index = this.$items.length - this.visibleItem + index;
-					console.log( index );
-					//index = 6;
-				} else {
-					index = index - this.visibleItem;
-				}
-
-				console.log( 'rindex', index );
-
-				const syncCurrentIndex = parseInt(
-					currentElement().dataset.index,
-					10
-				);
-
-				if ( syncCurrentIndex === index ) {
-					console.log( 'sync eq' );
+				if ( ! this.direction ) {
 					return;
 				}
 
@@ -240,12 +216,24 @@ function Plugin( element, options ) {
 
 				if (
 					! this.settings.visibleActiveSlideOnSync &&
-					visibleIndexes.includes( index )
+					visibleIndexes.includes( this.currentIndex - 1 )
 				) {
+					this.direction = '';
 					return;
 				}
 
-				to( index );
+				// Prev
+				if ( this.direction === 'prev' ) {
+					index = getCurrentIndex() - this.itemsPerSlide;
+				}
+
+				// Next
+				if ( this.direction === 'next' ) {
+					index = getCurrentIndex() + this.itemsPerSlide;
+				}
+
+				goto( index );
+				this.direction = '';
 			}
 		);
 	};
@@ -259,44 +247,7 @@ function Plugin( element, options ) {
 			return;
 		}
 
-		const $synced = getPluginInstance( this.settings.syncWith );
-		$synced.forEach(
-			( {
-				to,
-				currentElement,
-				isAnimating,
-				goto,
-				visibleElements,
-				getCurrentIndex,
-				visibleTotal,
-			} ) => {
-				if ( isAnimating() ) {
-					return;
-				}
-
-				let willIndex = this.currentIndex - 3;
-
-				if ( willIndex < 0 ) {
-					//willIndex = this.$items.length - getCurrentIndex();
-				}
-
-				console.log(
-					this.currentIndex,
-					//getCurrentIndex(),
-					willIndex
-				);
-
-				if ( willIndex === -1 ) {
-					willIndex = 6;
-				}
-
-				if ( willIndex === -2 ) {
-					willIndex = 5;
-				}
-
-				goto( willIndex );
-			}
-		);
+		syncSlide();
 	};
 
 	const cssVariableIsTrue = ( string ) => {
@@ -348,7 +299,6 @@ function Plugin( element, options ) {
 	};
 
 	const visibleTotal = () => {
-		//return this.$slider.querySelectorAll( 'li.active' );
 		return this.visibleItem;
 	};
 
@@ -364,27 +314,8 @@ function Plugin( element, options ) {
 		return this.$slider.classList.contains( 'animating' );
 	};
 
-	/*	const getCurrentIndex = () => {
-		if ( this.currentIndex === 0 ) {
-			return this.$items.length;
-		}
-
-		if ( this.currentIndex > this.$items.length ) {
-			return this.currentIndex - this.$items.length;
-		}
-		return this.currentIndex;
-	};*/
-
 	const setCurrentIndex = ( index ) => {
 		this.currentIndex = parseInt( index, 10 );
-
-		if ( this.currentIndex === 0 ) {
-			//this.currentIndex = this.$items.length;
-		}
-
-		if ( this.currentIndex > this.$items.length ) {
-			//this.currentIndex = this.currentIndex - this.$items.length;
-		}
 
 		this.$element.style.setProperty(
 			'--_current-item-index',
@@ -494,6 +425,7 @@ function Plugin( element, options ) {
 		let index = this.currentIndex;
 		syncAfterSlide();
 		// Reset prev
+
 		if ( this.currentIndex <= 0 ) {
 			index = this.$items.length;
 			setCurrentIndex( index );
@@ -525,9 +457,9 @@ function Plugin( element, options ) {
 
 		const index = this.currentIndex - increment;
 		this.$slider.classList.add( 'animating' );
+		this.direction = 'prev';
 		setCurrentIndex( index );
-
-		// syncOnSlide();
+		syncOnSlide();
 	};
 
 	const slideNext = () => {
@@ -549,8 +481,9 @@ function Plugin( element, options ) {
 		const index = this.currentIndex + increment;
 
 		this.$slider.classList.add( 'animating' );
+		this.direction = 'next';
 		setCurrentIndex( index );
-		//syncOnSlide();
+		syncOnSlide();
 	};
 
 	const handleNext = ( event ) => {

@@ -106,4 +106,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		element: '.one',
 		settings: {},
 	} );
+	triggerEvent( document, 'slider_init', {
+		element: '.base',
+		settings: {},
+	} );
 } );
