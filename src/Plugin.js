@@ -20,7 +20,7 @@ function Plugin( element, options ) {
 		syncWith: null,
 		syncOnSlide: true,
 		syncAfterSlide: false,
-		visibleActiveSlideOnSync: false,
+		visibleActiveSlideOnSync: true,
 	};
 
 	// Collecting settings from html attribute

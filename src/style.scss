@@ -61,7 +61,7 @@
 
 .slider-wrapper.two {
 	--slide-item: 1;
-	--show-item: 4;
+	--show-item: 3;
 	--item-gap: 5px;
 	/*--is-horizontal: false;*/
 	/*height: 300px;*/
@@ -98,6 +98,8 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
+		/*padding-inline: 20px;
+		padding-block: 20px;*/
 	}
 
 	.slider {
