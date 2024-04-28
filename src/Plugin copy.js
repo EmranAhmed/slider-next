@@ -268,33 +268,17 @@ function Plugin( element, options ) {
 				goto,
 				visibleElements,
 				getCurrentIndex,
-				visibleTotal,
 			} ) => {
 				if ( isAnimating() ) {
 					return;
 				}
 
-				let willIndex = this.currentIndex - 3;
-
-				if ( willIndex < 0 ) {
-					//willIndex = this.$items.length - getCurrentIndex();
-				}
-
 				console.log(
 					this.currentIndex,
-					//getCurrentIndex(),
-					willIndex
+					getCurrentIndex(),
+					this.currentIndex - 3
 				);
-
-				if ( willIndex === -1 ) {
-					willIndex = 6;
-				}
-
-				if ( willIndex === -2 ) {
-					willIndex = 5;
-				}
-
-				goto( willIndex );
+				goto( this.currentIndex );
 			}
 		);
 	};
@@ -333,7 +317,7 @@ function Plugin( element, options ) {
 			if ( $item.classList.contains( 'active' ) ) {
 				this.currentIndex = index;
 
-				// $item.setAttribute( 'aria-hidden', 'false' );
+				$item.setAttribute( 'aria-hidden', 'false' );
 
 				this.$element.style.setProperty(
 					'--_current-item-index',
@@ -446,8 +430,7 @@ function Plugin( element, options ) {
 
 		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
-		const gapValue =
-			this.currentIndex * ( this.itemGap / this.visibleItem );
+		const gapValue = this.currentIndex * this.itemGap;
 
 		const currentWidth =
 			( this.currentIndex * this.sliderWidth ) / this.visibleItem;
@@ -494,7 +477,7 @@ function Plugin( element, options ) {
 		let index = this.currentIndex;
 		syncAfterSlide();
 		// Reset prev
-		if ( this.currentIndex <= 0 ) {
+		if ( this.currentIndex === 0 ) {
 			index = this.$items.length;
 			setCurrentIndex( index );
 		}
