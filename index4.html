@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Slider Next</title>
+	<link rel="stylesheet" href="assets/style-slider.css">
+
+</head>
+
+<body>
+
+<div class="container-2">
+
+	<div role="region" aria-label="Carousel" class="one slider-wrapper">
+
+		<div class="slider-container">
+			<ul class="slider" >
+				<li class="active"><img src="images/hoodie_1_front.jpg"></li>
+				<li><img src="images/hoodie_2_back.jpg"></li>
+				<li><img src="images/hoodie_2_front.jpg"></li>
+				<li><img src="images/hoodie_3_front.jpg"></li>
+
+				<li><img src="images/hoodie_4_front.jpg"></li>
+				<li><img src="images/hoodie_5_front.jpg"></li>
+				<li><img src="images/hoodie_6_front.jpg"></li>
+
+				<li><img src="images/hoodie_7_front.jpg"></li>
+			</ul>
+		</div>
+
+		<div role="group" aria-label="Slide controls" class="control">
+			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
+			<!--<ul>
+			  <li class="selected"></li>
+			  <li></li>
+			  <li></li>
+		   </ul>-->
+		</div>
+	</div>
+
+</div>
+
+
+
+<a id="prev1" href="#">PREV 1</a>
+<a id="next1" href="#">NEXT 1</a>
+
+--
+
+<a id="prev2" href="#">PREV 2</a>
+<a id="next2" href="#">NEXT 2</a>
+
+--
+
+Goto <a id="goto-one-4" href="#">Slide 4</a>
+Goto <a id="goto-one-5" href="#">Slide 5</a>
+
+<pre id="log"></pre>
+
+<script src="assets/slider.js"></script>
+<script src="user-control.js"></script>
+
+
+</body>
+
+</html>
