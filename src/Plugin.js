@@ -24,7 +24,7 @@ function Plugin( element, options ) {
 	};
 
 	// Collecting settings from html attribute
-	const ATTRIBUTE = 'slider-settings';
+	const ATTRIBUTE = 'slider-settings'; //
 
 	// Do what you need and return expose fn.
 	const init = () => {
@@ -32,7 +32,10 @@ function Plugin( element, options ) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
+			...getOptionsFromAttribute( this.$element, ATTRIBUTE, [
+				'sync-with', // will override syncWith Setting from slider-settings--sync-with
+				'visible-active-slide-on-sync', // will override visibleActiveSlideOnSync Setting Value from slider-settings--visible-active-slide-on-sync
+			] ),
 		};
 
 		this.visibleItem = 0;
