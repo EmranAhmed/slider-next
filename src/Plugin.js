@@ -32,10 +32,7 @@ function Plugin( element, options ) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute( this.$element, ATTRIBUTE, [
-				'sync-with', // will override syncWith Setting from slider-settings--sync-with
-				'visible-active-slide-on-sync', // will override visibleActiveSlideOnSync Setting Value from slider-settings--visible-active-slide-on-sync
-			] ),
+			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
 		};
 
 		this.visibleItem = 0;

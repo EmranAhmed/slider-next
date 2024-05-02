@@ -3,7 +3,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		new CustomEvent( 'slider_init', {
 			detail: {
 				element: '.two',
-				settings: {},
+				settings: {
+					syncWith: '.one',
+				},
 			},
 		} )
 	);
