@@ -41,6 +41,7 @@
 	--slide-item: 1;
 	--show-item: 3;
 	--item-gap: 5px;
+	--is-active-center: false;
 	/*max-width: 600px;*/
 	/*height: 400px;*/
 	&.hr{
@@ -50,6 +51,7 @@
 		--is-horizontal: false;
 	}
 }
+
 
 .slider-wrapper.one {
 	--slide-item: 1;
@@ -77,7 +79,8 @@
 
 	--show-infinite: true;
 	--is-horizontal: true;
-	--_current-item-index: 0;
+	--is-active-center: false;
+	--_current-index: 0; // private value
 	--item-gap: 0px;
 	--control-color: green;
 	--sliding-speed: 500ms;
@@ -110,11 +113,14 @@
 		--item-height: calc(100% / var(--show-item));
 		--_column-gap-count: calc(var(--show-item) - 1);
 		--_column-size: calc(calc(var(--item-gap) / var(--show-item)) * var(--_column-gap-count));
-		//--gap-value: calc(var(--_current-item-index) * var(--_column-size));
-		--gap-value: calc(var(--_current-item-index) * calc(var(--item-gap) / var(--show-item)));
-		// --current-item-position: calc(var(--show-item) * var(--_current-item-index));
-		--horizontal-value: calc(calc(var(--item-width) * var(--_current-item-index) + var(--gap-value)) * -1);
-		--vertical-value: calc(calc(var(--item-height) * var(--_current-item-index)  + var(--gap-value)) * -1);
+		//--gap-value: calc(var(--_current-index) * var(--_column-size));
+		--gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--show-item)));
+		// --current-item-position: calc(var(--show-item) * var(--_current-index));
+		--horizontal-value: calc(calc(var(--item-width) * var(--_current-index) + var(--gap-value)) * -1);
+		--vertical-value: calc(calc(var(--item-height) * var(--_current-index)  + var(--gap-value)) * -1);
+
+		--_center-item: calc(calc(var(--show-item) - var(--slide-item)) / 2);
+		--_center-item-width: calc(var(--item-width) * var(--_center-item));
 
 
 		transform: translateX(var(--horizontal-value));
@@ -141,6 +147,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			flex-direction: column;
 			img{
 				display: block;
 				width: 100%;
@@ -153,6 +160,13 @@
 			/*border: 2px solid green;
 			display: grid;
 			place-items: center;*/
+		}
+	}
+
+	&.is-active-center{
+		.slider{
+			/*justify-content: center;*/
+			--horizontal-value: calc(calc(var(--item-width) * var(--_current-index) - var(--_center-item-width) + var(--gap-value)) * -1);
 		}
 	}
 

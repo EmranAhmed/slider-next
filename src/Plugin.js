@@ -14,6 +14,7 @@ function Plugin( element, options ) {
 		visibleItemsCSSProperty: '--show-item',
 		isInfiniteCSSProperty: '--show-infinite',
 		isHorizontalCSSProperty: '--is-horizontal',
+		isActiveCenterCSSProperty: '--is-active-center',
 		itemGapCSSProperty: '--item-gap',
 		prevControlSelector: '.prev',
 		nextControlSelector: '.next',
@@ -43,10 +44,12 @@ function Plugin( element, options ) {
 		this.$items = this.$element.querySelectorAll( 'li' );
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
-		this.totalItems = 0;
+		this.itemsCount = this.$items.length;
+		this.allItemsCount = 0;
 		this.direction = ''; // prev | next
 		this.currentIndex = 0;
 		this.itemGap = 0;
+		this.centerItem = 0;
 
 		afterLoaded();
 
@@ -67,7 +70,7 @@ function Plugin( element, options ) {
 
 		this.$items.forEach( ( $item, index ) => {
 			$item.setAttribute( 'aria-hidden', 'true' );
-			$item.setAttribute( 'data-index', index );
+			$item.dataset.item = index;
 			$item.querySelectorAll( 'img' ).forEach( ( $img ) => {
 				$img.setAttribute( 'draggable', false );
 			} );
@@ -83,9 +86,16 @@ function Plugin( element, options ) {
 			.getPropertyValue( this.settings.isHorizontalCSSProperty )
 			.toLowerCase();
 
+		const centerString = window
+			.getComputedStyle( this.$element )
+			.getPropertyValue( this.settings.isActiveCenterCSSProperty )
+			.toLowerCase();
+
 		this.isInfinite = cssVariableIsTrue( infiniteString );
 
 		this.isHorizontal = cssVariableIsTrue( horizontalString );
+
+		this.isCenter = cssVariableIsTrue( centerString );
 
 		this.visibleItem = parseInt(
 			window
@@ -108,16 +118,29 @@ function Plugin( element, options ) {
 			10
 		);
 
-		this.totalItems = this.$items.length;
-
 		if ( this.visibleItem < this.itemsPerSlide ) {
 			this.itemsPerSlide = this.visibleItem;
+		}
+
+		this.validCenter =
+			this.visibleItem > 2 && this.visibleItem % 2 === 1 && this.isCenter;
+
+		if ( ! this.validCenter ) {
+			this.isCenter = false;
 		}
 
 		// Control from CSS
 
 		this.$element.classList.remove( 'is-vertical' );
 		this.$element.classList.remove( 'is-horizontal' );
+		this.$element.classList.remove( 'is-active-center' );
+
+		if ( this.isCenter ) {
+			this.$element.classList.add( 'is-active-center' );
+			this.centerItem = ( this.visibleItem - this.itemsPerSlide ) / 2;
+
+			// console.log( 'cen', this.centerItem );
+		}
 
 		if ( this.isHorizontal ) {
 			this.$element.classList.add( 'is-horizontal' );
@@ -126,17 +149,55 @@ function Plugin( element, options ) {
 		}
 	};
 
+	const initialCloneItems = () => {
+		const lastItemsIndex = this.itemsCount - 1;
+
+		// console.log( itemsToClone );
+
+		const itemsToClone = this.visibleItem + this.centerItem;
+
+		for ( let index = 0; index < itemsToClone; index++ ) {
+			const nodeForAppend = this.$items[ index ].cloneNode( true );
+			const nodeForPrepend =
+				this.$items[ lastItemsIndex - index ].cloneNode( true );
+
+			nodeForAppend.classList.add( 'clone' );
+			nodeForAppend.classList.remove( 'current' );
+			nodeForAppend.classList.remove( 'active' );
+
+			nodeForPrepend.classList.add( 'clone' );
+			nodeForPrepend.classList.remove( 'active' );
+			nodeForPrepend.classList.remove( 'current' );
+
+			// Append First Items
+			this.$slider.append( nodeForAppend );
+
+			// Prepend Last Items
+			this.$slider.prepend( nodeForPrepend );
+		}
+	};
+
+	const setInitialIndex = () => {
+		const $items = this.$slider.querySelectorAll( 'li' );
+
+		this.allItemsCount = $items.length;
+
+		$items.forEach( ( $item, index ) => {
+			$item.dataset.index = index;
+			if ( $item.classList.contains( 'active' ) ) {
+				setCurrentIndex( index );
+			}
+		} );
+	};
+
 	const handleSyncItemsClick = ( event ) => {
 		if ( isAnimating() ) {
 			return;
 		}
 
-		const index = parseInt(
-			event.target.closest( 'li' ).dataset.index,
-			10
-		);
+		const item = parseInt( event.target.closest( 'li' ).dataset.item, 10 );
 
-		syncIndex( index );
+		syncIndex( item );
 	};
 
 	const syncIndex = ( index ) => {
@@ -152,7 +213,7 @@ function Plugin( element, options ) {
 				}
 
 				const syncCurrentIndex = parseInt(
-					currentElement().dataset.index,
+					currentElement().dataset.item,
 					10
 				);
 
@@ -162,7 +223,7 @@ function Plugin( element, options ) {
 
 				const visibleIndexes = [];
 				visibleElements().forEach( ( $item ) => {
-					const itemIndex = parseInt( $item.dataset.index, 10 );
+					const itemIndex = parseInt( $item.dataset.item, 10 );
 					visibleIndexes.push( itemIndex );
 				} );
 
@@ -210,7 +271,7 @@ function Plugin( element, options ) {
 
 				const visibleIndexes = [];
 				visibleElements().forEach( ( $item ) => {
-					const itemIndex = parseInt( $item.dataset.index, 10 );
+					const itemIndex = parseInt( $item.dataset.item, 10 );
 					visibleIndexes.push( itemIndex );
 				} );
 
@@ -254,46 +315,6 @@ function Plugin( element, options ) {
 		return string === 'true' || string === '1' || string === 'yes';
 	};
 
-	const initialCloneItems = () => {
-		const lastItemsIndex = this.totalItems - 1;
-
-		// Append First Items
-		for ( let index = 0; index < this.visibleItem; index++ ) {
-			const clone = this.$items[ index ].cloneNode( true );
-			clone.classList.add( 'clone' );
-			clone.classList.remove( 'current' );
-			clone.classList.remove( 'active' );
-			this.$slider.append( clone );
-		}
-
-		// Prepend Last Items
-		for ( let index = 0; index < this.visibleItem; index++ ) {
-			const clone =
-				this.$items[ lastItemsIndex - index ].cloneNode( true );
-			clone.classList.add( 'clone' );
-			clone.classList.remove( 'active' );
-			clone.classList.remove( 'current' );
-			this.$slider.prepend( clone );
-		}
-	};
-
-	const setInitialIndex = () => {
-		const $items = this.$slider.querySelectorAll( 'li' );
-
-		$items.forEach( ( $item, index ) => {
-			if ( $item.classList.contains( 'active' ) ) {
-				this.currentIndex = index;
-
-				// $item.setAttribute( 'aria-hidden', 'false' );
-
-				this.$element.style.setProperty(
-					'--_current-item-index',
-					this.currentIndex
-				);
-			}
-		} );
-	};
-
 	const currentElement = () => {
 		return this.$slider.querySelector( 'li.current' );
 	};
@@ -318,7 +339,7 @@ function Plugin( element, options ) {
 		this.currentIndex = parseInt( index, 10 );
 
 		this.$element.style.setProperty(
-			'--_current-item-index',
+			'--_current-index',
 			this.currentIndex
 		);
 	};
@@ -329,10 +350,20 @@ function Plugin( element, options ) {
 		$items[ this.currentIndex ].setAttribute( 'aria-hidden', 'false' );
 		$items[ this.currentIndex ].classList.add( 'current' );
 
-		for ( let i = 0; i < this.visibleItem; i++ ) {
-			const key = i + this.currentIndex;
-			$items[ key ].setAttribute( 'aria-hidden', 'false' );
-			$items[ key ].classList.add( 'active' );
+		if ( this.isCenter ) {
+			const start = this.currentIndex - this.centerItem;
+			const end = this.currentIndex + this.centerItem;
+
+			for ( let i = start; i <= end; i++ ) {
+				$items[ i ].setAttribute( 'aria-hidden', 'false' );
+				$items[ i ].classList.add( 'active' );
+			}
+		} else {
+			for ( let i = 0; i < this.visibleItem; i++ ) {
+				const key = i + this.currentIndex;
+				$items[ key ].setAttribute( 'aria-hidden', 'false' );
+				$items[ key ].classList.add( 'active' );
+			}
 		}
 	};
 
@@ -381,9 +412,11 @@ function Plugin( element, options ) {
 			this.currentIndex * ( this.itemGap / this.visibleItem );
 
 		const currentWidth =
-			( this.currentIndex * this.sliderWidth ) / this.visibleItem;
+			( ( this.currentIndex - this.centerItem ) * this.sliderWidth ) /
+			this.visibleItem;
 		const currentHeight =
-			( this.currentIndex * this.sliderHeight ) / this.visibleItem;
+			( ( this.currentIndex - this.centerItem ) * this.sliderHeight ) /
+			this.visibleItem;
 
 		const horizontalValue = Math.ceil( currentWidth + gapValue - x );
 		const verticalValue = Math.ceil( currentHeight + gapValue - y );
@@ -420,27 +453,54 @@ function Plugin( element, options ) {
 	};
 
 	const afterSlide = () => {
+		// here we replace.
+
 		this.$slider.classList.remove( 'animating' );
 
-		let index = this.currentIndex;
 		syncAfterSlide();
-		// Reset prev
 
+		if ( this.isCenter ) {
+			// Reset prev
+			//console.log( this.currentIndex - this.centerItem );
+			if ( this.currentIndex - this.centerItem <= 0 ) {
+				setCurrentIndex( this.itemsCount + this.centerItem ); // 15 -
+			}
+
+			// Reset next
+			if (
+				this.currentIndex + this.centerItem + this.visibleItem >=
+				this.allItemsCount
+			) {
+				setCurrentIndex( this.visibleItem + this.centerItem );
+			}
+
+			addClasses();
+			return;
+		}
+
+		// Reset prev
 		if ( this.currentIndex <= 0 ) {
-			index = this.$items.length;
-			setCurrentIndex( index );
+			setCurrentIndex( this.itemsCount );
 		}
 
 		// Reset next
-		if ( this.currentIndex > this.$items.length ) {
-			index = this.currentIndex - this.$items.length;
-			setCurrentIndex( index );
+		if ( this.currentIndex > this.itemsCount ) {
+			setCurrentIndex( this.currentIndex - this.itemsCount );
 		}
 
 		addClasses();
 	};
 
 	const slidePrev = () => {
+		if ( this.isCenter ) {
+			const index = this.currentIndex - this.itemsPerSlide;
+			this.$slider.classList.add( 'animating' );
+			this.direction = 'prev';
+			setCurrentIndex( index );
+			syncOnSlide();
+			return;
+		}
+
 		const remaining = this.currentIndex - this.itemsPerSlide;
 		let increment =
 			this.itemsPerSlide < remaining ? this.itemsPerSlide : remaining;
@@ -449,10 +509,11 @@ function Plugin( element, options ) {
 			increment = this.itemsPerSlide;
 		}
 
-		if ( ! this.isInfinite ) {
-			if ( this.currentIndex - increment - this.visibleItem < 0 ) {
-				return false;
-			}
+		if (
+			! this.isInfinite &&
+			this.currentIndex - this.visibleItem - increment < 0
+		) {
+			return false;
 		}
 
 		const index = this.currentIndex - increment;
@@ -463,7 +524,16 @@ function Plugin( element, options ) {
 	};
 
 	const slideNext = () => {
-		const remaining = this.totalItems - this.currentIndex;
+		if ( this.isCenter ) {
+			const index = this.currentIndex + this.itemsPerSlide;
+			this.$slider.classList.add( 'animating' );
+			this.direction = 'next';
+			setCurrentIndex( index );
+			syncOnSlide();
+			return;
+		}
+
+		const remaining = this.itemsCount - this.currentIndex;
 
 		let increment =
 			this.itemsPerSlide < remaining ? this.itemsPerSlide : remaining;
@@ -472,14 +542,14 @@ function Plugin( element, options ) {
 			increment = this.itemsPerSlide;
 		}
 
-		if ( ! this.isInfinite ) {
-			if ( this.currentIndex + increment > this.totalItems ) {
-				return;
-			}
+		if (
+			! this.isInfinite &&
+			this.currentIndex + increment > this.itemsCount
+		) {
+			return;
 		}
 
 		const index = this.currentIndex + increment;
-
 		this.$slider.classList.add( 'animating' );
 		this.direction = 'next';
 		setCurrentIndex( index );
@@ -527,14 +597,11 @@ function Plugin( element, options ) {
 			return;
 		}
 
-		if ( index > this.totalItems ) {
+		if ( index > this.itemsCount ) {
 			return;
 		}
 
-		const $withClonedItemsLength =
-			this.$slider.querySelectorAll( 'li' ).length;
-
-		const actualIndex = ( $withClonedItemsLength - this.totalItems ) / 2;
+		const actualIndex = ( this.allItemsCount - this.itemsCount ) / 2;
 
 		// const centerIndex = this.visibleItem > 1 && this.visibleItem % 2 === 1 ? -2 : -1;
 
@@ -570,7 +637,8 @@ function Plugin( element, options ) {
 		removeClasses();
 		this.$slider.querySelector( 'li' ).classList.add( 'active' );
 		this.$element.classList.remove( 'is-horizontal' );
-		this.$element.classList.remove( 'is-vertical' );
+		this.$element.classList.remove( 'is-horizontal' );
+		this.$element.classList.remove( 'is-active-center' );
 	};
 
 	// Expose to public.

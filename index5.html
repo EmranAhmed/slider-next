@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Slider Next 5</title>
+	<link rel="stylesheet" href="assets/style-slider.css">
+
+	<style>
+		.current img {
+			border: 2px solid red;
+		}
+	</style>
+</head>
+
+<body>
+
+<div class="container" style="height: 300px">
+
+	<div role="region" aria-label="Carousel" class="is-active-center base hr slider-wrapper">
+
+		<div class="slider-container">
+			<ul class="slider">
+				<li class="active">
+					<img src="images/hoodie_1_front.jpg" />
+					<p>01</p>
+				</li>
+				<li>
+					<img src="images/hoodie_2_front.jpg" />
+					<p>02</p>
+				</li>
+				<li>
+					<img src="images/hoodie_3_front.jpg" />
+					<p>03</p>
+				</li>
+				<li><img src="images/hoodie_4_front.jpg" />
+					<p>04</p>
+				</li>
+				<li>
+					<img src="images/hoodie_5_front.jpg" />
+					<p>05</p>
+				</li>
+				<li>
+					<img src="images/hoodie_6_front.jpg" />
+					<p>06</p>
+				</li>
+				<li>
+					<img src="images/hoodie_7_front.jpg" />
+					<p>07</p>
+				</li>
+			</ul>
+		</div>
+
+		<div role="group" aria-label="Slide controls" class="control">
+			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
+			<!--<ul>
+			  <li class="selected"></li>
+			  <li></li>
+			  <li></li>
+		   </ul>-->
+		</div>
+	</div>
+
+</div>
+
+<script src="assets/slider.js"></script>
+
+</body>
+
+</html>
