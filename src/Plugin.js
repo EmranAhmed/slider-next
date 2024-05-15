@@ -138,8 +138,7 @@ function Plugin( element, options ) {
 		if ( this.isCenter ) {
 			this.$element.classList.add( 'is-active-center' );
 			this.centerItem = ( this.visibleItem - this.itemsPerSlide ) / 2;
-
-			// console.log( 'cen', this.centerItem );
+			this.itemsPerSlide = 1;
 		}
 
 		if ( this.isHorizontal ) {
@@ -151,8 +150,6 @@ function Plugin( element, options ) {
 
 	const initialCloneItems = () => {
 		const lastItemsIndex = this.itemsCount - 1;
-
-		// console.log( itemsToClone );
 
 		const itemsToClone = this.visibleItem + this.centerItem;
 
@@ -188,6 +185,80 @@ function Plugin( element, options ) {
 				setCurrentIndex( index );
 			}
 		} );
+	};
+
+	const addClasses = () => {
+		const $items = this.$slider.querySelectorAll( 'li' );
+
+		$items[ this.currentIndex ].setAttribute( 'aria-hidden', 'false' );
+		$items[ this.currentIndex ].classList.add( 'current' );
+
+		if ( this.isCenter ) {
+			const start = this.currentIndex - this.centerItem;
+			const end = this.currentIndex + this.centerItem;
+
+			for ( let i = start; i <= end; i++ ) {
+				$items[ i ].setAttribute( 'aria-hidden', 'false' );
+				$items[ i ].classList.add( 'active' );
+			}
+		} else {
+			for ( let i = 0; i < this.visibleItem; i++ ) {
+				const key = i + this.currentIndex;
+				$items[ key ].setAttribute( 'aria-hidden', 'false' );
+				$items[ key ].classList.add( 'active' );
+			}
+		}
+	};
+
+	const addEvents = () => {
+		this.$element
+			.querySelector( this.settings.prevControlSelector )
+			.addEventListener( 'click', handlePrev );
+
+		this.$element
+			.querySelector( this.settings.nextControlSelector )
+			.addEventListener( 'click', handleNext );
+
+		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+			if ( this.settings.syncWith ) {
+				$li.addEventListener( 'click', handleSyncItemsClick );
+			}
+
+			if ( this.isCenter ) {
+				$li.addEventListener( 'click', handleCenterClick );
+			}
+		} );
+
+		this.$slider.addEventListener( 'transitionstart', beforeSlide );
+		this.$slider.addEventListener( 'transitionend', afterSlide );
+
+		this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
+			offset: 50,
+		} );
+		// this.$container.addEventListener( 'swipe', handleSwipe );
+	};
+
+	const handleCenterClick = ( event ) => {
+		if ( isAnimating() ) {
+			return;
+		}
+
+		const index = parseInt(
+			event.target.closest( 'li' ).dataset.index,
+			10
+		);
+
+		if ( index === this.currentIndex ) {
+			return;
+		}
+
+		if ( index > this.currentIndex ) {
+			slideNext();
+		}
+
+		if ( index < this.currentIndex ) {
+			slidePrev();
+		}
 	};
 
 	const handleSyncItemsClick = ( event ) => {
@@ -344,29 +415,6 @@ function Plugin( element, options ) {
 		);
 	};
 
-	const addClasses = () => {
-		const $items = this.$slider.querySelectorAll( 'li' );
-
-		$items[ this.currentIndex ].setAttribute( 'aria-hidden', 'false' );
-		$items[ this.currentIndex ].classList.add( 'current' );
-
-		if ( this.isCenter ) {
-			const start = this.currentIndex - this.centerItem;
-			const end = this.currentIndex + this.centerItem;
-
-			for ( let i = start; i <= end; i++ ) {
-				$items[ i ].setAttribute( 'aria-hidden', 'false' );
-				$items[ i ].classList.add( 'active' );
-			}
-		} else {
-			for ( let i = 0; i < this.visibleItem; i++ ) {
-				const key = i + this.currentIndex;
-				$items[ key ].setAttribute( 'aria-hidden', 'false' );
-				$items[ key ].classList.add( 'active' );
-			}
-		}
-	};
-
 	const removeClasses = () => {
 		//this.$slider.classList.remove( 'animating' );
 		const $items = this.$slider.querySelectorAll( 'li' );
@@ -375,30 +423,6 @@ function Plugin( element, options ) {
 			$item.classList.remove( 'active' );
 			$item.classList.remove( 'current' );
 		} );
-	};
-
-	const addEvents = () => {
-		this.$element
-			.querySelector( this.settings.prevControlSelector )
-			.addEventListener( 'click', handlePrev );
-
-		this.$element
-			.querySelector( this.settings.nextControlSelector )
-			.addEventListener( 'click', handleNext );
-
-		if ( this.settings.syncWith ) {
-			this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-				$li.addEventListener( 'click', handleSyncItemsClick );
-			} );
-		}
-
-		this.$slider.addEventListener( 'transitionstart', beforeSlide );
-		this.$slider.addEventListener( 'transitionend', afterSlide );
-
-		this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
-			offset: 50,
-		} );
-		// this.$container.addEventListener( 'swipe', handleSwipe );
 	};
 
 	const handleSwipe = ( event ) => {
@@ -583,6 +607,10 @@ function Plugin( element, options ) {
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
 			$li.removeEventListener( 'click', handleSyncItemsClick );
+		} );
+
+		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
+			$li.removeEventListener( 'click', handleCenterClick );
 		} );
 
 		this.$slider.removeEventListener( 'transitionstart', beforeSlide );

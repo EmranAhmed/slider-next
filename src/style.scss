@@ -41,7 +41,7 @@
 	--slide-item: 1;
 	--show-item: 3;
 	--item-gap: 5px;
-	--is-active-center: false;
+	--is-active-center: true;
 	/*max-width: 600px;*/
 	/*height: 400px;*/
 	&.hr{
@@ -51,7 +51,6 @@
 		--is-horizontal: false;
 	}
 }
-
 
 .slider-wrapper.one {
 	--slide-item: 1;
