@@ -41,7 +41,7 @@
 	--slide-item: 1;
 	--show-item: 3;
 	--item-gap: 5px;
-	--is-active-center: true;
+	--is-always-center: true;
 	/*max-width: 600px;*/
 	/*height: 400px;*/
 	&.hr{
@@ -78,7 +78,8 @@
 
 	--show-infinite: true;
 	--is-horizontal: true;
-	--is-active-center: false;
+	--is-always-center: false;
+	--is-active-select: false;
 	--_current-index: 0; // private value
 	--item-gap: 0px;
 	--control-color: green;
@@ -108,21 +109,20 @@
 
 		will-change: auto;
 
-		--item-width: calc(100% / var(--show-item));
-		--item-height: calc(100% / var(--show-item));
+		--_item-width: calc(100% / var(--show-item));
+		--_item-height: calc(100% / var(--show-item));
 		--_column-gap-count: calc(var(--show-item) - 1);
 		--_column-size: calc(calc(var(--item-gap) / var(--show-item)) * var(--_column-gap-count));
-		//--gap-value: calc(var(--_current-index) * var(--_column-size));
-		--gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--show-item)));
-		// --current-item-position: calc(var(--show-item) * var(--_current-index));
-		--horizontal-value: calc(calc(var(--item-width) * var(--_current-index) + var(--gap-value)) * -1);
-		--vertical-value: calc(calc(var(--item-height) * var(--_current-index)  + var(--gap-value)) * -1);
+		--_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--show-item)));
 
+		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) + var(--_gap-value)) * -1);
+		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index)  + var(--_gap-value)) * -1);
 		--_center-item: calc(calc(var(--show-item) - var(--slide-item)) / 2);
-		--_center-item-width: calc(var(--item-width) * var(--_center-item));
+		--_center-item-width: calc(var(--_item-width) * var(--_center-item));
+		--_center-item-height: calc(var(--_item-height) * var(--_center-item));
 
 
-		transform: translateX(var(--horizontal-value));
+		transform: translateX(var(--_horizontal-value));
 		// transform: translateY(var(--vertical-value));
 
 		list-style: none;
@@ -137,7 +137,7 @@
 		grid-auto-rows: var(--item-height);*/
 
 		grid-auto-flow: column;
-		grid-auto-columns: calc(var(--item-width) - var(--_column-size) );
+		grid-auto-columns: calc(var(--_item-width) - var(--_column-size) );
 		user-select: none;
 
 		& li {
@@ -165,24 +165,26 @@
 	&.is-active-center{
 		.slider{
 			/*justify-content: center;*/
-			--horizontal-value: calc(calc(var(--item-width) * var(--_current-index) - var(--_center-item-width) + var(--gap-value)) * -1);
+			--horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) - var(--_center-item-width) + var(--_gap-value)) * -1);
+			--vertical-value: calc(calc(var(--_item-height) * var(--_current-index) - var(--_center-item-height) + var(--_gap-value)) * -1);
+
 		}
 	}
 
 	&.is-horizontal {
 		.slider {
-			transform: translateX(var(--horizontal-value));
+			transform: translateX(var(--_horizontal-value));
 			grid-auto-flow: column;
-			grid-auto-columns: calc(var(--item-width) - var(--_column-size));
+			grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 			grid-auto-rows: auto;
 		}
 	}
 
 	&.is-vertical {
 		.slider {
-			transform: translateY(var(--vertical-value));
+			transform: translateY(var(--_vertical-value));
 			grid-auto-flow: row;
-			grid-auto-rows: calc(var(--item-height) - var(--_column-size));
+			grid-auto-rows: calc(var(--_item-height) - var(--_column-size));
 			grid-auto-columns: auto;
 			img{
 				width: auto;

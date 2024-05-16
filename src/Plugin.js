@@ -14,13 +14,14 @@ function Plugin( element, options ) {
 		visibleItemsCSSProperty: '--show-item',
 		isInfiniteCSSProperty: '--show-infinite',
 		isHorizontalCSSProperty: '--is-horizontal',
-		isActiveCenterCSSProperty: '--is-active-center',
+		isAlwaysCenterCSSProperty: '--is-always-center',
+		isActiveSelectCSSProperty: '--is-active-select',
 		itemGapCSSProperty: '--item-gap',
 		prevControlSelector: '.prev',
 		nextControlSelector: '.next',
 		syncWith: null,
-		syncOnSlide: true,
-		syncAfterSlide: false,
+		syncOnSlide: false,
+		syncAfterSlide: true,
 		visibleActiveSlideOnSync: true,
 	};
 
@@ -86,16 +87,23 @@ function Plugin( element, options ) {
 			.getPropertyValue( this.settings.isHorizontalCSSProperty )
 			.toLowerCase();
 
-		const centerString = window
+		const alwaysCenterString = window
 			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isActiveCenterCSSProperty )
+			.getPropertyValue( this.settings.isAlwaysCenterCSSProperty )
+			.toLowerCase();
+
+		const activeOnSelect = window
+			.getComputedStyle( this.$element )
+			.getPropertyValue( this.settings.isActiveSelectCSSProperty )
 			.toLowerCase();
 
 		this.isInfinite = cssVariableIsTrue( infiniteString );
 
 		this.isHorizontal = cssVariableIsTrue( horizontalString );
 
-		this.isCenter = cssVariableIsTrue( centerString );
+		this.isCenter = cssVariableIsTrue( alwaysCenterString );
+
+		this.isActiveOnSelect = cssVariableIsTrue( activeOnSelect );
 
 		this.visibleItem = parseInt(
 			window
@@ -224,7 +232,7 @@ function Plugin( element, options ) {
 				$li.addEventListener( 'click', handleSyncItemsClick );
 			}
 
-			if ( this.isCenter ) {
+			if ( this.isCenter && this.isActiveOnSelect ) {
 				$li.addEventListener( 'click', handleCenterClick );
 			}
 		} );
@@ -447,20 +455,20 @@ function Plugin( element, options ) {
 
 		if ( moving ) {
 			this.$slider.style.setProperty(
-				'--horizontal-value',
+				'--_horizontal-value',
 				`-${ horizontalValue }px`
 			);
 
 			this.$slider.style.setProperty(
-				'--vertical-value',
+				'--_vertical-value',
 				`-${ verticalValue }px`
 			);
 		}
 
 		if ( done ) {
 			this.$slider.classList.add( 'animating' );
-			this.$slider.style.removeProperty( '--horizontal-value' );
-			this.$slider.style.removeProperty( '--vertical-value' );
+			this.$slider.style.removeProperty( '--_horizontal-value' );
+			this.$slider.style.removeProperty( '--_vertical-value' );
 		}
 
 		if ( done && ( left || top ) ) {
@@ -477,24 +485,23 @@ function Plugin( element, options ) {
 	};
 
 	const afterSlide = () => {
-		// here we replace.
-
 		this.$slider.classList.remove( 'animating' );
 
 		syncAfterSlide();
 
 		if ( this.isCenter ) {
 			// Reset prev
-			//console.log( this.currentIndex - this.centerItem );
-			if ( this.currentIndex - this.centerItem <= 0 ) {
-				setCurrentIndex( this.itemsCount + this.centerItem ); // 15 -
+			const resetPrev = this.currentIndex - this.centerItem <= 0;
+			const resetNext =
+				this.currentIndex + this.centerItem + this.visibleItem >=
+				this.allItemsCount;
+
+			if ( resetPrev ) {
+				setCurrentIndex( this.itemsCount + this.centerItem );
 			}
 
 			// Reset next
-			if (
-				this.currentIndex + this.centerItem + this.visibleItem >=
-				this.allItemsCount
-			) {
+			if ( resetNext ) {
 				setCurrentIndex( this.visibleItem + this.centerItem );
 			}
 
