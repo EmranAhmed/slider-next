@@ -1,0 +1,30 @@
+# Workflow name
+name: Build and Publish to GitHub Pages
+
+on:
+    push:
+        branches:
+            - "main" # Replace with the branch you want to deploy from
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+# List of jobs
+jobs:
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.build-publish.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            # Manual Checkout
+            - uses: actions/checkout@v3
+
+            # Set up Node
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - run: npm install
+            - run: npm run build

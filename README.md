@@ -17,5 +17,6 @@
 
 ## Release:
 
+- `npm run build` - build
 - `npm run package` - make package directory
 - `npm run zip` - make zip
