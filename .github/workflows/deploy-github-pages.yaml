@@ -16,15 +16,21 @@ jobs:
     deploy:
         environment:
             name: github-pages
-            url: ${{ steps.build-publish.outputs.page_url }}
+            url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
-            # Manual Checkout
-            - uses: actions/checkout@v3
+            # Checkout
+            - name: Checkout
+              uses: actions/checkout@v4
 
             # Set up Node
-            - uses: actions/setup-node@v3
+            - name: Setup Node
+              uses: actions/setup-node@v4
               with:
                   node-version: 18
             - run: npm install
             - run: npm run build
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4 # or specific "vX.X.X" version tag for this action
