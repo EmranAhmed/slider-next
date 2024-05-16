@@ -1,6 +1,7 @@
 !.eslintrc.js
 bin
-build
+images
+assets
 languages
 node_modules
 vendor
