@@ -42,13 +42,21 @@
 	--show-item: 3;
 	--item-gap: 5px;
 	--is-always-center: true;
+	--is-horizontal: false;
 	/*max-width: 600px;*/
 	/*height: 400px;*/
 	&.hr{
 		--is-horizontal: true;
+		@media (max-width: 800px) {
+			background-color: #ffccff;
+			--is-horizontal: false;
+		}
 	}
 	&.vr{
 		--is-horizontal: false;
+		@media (max-width: 800px) {
+			--is-horizontal: true;
+		}
 	}
 }
 
@@ -165,8 +173,8 @@
 	&.is-active-center{
 		.slider{
 			/*justify-content: center;*/
-			--horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) - var(--_center-item-width) + var(--_gap-value)) * -1);
-			--vertical-value: calc(calc(var(--_item-height) * var(--_current-index) - var(--_center-item-height) + var(--_gap-value)) * -1);
+			--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) - var(--_center-item-width) + var(--_gap-value)) * -1);
+			--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) - var(--_center-item-height) + var(--_gap-value)) * -1);
 
 		}
 	}
