@@ -28,13 +28,18 @@
 		</div>
 
 		<div role="group" aria-label="Slide controls" class="control">
-			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
-			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
-			<!--<ul>
-			  <li class="selected"></li>
-			  <li></li>
-			  <li></li>
-		   </ul>-->
+			<div class="slider-navigation">
+				<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+				<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
+			</div>
+
+			<div class="slider-pagination">
+				<a class="current" aria-current="true" role="button" tabindex="0" aria-label="Slider 1" href="#">1</a>
+				<a role="button" tabindex="0" aria-label="Slider 2" href="#">2</a>
+				<a role="button" tabindex="0" aria-label="Slider 3" href="#">3</a>
+				<a role="button" tabindex="0" aria-label="Slider 4" href="#">4</a>
+				<a role="button" tabindex="0" aria-label="Slider 5" href="#">5</a>
+			</div>
 		</div>
 	</div>
 
@@ -57,6 +62,8 @@
 			);
 		}, 300 );
 	} );
+
+
 
 </script>
 </body>

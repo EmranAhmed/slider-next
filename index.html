@@ -5,40 +5,25 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Slider Next</title>
-	<link rel="stylesheet" href="assets/style-slider.css">
+	<link rel="stylesheet" href="assets/style-slider.css" />
 
+	<script type="importmap">
+		{
+		  "imports":
+			  {
+				  "@storepress/utils":"./assets/storepress-utils-module.js"
+			  }
+		}
+	</script>
+
+	<link rel="modulepreload" href="./assets/storepress-utils-module.js" />
 </head>
 
 <body>
 
 <div class="container-2">
 
-	<div role="region" aria-label="Carousel" class="one slider-wrapper" data-slider-settings="{'syncWith': '.two'}">
-
-		<div class="slider-container">
-			<ul class="slider" >
-				<li class="active"><img src="images/hoodie_1_front.jpg"></li>
-				<li><img src="images/hoodie_2_front.jpg"></li>
-				<li><img src="images/hoodie_3_front.jpg"></li>
-				<li><img src="images/hoodie_4_front.jpg"></li>
-				<li><img src="images/hoodie_5_front.jpg"></li>
-				<li><img src="images/hoodie_6_front.jpg"></li>
-				<li><img src="images/hoodie_7_front.jpg"></li>
-			</ul>
-		</div>
-
-		<div role="group" aria-label="Slide controls" class="control">
-			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
-			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
-			<!--<ul>
-			  <li class="selected"></li>
-			  <li></li>
-			  <li></li>
-		   </ul>-->
-		</div>
-	</div>
-
-	<div role="region" aria-label="Carousel" class="two slider-wrapper" data-slider-settings--sync-with=".one">
+	<div role="region" aria-label="Carousel" class="one slider-wrapper">
 
 		<div class="slider-container">
 			<ul class="slider">
@@ -53,18 +38,52 @@
 		</div>
 
 		<div role="group" aria-label="Slide controls" class="control">
-			<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
-			<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
-			<!--<ul>
-			  <li class="selected"></li>
-			  <li></li>
-			  <li></li>
-		   </ul>-->
+			<div class="slider-navigation">
+				<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+				<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
+			</div>
+
+			<div class="slider-pagination">
+				<a class="current" aria-current="true" role="button" tabindex="0" aria-label="Slider 1" href="#">1</a>
+				<a role="button" tabindex="0" aria-label="Slider 2" href="#">2</a>
+				<a role="button" tabindex="0" aria-label="Slider 3" href="#">3</a>
+				<a role="button" tabindex="0" aria-label="Slider 4" href="#">4</a>
+				<a role="button" tabindex="0" aria-label="Slider 5" href="#">5</a>
+			</div>
+
+		</div>
+	</div>
+
+	<div role="region" aria-label="Carousel" style="--is-always-center: true" class="two slider-wrapper">
+
+		<div class="slider-container">
+			<ul class="slider">
+				<li class="active"><img src="images/hoodie_1_front.jpg"></li>
+				<li><img src="images/hoodie_2_front.jpg"></li>
+				<li><img src="images/hoodie_3_front.jpg"></li>
+				<li><img src="images/hoodie_4_front.jpg"></li>
+				<li><img src="images/hoodie_5_front.jpg"></li>
+				<li><img src="images/hoodie_6_front.jpg"></li>
+				<li><img src="images/hoodie_7_front.jpg"></li>
+			</ul>
+		</div>
+
+		<div role="group" aria-label="Slide controls" class="control">
+			<div class="slider-navigation">
+				<a role="button" tabindex="0" aria-label="Previous slide" href="#" class="arrow prev"></a>
+				<a role="button" tabindex="0" aria-label="Next slide" href="#" class="arrow next"></a>
+			</div>
+
+			<div class="slider-pagination">
+				<a class="current" aria-current="true" role="button" tabindex="0" aria-label="Slider 1" href="#">1</a>
+				<a role="button" tabindex="0" aria-label="Slider 2" href="#">2</a>
+				<a role="button" tabindex="0" aria-label="Slider 3" href="#">3</a>
+				<a role="button" tabindex="0" aria-label="Slider 4" href="#">4</a>
+			</div>
 		</div>
 	</div>
 
 </div>
-
 
 
 <a id="prev1" href="#">PREV 1</a>
@@ -77,13 +96,21 @@
 
 --
 
+Goto <a id="goto-one-1" href="#">Slide 1</a>
+Goto <a id="goto-one-2" href="#">Slide 2</a>
+Goto <a id="goto-one-3" href="#">Slide 3</a>
 Goto <a id="goto-one-4" href="#">Slide 4</a>
 Goto <a id="goto-one-5" href="#">Slide 5</a>
 
 <pre id="log"></pre>
 
+<!--<script src="assets/storepress-utils.js"></script>
 <script src="assets/slider.js"></script>
-<script src="user-control.js"></script>
+<script src="assets/user-control.js"></script>-->
+
+
+<script type="module" src="./assets/slider.js"></script>
+<script type="module" src="./user-control.js"></script>
 
 <h2>Demo</h2>
 <a href="index2.html">Demo 2</a> |

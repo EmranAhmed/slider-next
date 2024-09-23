@@ -1,4 +1,9 @@
+// import { triggerEvent, getPluginInstance } from '@storepress/utils';
+
 document.addEventListener( 'DOMContentLoaded', function () {
+	// Init
+
+	/*
 	document.dispatchEvent(
 		new CustomEvent( 'slider_init', {
 			detail: {
@@ -9,31 +14,61 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			},
 		} )
 	);
+	 */
+
+	/*triggerEvent( document, 'slider_init', {
+		element: [ '.two' ],
+		settings: {
+			syncWith: '.one',
+		},
+	} );*/
+
+	import('@storepress/utils').then(({getPluginInstance, triggerEvent}) => {
+
+	triggerEvent( document, 'slider_init', {
+		element: [ '.two' ],
+		settings: {
+			syncWith: '.one',
+		},
+	} );
+
+
+	const $slider = getPluginInstance( '.one' );
+	console.log( '=>', $slider );
+});
+
+
 
 	let timer;
-	window.addEventListener( 'resize', ( event ) => {
+	window.addEventListener( 'resize', () => {
 		clearTimeout( timer );
 
 		timer = setTimeout( () => {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_re_init', {
 					detail: {
-						element: '.two',
-						settings: {},
-					},
-				} )
-			);
-
-			document.dispatchEvent(
-				new CustomEvent( 'slider_re_init', {
-					detail: {
-						element: '.one',
+						element: [ '.one', '.two' ],
 						settings: {},
 					},
 				} )
 			);
 		}, 300 );
 	} );
+
+	// Custom Next Prev Sync.
+	document
+		.getElementById( 'prev2' )
+		.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+
+			document.dispatchEvent(
+				new CustomEvent( 'slider_prev', {
+					detail: {
+						element: [ '.one', '.two' ],
+					},
+				} )
+			);
+		} );
 
 	document
 		.getElementById( 'next2' )
@@ -43,21 +78,75 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_next', {
 					detail: {
-						element: '.two',
+						element: [ '.one', '.two' ],
+					},
+				} )
+			);
+		} );
+
+	// Sync Slide on swipe
+	document.querySelectorAll( '.one, .two' ).forEach( ( element ) => {
+		element.addEventListener( 'slide_prev_swiped', () => {
+			document.dispatchEvent(
+				new CustomEvent( 'slider_prev', {
+					detail: {
+						element: [ '.one', '.two' ],
+					},
+				} )
+			);
+		} );
+
+		element.addEventListener( 'slide_next_swiped', () => {
+			document.dispatchEvent(
+				new CustomEvent( 'slider_next', {
+					detail: {
+						element: [ '.one', '.two' ],
+					},
+				} )
+			);
+		} );
+	} );
+
+	document
+		.getElementById( 'goto-one-1' )
+		.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+
+			document.dispatchEvent(
+				new CustomEvent( 'slider_goto', {
+					detail: {
+						element: [ '.one', '.two' ],
+						index: 0,
 					},
 				} )
 			);
 		} );
 
 	document
-		.getElementById( 'prev2' )
+		.getElementById( 'goto-one-2' )
 		.addEventListener( 'click', function ( event ) {
 			event.preventDefault();
 
 			document.dispatchEvent(
-				new CustomEvent( 'slider_prev', {
+				new CustomEvent( 'slider_goto', {
 					detail: {
-						element: '.two',
+						element: [ '.one', '.two' ],
+						index: 1,
+					},
+				} )
+			);
+		} );
+
+	document
+		.getElementById( 'goto-one-3' )
+		.addEventListener( 'click', function ( event ) {
+			event.preventDefault();
+
+			document.dispatchEvent(
+				new CustomEvent( 'slider_goto', {
+					detail: {
+						element: [ '.one', '.two' ],
+						index: 2,
 					},
 				} )
 			);
@@ -71,7 +160,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_goto', {
 					detail: {
-						element: '.one',
+						element: [ '.one', '.two' ],
 						index: 3,
 					},
 				} )
@@ -86,7 +175,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_goto', {
 					detail: {
-						element: '.one',
+						element: [ '.one', '.two' ],
 						index: 4,
 					},
 				} )
@@ -101,7 +190,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_next', {
 					detail: {
-						element: '.one',
+						element: [ '.one', '.two' ],
 					},
 				} )
 			);
@@ -115,7 +204,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			document.dispatchEvent(
 				new CustomEvent( 'slider_prev', {
 					detail: {
-						element: '.one',
+						element: [ '.one', '.two' ],
 					},
 				} )
 			);

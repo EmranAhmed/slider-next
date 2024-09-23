@@ -13,7 +13,8 @@ assets
 dist
 dist-ssr
 *.local
-
+gutenberg
+wordpress-develop
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

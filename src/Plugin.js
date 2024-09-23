@@ -5,6 +5,7 @@ import {
 	getOptionsFromAttribute,
 	getPluginInstance,
 	swipeEvent,
+	triggerEvent,
 } from '@storepress/utils';
 
 function Plugin( element, options ) {
@@ -17,12 +18,10 @@ function Plugin( element, options ) {
 		isAlwaysCenterCSSProperty: '--is-always-center',
 		isActiveSelectCSSProperty: '--is-active-select',
 		itemGapCSSProperty: '--item-gap',
-		prevControlSelector: '.prev',
-		nextControlSelector: '.next',
 		syncWith: null,
-		syncOnSlide: false,
-		syncAfterSlide: true,
-		visibleActiveSlideOnSync: true,
+		syncOnSlide: true,
+		syncAfterSlide: false,
+		visibleActiveSlideOnSync: false,
 	};
 
 	// Collecting settings from html attribute
@@ -42,7 +41,7 @@ function Plugin( element, options ) {
 		this.isInfinite = true;
 		this.$container = this.$element.querySelector( '.slider-container' );
 		this.$slider = this.$element.querySelector( '.slider' );
-		this.$items = this.$element.querySelectorAll( 'li' );
+		this.$items = this.$slider.querySelectorAll( 'li' );
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
 		this.itemsCount = this.$items.length;
@@ -219,14 +218,6 @@ function Plugin( element, options ) {
 	};
 
 	const addEvents = () => {
-		this.$element
-			.querySelector( this.settings.prevControlSelector )
-			.addEventListener( 'click', handlePrev );
-
-		this.$element
-			.querySelector( this.settings.nextControlSelector )
-			.addEventListener( 'click', handleNext );
-
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
 			if ( this.settings.syncWith ) {
 				$li.addEventListener( 'click', handleSyncItemsClick );
@@ -244,6 +235,10 @@ function Plugin( element, options ) {
 			offset: 50,
 		} );
 		// this.$container.addEventListener( 'swipe', handleSwipe );
+	};
+
+	const getItems = () => {
+		return this.$slider.querySelectorAll( 'li' );
 	};
 
 	const handleCenterClick = ( event ) => {
@@ -473,10 +468,12 @@ function Plugin( element, options ) {
 
 		if ( done && ( left || top ) ) {
 			slideNext();
+			triggerEvent( this.$element, 'slide_next_swiped' );
 		}
 
 		if ( done && ( right || bottom ) ) {
 			slidePrev();
+			triggerEvent( this.$element, 'slide_prev_swiped' );
 		}
 	};
 
@@ -487,7 +484,7 @@ function Plugin( element, options ) {
 	const afterSlide = () => {
 		this.$slider.classList.remove( 'animating' );
 
-		syncAfterSlide();
+		// syncAfterSlide();
 
 		if ( this.isCenter ) {
 			// Reset prev
@@ -528,7 +525,6 @@ function Plugin( element, options ) {
 			this.$slider.classList.add( 'animating' );
 			this.direction = 'prev';
 			setCurrentIndex( index );
-			syncOnSlide();
 			return;
 		}
 
@@ -551,7 +547,6 @@ function Plugin( element, options ) {
 		this.$slider.classList.add( 'animating' );
 		this.direction = 'prev';
 		setCurrentIndex( index );
-		syncOnSlide();
 	};
 
 	const slideNext = () => {
@@ -560,7 +555,7 @@ function Plugin( element, options ) {
 			this.$slider.classList.add( 'animating' );
 			this.direction = 'next';
 			setCurrentIndex( index );
-			syncOnSlide();
+			//syncOnSlide();
 			return;
 		}
 
@@ -584,7 +579,7 @@ function Plugin( element, options ) {
 		this.$slider.classList.add( 'animating' );
 		this.direction = 'next';
 		setCurrentIndex( index );
-		syncOnSlide();
+		// syncOnSlide();
 	};
 
 	const handleNext = ( event ) => {
@@ -604,13 +599,13 @@ function Plugin( element, options ) {
 	};
 
 	const removeEvents = () => {
-		this.$element
+		/*this.$element
 			.querySelector( this.settings.prevControlSelector )
 			.removeEventListener( 'click', handlePrev );
 
 		this.$element
 			.querySelector( this.settings.nextControlSelector )
-			.removeEventListener( 'click', handleNext );
+			.removeEventListener( 'click', handleNext );*/
 
 		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
 			$li.removeEventListener( 'click', handleSyncItemsClick );

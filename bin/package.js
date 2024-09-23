@@ -1,14 +1,13 @@
 #!/usr/bin/env node
-'use strict'
+'use strict';
 /**
  * External dependencies
  */
-const AdmZip = require('adm-zip')
-const { sync: glob } = require('fast-glob')
-const { sync: packlist } = require('npm-packlist')
-const { stdout } = require('process')
-const fs = require('fs-extra')
-
+const AdmZip = require('adm-zip');
+const { sync: glob } = require('fast-glob');
+const { dirname } = require('path');
+const { stdout } = require('process');
+const fs = require('fs-extra');
 /**
  * Internal dependencies
  */
@@ -17,61 +16,69 @@ const {
 	hasPackageProp,
 	getPackageProp,
 	hasArgInCLI,
-} = require('@wordpress/scripts/utils')
-const { dirname } = require('path')
+} = require('@wordpress/scripts/utils');
 
-const zip = new AdmZip()
-const name = getPackageProp('name')
+const npm_package_name = getPackageProp('name');
+const npm_package_version = getPackageProp('version');
 
-let files = []
+stdout.write(`Creating package for \`${npm_package_name}\` plugin... 🎁\n\n`);
+const zip = new AdmZip();
+const isZip = hasArgInCLI('--zip');
+
+let files = [];
+
 if (hasPackageProp('files')) {
 	stdout.write(
 		'Using the `files` field from `package.json` to detect files:\n\n'
-	)
-	files = packlist()
+	);
+
+	files = glob(getPackageProp('files'), {
+		caseSensitiveMatch: false,
+	});
 } else {
-	stdout.write(
-		'Using Plugin Handbook best practices to discover files:\n\n'
-	)
+	stdout.write('Using Plugin Handbook best practices to discover files:\n\n');
 	// See https://developer.wordpress.org/plugins/plugin-basics/best-practices/#file-organization.
 	files = glob(
 		[
 			'assets/**',
 			'images/**',
-			`index.html`
+			'index*',
+			'user-control.js',
 		],
 		{
 			caseSensitiveMatch: false,
 		}
-	)
+	);
 }
 
-const isZip = hasArgInCLI('--zip')
-
 if (isZip) {
-	stdout.write(`Creating archive for \`${name}\` plugin... 🎁\n\n`)
+	stdout.write(
+		`Creating archive for \`${npm_package_name}\` plugin... 🎁\n\n`
+	);
 	files.forEach((file) => {
-		stdout.write(`  🥳 Adding \`${file}\`.\n`)
-		const zipDirectory = dirname(file)
-		zip.addLocalFile(file, zipDirectory !== '.' ? zipDirectory : '')
-	})
+		stdout.write(`  🥳 Adding \`${file}\`.\n`);
+		const zipDirectory = dirname(file);
+		zip.addLocalFile(file, zipDirectory !== '.' ? zipDirectory : '');
+	});
 
-	zip.writeZip(`./${name}.zip`)
-	stdout.write(`\nDone. \`${name}.zip\` is ready! 🎉\n`)
+	zip.writeZip(`./${npm_package_name}.zip`);
+	stdout.write(`\nDone. \`${npm_package_name}.zip\` is ready! 🎉\n`);
 } else {
-	fs.remove(name).then(() => {
-		fs.ensureDir(name, () => {
+	fs.remove(npm_package_name).then(() => {
+		fs.ensureDir(npm_package_name, () => {
 			stdout.write(
-				`Creating directory for \`${name}\` plugin... 🎁\n\n`
-			)
+				`Creating directory for \`${npm_package_name}\` plugin... 🎁\n\n`
+			);
 
 			files.forEach((file) => {
-				const to = `${name}/${file}`
-				stdout.write(`  🥳 Adding \`${file}\`.\n`)
-				fs.copy(file, to)
-			})
+				const to = `${npm_package_name}/${file}`;
+				stdout.write(`  🥳 Adding \`${file}\`.\n`);
+				fs.copy(file, to);
+			});
 
-			stdout.write(`\n\nDone. \`${name}\` directory is ready! 🎉\n`)
-		})
-	})
+			stdout.write(
+				`\n\nDone. \`${npm_package_name}\` directory is ready! 🎉\n`
+			);
+		});
+	});
 }

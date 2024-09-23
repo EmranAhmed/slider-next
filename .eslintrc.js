@@ -114,12 +114,17 @@ const restrictedImports = [
 		message:
 			'This Lodash method is not recommended. Please use native functionality instead. If using `memoize`, please use `memize` instead.',
 	},
+	{
+		name: 'classnames',
+		message:
+			"Please use `clsx` instead. It's a lighter and faster drop-in replacement for `classnames`.",
+	},
 ];
 
 module.exports = {
 	root: true,
 	extends: [
-		'plugin:@woocommerce/eslint-plugin/recommended',
+		'plugin:@wordpress/eslint-plugin/recommended',
 		'plugin:you-dont-need-lodash-underscore/compatible',
 	],
 	settings: {
@@ -150,22 +155,14 @@ module.exports = {
 			'@wordpress/hooks',
 			'@wordpress/keycodes',
 			'@wordpress/url',
+			'@wordpress/element',
 			'@woocommerce/blocks-test-utils',
 			'@woocommerce/e2e-utils',
-			'babel-jest',
-			'dotenv',
-			'jest-environment-puppeteer',
-			'lodash/kebabCase',
 			'lodash',
-			'prop-types',
-			'react',
-			'requireindex',
-			'react-transition-group',
 		],
 		'import/resolver': {
 			node: {},
 			webpack: {},
-			typescript: {},
 		},
 	},
 	env: {
@@ -174,6 +171,7 @@ module.exports = {
 		node: true,
 	},
 	globals: {
+		jQuery: 'readonly',
 		wp: true,
 		wpApiSettings: true,
 		wcSettings: true,
@@ -192,7 +190,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: [ 'storepress-slider' ],
+				allowedTextDomain: [ 'storepress-base-plugin' ],
 			},
 		],
 	},

@@ -1,18 +1,25 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 
-import { createPluginInstance, triggerEvent } from '@storepress/utils';
+import { createPluginInstance, getPluginInstance, triggerEvent } from '@storepress/utils';
 
 /**
  * Internal dependencies
  */
 import { Plugin } from './Plugin';
+import './style.scss';
 
 document.addEventListener( 'DOMContentLoaded', () => {
+
+
 	const Slider = {
 		getInstance( element, options ) {
 			return createPluginInstance( element, options, Plugin );
+		},
+
+		getPluginInstance( element ) {
+			return getPluginInstance( element );
 		},
 
 		reInitWith( el, options ) {
@@ -61,7 +68,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const settings = { ...defaultSettings, ...event.detail?.settings };
 		const element = event.detail?.element;
 
-		Slider.reInitWith( element, settings );
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.reInitWith( el, settings );
+			}
+		} else {
+			Slider.reInitWith( element, settings );
+		}
 	} );
 
 	// Slider Init.
@@ -70,44 +83,78 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const settings = { ...defaultSettings, ...event.detail?.settings };
 		const element = event.detail?.element;
 
-		Slider.initWith( element, settings );
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.initWith( el, settings );
+			}
+		} else {
+			Slider.initWith( element, settings );
+		}
 	} );
 
 	// Next Slide
 	document.addEventListener( 'slider_next', ( event ) => {
 		const element = event.detail?.element;
 
-		Slider.nextWith( element, event );
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.nextWith( el, event );
+			}
+		} else {
+			Slider.nextWith( element, event );
+		}
 	} );
 
 	// Prev Slide
 	document.addEventListener( 'slider_prev', ( event ) => {
 		const element = event.detail?.element;
-		Slider.prevWith( element, event );
+
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.prevWith( el, event );
+			}
+		} else {
+			Slider.prevWith( element, event );
+		}
 	} );
 
 	// Goto
 	document.addEventListener( 'slider_goto', ( event ) => {
 		const element = event.detail?.element;
 		const index = event.detail?.index;
-		Slider.gotoWith( element, index );
+
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.gotoWith( el, index );
+			}
+		} else {
+			Slider.gotoWith( element, index );
+		}
 	} );
 
 	// Destroy
 	document.addEventListener( 'slider_destroy', ( event ) => {
 		const element = event.detail?.element;
 
-		Slider.destroyWith( element );
+		if ( Array.isArray( element ) ) {
+			for ( const el of element ) {
+				Slider.destroyWith( el );
+			}
+		} else {
+			Slider.destroyWith( element );
+		}
 	} );
 
 	// Dispatch / trigger Events:
 
 	triggerEvent( document, 'slider_init', {
-		element: '.one',
+		element: [ '.one', '.base' ],
 		settings: {},
 	} );
-	triggerEvent( document, 'slider_init', {
+
+	/*	triggerEvent( document, 'slider_init', {
 		element: '.base',
 		settings: {},
-	} );
+	} );*/
+
 } );

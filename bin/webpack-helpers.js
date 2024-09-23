@@ -2,18 +2,29 @@
 /**
  * External dependencies
  */
-const {
-	getWordPressSrcDirectory,
-} = require( '@wordpress/scripts/utils/config' );
+const { getWordPressSrcDirectory } = require( '@wordpress/scripts/utils/config' );
 const { fromProjectRoot } = require( '@wordpress/scripts/utils/file' );
-
 const { sep } = require( 'path' );
-const externalMap = {
-	//'slick-carousel' : ['Slick'],
+
+// jquery --> window.jQuery
+// react-dom --> window.ReactDOM
+const externalScriptsMap = {
+	'@storepress/utils' : ['StorePress','Utils'],
 };
 
+// @babel/runtime/regenerator --> wp-polyfill
 const scriptHandleMap = {
 	//'slick-carousel' : 'slick-carousel',
+	 '@storepress/utils' : 'storepress-utils',
+};
+
+const externalModulesMap = {
+	// static import.
+	 // '@wordpress/interactivity': 'module @wordpress/interactivity',
+	  '@storepress/utils': 'module @storepress/utils',
+	  // '@storepress/utils': 'import @storepress/utils',
+	// dynamic import.
+	//'@wordpress/interactivity-router': 'import @wordpress/interactivity-router',
 };
 
 /**
@@ -28,8 +39,8 @@ const scriptHandleMap = {
  *   to ignore the request. Return `string|string[]` to map the request to an external.
  */
 function requestToExternal( request ) {
-	if ( externalMap[ request ] ) {
-		return externalMap[ request ];
+	if ( externalScriptsMap[ request ] ) {
+		return externalScriptsMap[ request ];
 	}
 }
 
@@ -50,6 +61,27 @@ function requestToHandle( request ) {
 	}
 }
 
+/**
+ * Default request to external module transformation
+ *
+ * Currently only @wordpress/interactivity and `@wordpress/interactivity-router`
+ * are supported.
+ *
+ * Do not use the boolean shorthand here, it's only handled for the
+ * `requestToExternalModule` option.
+ *
+ * @param {string} request Module request (the module name in `import from`) to be transformed
+ * @return {string|Error|undefined} The resulting external definition.
+ *   - Return `undefined` to ignore the request (do not externalize).
+ *   - Return `string` to map the request to an external.
+ *   - Return `Error` to emit an error.
+ */
+function requestToExternalModule( request ) {
+	if ( externalModulesMap[ request ] ) {
+		return externalModulesMap[ request ];
+	}
+}
+
 function getFile( fileName ) {
 	return fromProjectRoot( getWordPressSrcDirectory() + sep + fileName );
 }
@@ -63,8 +95,10 @@ function getWebPackAlias() {
 }
 
 module.exports = {
+	fromProjectRoot,
 	getFile,
 	getWebPackAlias,
 	requestToExternal,
 	requestToHandle,
+	requestToExternalModule,
 };
