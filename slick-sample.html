@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Slick Sample</title>
+	<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+	<link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+
+	<style>
+
+		#main-slider {
+			width: 600px;
+			margin-inline: auto;
+		}
+
+		#main-slider .item {
+			position: relative;
+			height: 300px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			outline: 1px solid;
+		}
+
+		.slick-prev, .slick-next{
+			background-color: darkred;
+		}
+	</style>
+</head>
+<body>
+
+
+<div class="main-slider" id="main-slider">
+
+
+	<div class="item">01</div>
+	<div class="item">02</div>
+	<div class="item">03</div>
+	<div class="item">04</div>
+	<div class="item">05</div>
+	<div class="item">06</div>
+	<div class="item">07</div>
+	<!--<div class="item">08</div>
+	<div class="item">09</div>
+	<div class="item">10</div>-->
+
+</div>
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script type="text/javascript">
+	$(function () {
+		$('#main-slider').slick({
+			slidesToShow: 3,
+			slidesToScroll: 2,
+			autoplay: false,
+			autoplaySpeed: 3000,
+			pauseOnFocus: false,
+			pauseOnHover: false,
+			dots: true,
+			infinite: true,
+			adaptiveHeight: true,
+			arrows: true,
+			centerMode: false,
+		})
+	})
+</script>
+</body>
+</html>

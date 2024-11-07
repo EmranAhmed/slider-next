@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Slider Next</title>
+	<link rel="stylesheet" href="./build/style-slider.css" />
+	<style>
+		.container-2 {
+			max-width: 400px;
+			/*aspect-ratio: 1;*/
+			margin: 20px auto;
+			display: flex;
+			flex-direction: column;
+			gap: 5px;
+
+			@media (max-width: 800px) {
+				flex-direction: column;
+			}
+		}
+
+		.storepress-slider > div {
+			position: relative;
+			height: 300px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			outline: 1px solid;
+		}
+	</style>
+</head>
+
+<body>
+
+<div class="container-2">
+
+	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
+
+		<div class="storepress-slider-container">
+			<div class="storepress-slider">
+				<div class="active">01</div>
+				<div>02</div>
+				<div >03</div>
+				<div>04</div>
+				<div>05</div>
+				<div>06</div>
+				<div>07</div>
+<!--
+				<div>08</div>
+				<div >09</div>
+				<div>10</div>
+				<div>11</div>-->
+			</div>
+		</div>
+
+		<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
+			<div class="storepress-slider-navigation">
+				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous"></button>
+				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next"></button>
+			</div>
+
+			<div class="storepress-slider-pagination">
+				<button>1</button>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+
+<a id="prev" href="#">PREV</a>
+<a id="next" href="#">NEXT</a>
+
+--
+
+Goto <a id="goto-one-1" href="#">Slide 1</a>
+Goto <a id="goto-one-2" href="#">Slide 2</a>
+Goto <a id="goto-one-3" href="#">Slide 3</a>
+Goto <a id="goto-one-4" href="#">Slide 4</a>
+Goto <a id="goto-one-5" href="#">Slide 5</a>
+Goto <a id="goto-one-6" href="#">Slide 6</a>
+Goto <a id="goto-one-7" href="#">Slide 7</a>
+Goto <a id="goto-one-8" href="#">Slide 8</a>
+
+
+<script type="text/javascript" src="./build/storepress-utils.js"></script>
+<script type="text/javascript" src="./build/slider.js"></script>
+
+<script type="text/javascript">
+
+
+	document.getElementById('prev').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_prev', {
+			element: ['[data-slider-settings]'],
+			settings: {},
+		});
+	})
+
+	document.getElementById('next').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_next', {
+			element: ['[data-slider-settings]'],
+			settings: {},
+		});
+	})
+
+
+	document.getElementById('goto-one-1').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 1
+		});
+	})
+
+	document.getElementById('goto-one-2').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 2
+		});
+	})
+
+	document.getElementById('goto-one-3').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 3
+		});
+	})
+
+	document.getElementById('goto-one-4').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 4
+		});
+	})
+
+	document.getElementById('goto-one-5').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 5
+		});
+	})
+
+	document.getElementById('goto-one-6').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 6
+		});
+	})
+	document.getElementById('goto-one-7').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 7
+		});
+	})
+
+	document.getElementById('goto-one-8').addEventListener('click', ()=>{
+		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+			element: ['[data-slider-settings]'],
+			index: 8
+		});
+	})
+
+
+</script>
+
+</body>
+</html>

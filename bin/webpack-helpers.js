@@ -21,7 +21,7 @@ const scriptHandleMap = {
 const externalModulesMap = {
 	// static import.
 	 // '@wordpress/interactivity': 'module @wordpress/interactivity',
-	  '@storepress/utils': 'module @storepress/utils',
+	//  '@storepress/utils': 'module @storepress/utils',
 	  // '@storepress/utils': 'import @storepress/utils',
 	// dynamic import.
 	//'@wordpress/interactivity-router': 'import @wordpress/interactivity-router',

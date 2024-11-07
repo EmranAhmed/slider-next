@@ -13,7 +13,6 @@ const {
 const { sep } = require( 'path' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const RemoveEmptyScriptsPlugin = require( 'webpack-remove-empty-scripts' );
-const { normalizeJoin, baseDir } = require('./wordpress-develop/tools/webpack/shared')
 
 const scriptConfig = {
 	...defaultJSConfig,
@@ -28,6 +27,17 @@ const scriptConfig = {
 				type: 'window',
 			},
 		}*/
+		[`slider`]: [
+			getFile('style.scss'),
+			getFile('index.js'),
+		],
+		'storepress-utils': {
+			import: '@storepress/utils/build-module/index.js',
+			library: {
+				name: ['StorePress','Utils'],
+				type: 'window'
+			},
+		}
 	},
 
 	resolve: {
@@ -73,15 +83,18 @@ const moduleConfig = {
 	},
 	entry: {
 		// ...defaultModuleConfig.entry(),
-		'slider': getFile('scripts.js'),
+		/*[`slider`]: [
+			getFile('style.scss'),
+			getFile('index.js'),
+		],*/
 		// 'user-control': fromProjectRoot('user-control.js'),
-		'storepress-utils-module': {
+		/*'storepress-utils-module': {
 			import: '@storepress/utils/build-module/index.js',
 			library: {
 				// name: ['StorePress','Utils'],
 				type: 'module',
 			},
-		}
+		}*/
 	},
 
 	resolve: {

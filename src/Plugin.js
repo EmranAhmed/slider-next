@@ -8,9 +8,19 @@ import {
 	triggerEvent,
 } from '@storepress/utils';
 
-function Plugin( element, options ) {
+function Plugin(element, options) {
 	// Default Settings
 	const DEFAULTS = {
+		syncWith: null,
+		syncOnSlide: true,
+		syncAfterSlide: false,
+		visibleActiveSlideOnSync: false,
+		containerElement: '.storepress-slider-container',
+		sliderElement: '.storepress-slider',
+		sliderDotsTitle: 'Goto Slider',
+	};
+
+	const PRIVATE = {
 		moveItemsCSSProperty: '--slide-item',
 		visibleItemsCSSProperty: '--show-item',
 		isInfiniteCSSProperty: '--show-infinite',
@@ -18,10 +28,10 @@ function Plugin( element, options ) {
 		isAlwaysCenterCSSProperty: '--is-always-center',
 		isActiveSelectCSSProperty: '--is-active-select',
 		itemGapCSSProperty: '--item-gap',
-		syncWith: null,
-		syncOnSlide: true,
-		syncAfterSlide: false,
-		visibleActiveSlideOnSync: false,
+		sliderItemClassName: 'storepress-slider-item',
+		sliderNavigationPrevious: '.storepress-slider-navigation-previous',
+		sliderNavigationNext: '.storepress-slider-navigation-next',
+		sliderPagination: '.storepress-slider-pagination > button',
 	};
 
 	// Collecting settings from html attribute
@@ -33,30 +43,34 @@ function Plugin( element, options ) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
+			...getOptionsFromAttribute(this.$element, ATTRIBUTE),
+			...PRIVATE,
 		};
 
-		this.visibleItem = 0;
-		this.itemsPerSlide = 0;
+		this.slidesToShow = 0;
+		this.slidesToScroll = 0;
 		this.isInfinite = true;
-		this.$container = this.$element.querySelector( '.slider-container' );
-		this.$slider = this.$element.querySelector( '.slider' );
-		this.$items = this.$slider.querySelectorAll( 'li' );
+		this.$container = this.$element.querySelector(
+			this.settings.containerElement
+		);
+		this.$slider = this.$element.querySelector(this.settings.sliderElement);
+		this.$items = this.$slider.querySelectorAll(':scope > *'); // Select direct children
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
-		this.itemsCount = this.$items.length;
-		this.allItemsCount = 0;
-		this.direction = ''; // prev | next
+		this.totalItems = this.$items.length;
+		this.initialSlide = 0;
 		this.currentIndex = 0;
+		this.currentDot = 0;
+		this.totalDots = 0;
 		this.itemGap = 0;
-		this.centerItem = 0;
+		this.dotsData = {};
+		this.itemsData = {};
 
-		afterLoaded();
+		initial();
 
-		// Clone Items for Infinite Scroll.
-		initialCloneItems();
+		initialPaging();
 
-		setInitialIndex();
+		cloneItems();
 
 		addClasses();
 
@@ -65,626 +79,586 @@ function Plugin( element, options ) {
 		return expose();
 	};
 
-	const afterLoaded = () => {
-		this.$container.setAttribute( 'aria-live', 'polite' );
+	const initial = () => {
+		// Add Container A11y
+		this.$container.setAttribute('aria-live', 'polite');
 
-		this.$items.forEach( ( $item, index ) => {
-			$item.setAttribute( 'aria-hidden', 'true' );
-			$item.dataset.item = index;
-			$item.querySelectorAll( 'img' ).forEach( ( $img ) => {
-				$img.setAttribute( 'draggable', false );
-			} );
-		} );
+		// Add Item Index
+		let activeClassAdded = false;
+		this.$items.forEach(($item, index) => {
+			$item.classList.add(this.settings.sliderItemClassName);
+			$item.setAttribute('aria-hidden', 'true');
+			$item.dataset.index = index + 1;
 
-		const infiniteString = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isInfiniteCSSProperty )
-			.toLowerCase();
+			$item.querySelectorAll('img').forEach(($img) => {
+				$img.setAttribute('draggable', false);
+			});
 
-		const horizontalString = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isHorizontalCSSProperty )
-			.toLowerCase();
+			if (!activeClassAdded) {
+				if ($item.classList.contains('active')) {
+					activeClassAdded = true;
+					this.initialSlide = parseInt($item.dataset.index, 10);
+				}
+			}
+		});
 
-		const alwaysCenterString = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isAlwaysCenterCSSProperty )
-			.toLowerCase();
-
-		const activeOnSelect = window
-			.getComputedStyle( this.$element )
-			.getPropertyValue( this.settings.isActiveSelectCSSProperty )
-			.toLowerCase();
-
-		this.isInfinite = cssVariableIsTrue( infiniteString );
-
-		this.isHorizontal = cssVariableIsTrue( horizontalString );
-
-		this.isCenter = cssVariableIsTrue( alwaysCenterString );
-
-		this.isActiveOnSelect = cssVariableIsTrue( activeOnSelect );
-
-		this.visibleItem = parseInt(
-			window
-				.getComputedStyle( this.$element )
-				.getPropertyValue( this.settings.visibleItemsCSSProperty ),
-			10
-		);
-
-		this.itemsPerSlide = parseInt(
-			window
-				.getComputedStyle( this.$element )
-				.getPropertyValue( this.settings.moveItemsCSSProperty ),
-			10
-		);
-
-		this.itemGap = parseInt(
-			window
-				.getComputedStyle( this.$element )
-				.getPropertyValue( this.settings.itemGapCSSProperty ),
-			10
-		);
-
-		if ( this.visibleItem < this.itemsPerSlide ) {
-			this.itemsPerSlide = this.visibleItem;
+		if (!activeClassAdded) {
+			this.$items[0].classList.add('active');
+			this.initialSlide = 1;
 		}
 
-		this.validCenter =
-			this.visibleItem > 2 && this.visibleItem % 2 === 1 && this.isCenter;
+		const computedStyle = window.getComputedStyle(this.$element);
 
-		if ( ! this.validCenter ) {
-			this.isCenter = false;
+		// Infinite
+		const infiniteString = computedStyle
+			.getPropertyValue(this.settings.isInfiniteCSSProperty)
+			.toLowerCase();
+
+		this.isInfinite = cssVariableIsTrue(infiniteString);
+
+		// Horizontal
+		const horizontalString = computedStyle
+			.getPropertyValue(this.settings.isHorizontalCSSProperty)
+			.toLowerCase();
+
+		this.isHorizontal = cssVariableIsTrue(horizontalString);
+
+		// Always center
+		const alwaysCenterString = computedStyle
+			.getPropertyValue(this.settings.isAlwaysCenterCSSProperty)
+			.toLowerCase();
+
+		this.isCenter = cssVariableIsTrue(alwaysCenterString);
+
+		// Goto Index on Click
+		const activeOnSelect = computedStyle
+			.getPropertyValue(this.settings.isActiveSelectCSSProperty)
+			.toLowerCase();
+
+		this.isActiveOnSelect = cssVariableIsTrue(activeOnSelect);
+
+		// Slide To Show
+		this.slidesToShow = parseInt(
+			computedStyle.getPropertyValue(
+				this.settings.visibleItemsCSSProperty
+			),
+			10
+		);
+
+		this.slidesToScroll = parseInt(
+			computedStyle.getPropertyValue(this.settings.moveItemsCSSProperty),
+			10
+		);
+
+		// Item GAP
+		this.itemGap = parseInt(
+			computedStyle.getPropertyValue(this.settings.itemGapCSSProperty),
+			10
+		);
+
+		if (this.slidesToShow < this.slidesToScroll) {
+			this.slidesToScroll = this.slidesToShow;
 		}
 
 		// Control from CSS
+		this.$element.classList.remove('is-vertical');
+		this.$element.classList.remove('is-horizontal');
+		this.$element.classList.remove('is-active-center');
 
-		this.$element.classList.remove( 'is-vertical' );
-		this.$element.classList.remove( 'is-horizontal' );
-		this.$element.classList.remove( 'is-active-center' );
-
-		if ( this.isCenter ) {
-			this.$element.classList.add( 'is-active-center' );
-			this.centerItem = ( this.visibleItem - this.itemsPerSlide ) / 2;
-			this.itemsPerSlide = 1;
-		}
-
-		if ( this.isHorizontal ) {
-			this.$element.classList.add( 'is-horizontal' );
+		if (this.isHorizontal) {
+			this.$element.classList.add('is-horizontal');
 		} else {
-			this.$element.classList.add( 'is-vertical' );
-		}
-	};
-
-	const initialCloneItems = () => {
-		const lastItemsIndex = this.itemsCount - 1;
-
-		const itemsToClone = this.visibleItem + this.centerItem;
-
-		for ( let index = 0; index < itemsToClone; index++ ) {
-			const nodeForAppend = this.$items[ index ].cloneNode( true );
-			const nodeForPrepend =
-				this.$items[ lastItemsIndex - index ].cloneNode( true );
-
-			nodeForAppend.classList.add( 'clone' );
-			nodeForAppend.classList.remove( 'current' );
-			nodeForAppend.classList.remove( 'active' );
-
-			nodeForPrepend.classList.add( 'clone' );
-			nodeForPrepend.classList.remove( 'active' );
-			nodeForPrepend.classList.remove( 'current' );
-
-			// Append First Items
-			this.$slider.append( nodeForAppend );
-
-			// Prepend Last Items
-			this.$slider.prepend( nodeForPrepend );
-		}
-	};
-
-	const setInitialIndex = () => {
-		const $items = this.$slider.querySelectorAll( 'li' );
-
-		this.allItemsCount = $items.length;
-
-		$items.forEach( ( $item, index ) => {
-			$item.dataset.index = index;
-			if ( $item.classList.contains( 'active' ) ) {
-				setCurrentIndex( index );
-			}
-		} );
-	};
-
-	const addClasses = () => {
-		const $items = this.$slider.querySelectorAll( 'li' );
-
-		$items[ this.currentIndex ].setAttribute( 'aria-hidden', 'false' );
-		$items[ this.currentIndex ].classList.add( 'current' );
-
-		if ( this.isCenter ) {
-			const start = this.currentIndex - this.centerItem;
-			const end = this.currentIndex + this.centerItem;
-
-			for ( let i = start; i <= end; i++ ) {
-				$items[ i ].setAttribute( 'aria-hidden', 'false' );
-				$items[ i ].classList.add( 'active' );
-			}
-		} else {
-			for ( let i = 0; i < this.visibleItem; i++ ) {
-				const key = i + this.currentIndex;
-				$items[ key ].setAttribute( 'aria-hidden', 'false' );
-				$items[ key ].classList.add( 'active' );
-			}
-		}
-	};
-
-	const addEvents = () => {
-		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			if ( this.settings.syncWith ) {
-				$li.addEventListener( 'click', handleSyncItemsClick );
-			}
-
-			if ( this.isCenter && this.isActiveOnSelect ) {
-				$li.addEventListener( 'click', handleCenterClick );
-			}
-		} );
-
-		this.$slider.addEventListener( 'transitionstart', beforeSlide );
-		this.$slider.addEventListener( 'transitionend', afterSlide );
-
-		this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
-			offset: 50,
-		} );
-		// this.$container.addEventListener( 'swipe', handleSwipe );
-	};
-
-	const getItems = () => {
-		return this.$slider.querySelectorAll( 'li' );
-	};
-
-	const handleCenterClick = ( event ) => {
-		if ( isAnimating() ) {
-			return;
+			this.$element.classList.add('is-vertical');
 		}
 
-		const index = parseInt(
-			event.target.closest( 'li' ).dataset.index,
-			10
+		this.totalDots = getTotalDots();
+		this.dotsData = createDotsObject();
+		this.itemsData = createItemObject();
+
+		// console.log(this.dotsData);
+
+		const initialIndex = getBalancedIndex(this.initialSlide);
+		const initialDot = getDotIndexByItemIndex(initialIndex);
+		setCurrentIndex(initialIndex);
+		setCurrentDot(initialDot);
+	};
+
+	const initialPaging = () => {
+		const $button = this.$element.querySelector(
+			this.settings.sliderPagination
 		);
 
-		if ( index === this.currentIndex ) {
-			return;
-		}
+		$button.style.display = 'none';
+		//$button.setAttribute('aria-hidden'); // removeProperty
 
-		if ( index > this.currentIndex ) {
-			slideNext();
-		}
+		const $parent = $button.parentElement;
 
-		if ( index < this.currentIndex ) {
-			slidePrev();
-		}
-	};
+		for (let i = 1; i <= this.totalDots; i++) {
+			const $cloned = $button.cloneNode(true);
+			$cloned.classList.remove('current');
+			$cloned.classList.remove('active');
+			$cloned.removeAttribute('aria-current');
+			$cloned.removeAttribute('aria-hidden');
+			$cloned.style.removeProperty('display');
 
-	const handleSyncItemsClick = ( event ) => {
-		if ( isAnimating() ) {
-			return;
-		}
+			const itemIndex = getItemIndexByDotIndex(i);
 
-		const item = parseInt( event.target.closest( 'li' ).dataset.item, 10 );
+			$cloned.classList.add('dot');
 
-		syncIndex( item );
-	};
-
-	const syncIndex = ( index ) => {
-		if ( ! this.settings.syncWith ) {
-			return;
-		}
-
-		const $synced = getPluginInstance( this.settings.syncWith );
-		$synced.forEach(
-			( { to, currentElement, isAnimating, visibleElements } ) => {
-				if ( isAnimating() ) {
-					return;
-				}
-
-				const syncCurrentIndex = parseInt(
-					currentElement().dataset.item,
-					10
-				);
-
-				if ( syncCurrentIndex === index ) {
-					return;
-				}
-
-				const visibleIndexes = [];
-				visibleElements().forEach( ( $item ) => {
-					const itemIndex = parseInt( $item.dataset.item, 10 );
-					visibleIndexes.push( itemIndex );
-				} );
-
-				if (
-					! this.settings.visibleActiveSlideOnSync &&
-					visibleIndexes.includes( index )
-				) {
-					return;
-				}
-
-				to( index );
+			if (this.currentDot === i) {
+				$cloned.setAttribute('aria-current', 'true');
+				$cloned.classList.add('current');
 			}
+
+			$cloned.setAttribute(
+				'aria-label',
+				`${this.settings.sliderDotsTitle} ${itemIndex}`
+			);
+
+			$cloned.dataset.targetSlide = itemIndex;
+			$cloned.dataset.dotIndex = i;
+
+			$cloned.innerText = itemIndex;
+
+			$cloned.addEventListener('click', handleDot);
+
+			$parent.append($cloned);
+		}
+	};
+
+	const handleDot = (event) => {
+		const index = parseInt(event.target.dataset.dotIndex, 10);
+
+		goToDot(index);
+	};
+
+	const goToDot = (dotIndex) => {
+		if (dotIndex < 1 || dotIndex > this.totalDots) {
+			console.warn(
+				`Dot index ${dotIndex} is not available. Available range ${1} - ${this.totalDots}`
+			);
+			return;
+		}
+
+		addAnimatingClass();
+		const currentDot = dotIndex;
+		const index = getItemIndexByDotIndex(currentDot);
+		setCurrentIndex(index);
+		setCurrentDot(currentDot);
+		updatePaging(dotIndex);
+	};
+
+	const goToSlide = (slideIndex) => {
+		const index = this.isInfinite ? slideIndex : slideIndex - 1;
+
+		if (slideIndex < 1 || slideIndex > this.totalItems) {
+			console.warn(
+				`Item index ${slideIndex} is not available. Available range ${1} - ${this.totalItems}`
+			);
+			return;
+		}
+
+		const dotIndex = getDotIndexByItemIndex(index);
+
+		goToDot(dotIndex);
+	};
+
+	const updatePaging = (currentDot) => {
+		const $buttons = this.$element.querySelectorAll(
+			this.settings.sliderPagination
+		);
+
+		// Next Reset
+		if (this.currentDot > this.totalDots) {
+			currentDot = 1;
+		}
+
+		if (this.currentDot < 1) {
+			currentDot = this.totalDots;
+		}
+
+		// const currentDot = this.currentDot;
+		$buttons.forEach(($button, index) => {
+			$button.removeAttribute('aria-current', 'true');
+			$button.classList.remove('current');
+
+			if (currentDot === index) {
+				$button.setAttribute('aria-current', 'true');
+				$button.classList.add('current');
+			}
+		});
+	};
+
+	const getTotalDots = () => {
+		return (
+			Math.ceil(
+				(this.totalItems - this.slidesToShow) / this.slidesToScroll
+			) + 1
 		);
 	};
 
-	const syncOnSlide = () => {
-		if ( ! this.settings.syncWith ) {
-			return;
+	const createDotsObject = () => {
+		const dotsData = {};
+
+		dotsData[1] = this.isInfinite ? this.slidesToShow : 0;
+		let currentIndex = this.isInfinite ? this.slidesToShow : 0;
+
+		for (let index = 2; index <= this.totalDots; index++) {
+			let ci = currentIndex + this.slidesToScroll;
+
+			if (this.isInfinite && this.totalItems <= ci) {
+				ci = this.totalItems;
+			}
+
+			if (!this.isInfinite && this.totalItems - this.slidesToShow <= ci) {
+				ci = this.totalItems - this.slidesToShow;
+			}
+
+			dotsData[index] = ci;
+
+			currentIndex = ci;
 		}
 
-		if ( ! this.settings.syncOnSlide ) {
-			return;
+		if (this.isInfinite) {
+			dotsData[0] = 0;
+			dotsData[this.totalDots + 1] = this.totalItems + this.slidesToShow;
 		}
 
-		syncSlide();
+		return dotsData;
 	};
 
-	const syncSlide = () => {
-		if ( ! this.settings.syncWith ) {
-			return;
-		}
-
-		const $synced = getPluginInstance( this.settings.syncWith );
-		$synced.forEach(
-			( { isAnimating, goto, getCurrentIndex, visibleElements } ) => {
-				if ( isAnimating() ) {
-					return;
-				}
-
-				let index = 0;
-
-				if ( ! this.direction ) {
-					return;
-				}
-
-				const visibleIndexes = [];
-				visibleElements().forEach( ( $item ) => {
-					const itemIndex = parseInt( $item.dataset.item, 10 );
-					visibleIndexes.push( itemIndex );
-				} );
-
-				if (
-					! this.settings.visibleActiveSlideOnSync &&
-					visibleIndexes.includes( this.currentIndex - 1 )
-				) {
-					this.direction = '';
-					return;
-				}
-
-				// Prev
-				if ( this.direction === 'prev' ) {
-					index = getCurrentIndex() - this.itemsPerSlide;
-				}
-
-				// Next
-				if ( this.direction === 'next' ) {
-					index = getCurrentIndex() + this.itemsPerSlide;
-				}
-
-				goto( index );
-				this.direction = '';
-			}
+	const createItemArray = () => {
+		return Array.from({ length: this.totalItems }, (_, index) =>
+			this.isInfinite ? index + 1 : index
 		);
 	};
 
-	const syncAfterSlide = () => {
-		if ( ! this.settings.syncWith ) {
-			return;
+	const createItemGroup = () => {
+		const result = [];
+		const uniqueMap = new Map();
+		const items = createItemArray();
+
+		let index = 0;
+
+		while (index + this.slidesToShow <= this.totalItems) {
+			result.push(items.slice(index, index + this.slidesToShow));
+			index += this.slidesToScroll;
 		}
 
-		if ( ! this.settings.syncAfterSlide ) {
-			return;
+		// Add the last segment if needed to cover any trailing elements
+		if (index < items.length) {
+			result.push(items.slice(items.length - this.slidesToShow));
 		}
 
-		syncSlide();
+		result.forEach((sub) => {
+			const key = JSON.stringify(sub);
+			if (!uniqueMap.has(key)) {
+				uniqueMap.set(key, sub);
+			}
+		});
+
+		return Array.from(uniqueMap.values());
 	};
 
-	const cssVariableIsTrue = ( string ) => {
+	const createItemObject = () => {
+		const data = createItemGroup();
+		const obj = {}; // 1: 1
+
+		for (let i = 1; i <= data.length; i++) {
+			const key = i - 1;
+			for (const item of data[key]) {
+				if (!Object.hasOwn(obj, item)) {
+					obj[item] = i;
+				}
+			}
+		}
+		return obj;
+	};
+
+	const getDotIndexByItemIndex = (index) => {
+		return this.itemsData[index];
+	};
+
+	const getItemIndexByDotIndex = (index) => {
+		return this.dotsData[index];
+	};
+
+	const getBalancedIndex = (index) => {
+		const dotIndex = this.itemsData[index];
+		return this.dotsData[dotIndex];
+	};
+
+	const cssVariableIsTrue = (string) => {
 		return string === 'true' || string === '1' || string === 'yes';
 	};
 
-	const currentElement = () => {
-		return this.$slider.querySelector( 'li.current' );
+	const setCurrentIndex = (index) => {
+		this.currentIndex = parseInt(index, 10);
+		this.$element.style.setProperty('--_current-index', this.currentIndex);
 	};
 
-	const visibleTotal = () => {
-		return this.visibleItem;
+	const setCurrentDot = (index) => {
+		this.currentDot = parseInt(index, 10);
 	};
 
-	const getCurrentIndex = () => {
-		return this.currentIndex;
+	const cloneItems = () => {
+		if (!this.isInfinite) {
+			return;
+		}
+
+		const lastItemsIndex = this.totalItems - 1;
+
+		const itemsToClone = this.slidesToShow;
+
+		for (let index = 0; index < itemsToClone; index++) {
+			const nodeForAppend = this.$items[index].cloneNode(true);
+			const nodeForPrepend =
+				this.$items[lastItemsIndex - index].cloneNode(true);
+
+			nodeForAppend.classList.add('clone');
+			nodeForAppend.classList.remove('current');
+			nodeForAppend.classList.remove('active');
+
+			nodeForPrepend.classList.add('clone');
+			nodeForPrepend.classList.remove('active');
+			nodeForPrepend.classList.remove('current');
+
+			// Append First Items
+			this.$slider.append(nodeForAppend);
+
+			// Prepend Last Items
+			this.$slider.prepend(nodeForPrepend);
+		}
 	};
 
-	const visibleElements = () => {
-		return this.$slider.querySelectorAll( 'li.active' );
+	const addClasses = () => {
+		const $items = this.$slider.querySelectorAll(':scope > *');
+
+		$items[this.currentIndex].setAttribute('aria-hidden', 'false');
+		$items[this.currentIndex].classList.add('current');
+
+		for (let i = 0; i < this.slidesToShow; i++) {
+			const key = i + this.currentIndex;
+			$items[key].setAttribute('aria-hidden', 'false');
+			$items[key].classList.add('active');
+		}
 	};
 
 	const isAnimating = () => {
-		return this.$slider.classList.contains( 'animating' );
+		return this.$slider.classList.contains('animating');
 	};
 
-	const setCurrentIndex = ( index ) => {
-		this.currentIndex = parseInt( index, 10 );
+	const addAnimatingClass = () => {
+		this.$slider.classList.add('animating');
+	};
 
-		this.$element.style.setProperty(
-			'--_current-index',
-			this.currentIndex
-		);
+	const removeAnimatingClass = () => {
+		this.$slider.classList.remove('animating');
+	};
+
+	const addEvents = () => {
+		this.$element
+			.querySelector(this.settings.sliderNavigationPrevious)
+			.addEventListener('click', handlePrev);
+
+		this.$element
+			.querySelector(this.settings.sliderNavigationNext)
+			.addEventListener('click', handleNext);
+
+		this.$slider.addEventListener('transitionstart', beforeSlide);
+		this.$slider.addEventListener('transitionend', afterSlide);
+
+		this.cleanupSwipe = swipeEvent(this.$container, handleSwipe, {
+			offset: 50,
+		});
+		this.$container.addEventListener('swipe', handleSwipe);
 	};
 
 	const removeClasses = () => {
 		//this.$slider.classList.remove( 'animating' );
-		const $items = this.$slider.querySelectorAll( 'li' );
-		$items.forEach( ( $item ) => {
-			$item.setAttribute( 'aria-hidden', 'true' );
-			$item.classList.remove( 'active' );
-			$item.classList.remove( 'current' );
-		} );
-	};
-
-	const handleSwipe = ( event ) => {
-		if ( isAnimating() ) {
-			return;
-		}
-
-		const { x, y, left, right, top, bottom, moving, done } = event.detail;
-
-		const gapValue =
-			this.currentIndex * ( this.itemGap / this.visibleItem );
-
-		const currentWidth =
-			( ( this.currentIndex - this.centerItem ) * this.sliderWidth ) /
-			this.visibleItem;
-		const currentHeight =
-			( ( this.currentIndex - this.centerItem ) * this.sliderHeight ) /
-			this.visibleItem;
-
-		const horizontalValue = Math.ceil( currentWidth + gapValue - x );
-		const verticalValue = Math.ceil( currentHeight + gapValue - y );
-
-		if ( moving ) {
-			this.$slider.style.setProperty(
-				'--_horizontal-value',
-				`-${ horizontalValue }px`
-			);
-
-			this.$slider.style.setProperty(
-				'--_vertical-value',
-				`-${ verticalValue }px`
-			);
-		}
-
-		if ( done ) {
-			this.$slider.classList.add( 'animating' );
-			this.$slider.style.removeProperty( '--_horizontal-value' );
-			this.$slider.style.removeProperty( '--_vertical-value' );
-		}
-
-		if ( done && ( left || top ) ) {
-			slideNext();
-			triggerEvent( this.$element, 'slide_next_swiped' );
-		}
-
-		if ( done && ( right || bottom ) ) {
-			slidePrev();
-			triggerEvent( this.$element, 'slide_prev_swiped' );
-		}
+		const $items = this.$slider.querySelectorAll(':scope > *');
+		$items.forEach(($item) => {
+			$item.setAttribute('aria-hidden', 'true');
+			$item.classList.remove('active');
+			$item.classList.remove('current');
+		});
 	};
 
 	const beforeSlide = () => {
 		removeClasses();
+		// @TODO: trigger event for before slide
 	};
 
 	const afterSlide = () => {
-		this.$slider.classList.remove( 'animating' );
+		// @TODO: trigger event for before slide
 
-		// syncAfterSlide();
+		removeAnimatingClass();
 
-		if ( this.isCenter ) {
-			// Reset prev
-			const resetPrev = this.currentIndex - this.centerItem <= 0;
-			const resetNext =
-				this.currentIndex + this.centerItem + this.visibleItem >=
-				this.allItemsCount;
-
-			if ( resetPrev ) {
-				setCurrentIndex( this.itemsCount + this.centerItem );
-			}
-
-			// Reset next
-			if ( resetNext ) {
-				setCurrentIndex( this.visibleItem + this.centerItem );
-			}
-
-			addClasses();
-			return;
+		// Reset Next
+		if (this.currentDot > this.totalDots) {
+			setCurrentDot(1);
+			const index = getItemIndexByDotIndex(1);
+			setCurrentIndex(index);
 		}
 
-		// Reset prev
-		if ( this.currentIndex <= 0 ) {
-			setCurrentIndex( this.itemsCount );
-		}
-
-		// Reset next
-		if ( this.currentIndex > this.itemsCount ) {
-			setCurrentIndex( this.currentIndex - this.itemsCount );
+		// Reset Prev
+		if (this.currentDot < 1) {
+			setCurrentDot(this.totalDots);
+			const index = getItemIndexByDotIndex(this.totalDots);
+			setCurrentIndex(index);
 		}
 
 		addClasses();
 	};
 
-	const slidePrev = () => {
-		if ( this.isCenter ) {
-			const index = this.currentIndex - this.itemsPerSlide;
-			this.$slider.classList.add( 'animating' );
-			this.direction = 'prev';
-			setCurrentIndex( index );
-			return;
-		}
-
-		const remaining = this.currentIndex - this.itemsPerSlide;
-		let increment =
-			this.itemsPerSlide < remaining ? this.itemsPerSlide : remaining;
-
-		if ( remaining === 0 ) {
-			increment = this.itemsPerSlide;
-		}
-
-		if (
-			! this.isInfinite &&
-			this.currentIndex - this.visibleItem - increment < 0
-		) {
-			return false;
-		}
-
-		const index = this.currentIndex - increment;
-		this.$slider.classList.add( 'animating' );
-		this.direction = 'prev';
-		setCurrentIndex( index );
-	};
-
-	const slideNext = () => {
-		if ( this.isCenter ) {
-			const index = this.currentIndex + this.itemsPerSlide;
-			this.$slider.classList.add( 'animating' );
-			this.direction = 'next';
-			setCurrentIndex( index );
-			//syncOnSlide();
-			return;
-		}
-
-		const remaining = this.itemsCount - this.currentIndex;
-
-		let increment =
-			this.itemsPerSlide < remaining ? this.itemsPerSlide : remaining;
-
-		if ( remaining === 0 ) {
-			increment = this.itemsPerSlide;
-		}
-
-		if (
-			! this.isInfinite &&
-			this.currentIndex + increment > this.itemsCount
-		) {
-			return;
-		}
-
-		const index = this.currentIndex + increment;
-		this.$slider.classList.add( 'animating' );
-		this.direction = 'next';
-		setCurrentIndex( index );
-		// syncOnSlide();
-	};
-
-	const handleNext = ( event ) => {
+	const handleNext = (event) => {
 		event.preventDefault();
-		if ( isAnimating() ) {
+		if (isAnimating()) {
 			return;
 		}
 		slideNext();
 	};
 
-	const handlePrev = ( event ) => {
+	const handlePrev = (event) => {
 		event.preventDefault();
-		if ( isAnimating() ) {
+		if (isAnimating()) {
 			return;
 		}
 		slidePrev();
 	};
 
+	const slidePrev = () => {
+		const currentDot = this.currentDot - 1;
+
+		if (!this.isInfinite && currentDot <= 0) {
+			return;
+		}
+
+		addAnimatingClass();
+
+		const index = getItemIndexByDotIndex(currentDot);
+		setCurrentIndex(index);
+		setCurrentDot(currentDot);
+		updatePaging(currentDot);
+	};
+
+	const slideNext = () => {
+		const currentDot = this.currentDot + 1;
+
+		if (!this.isInfinite && currentDot > this.totalDots) {
+			return;
+		}
+
+		addAnimatingClass();
+
+		const index = getItemIndexByDotIndex(currentDot);
+		setCurrentIndex(index);
+		setCurrentDot(currentDot);
+		updatePaging(currentDot);
+	};
+
+	const handleSwipe = (event) => {
+		if (isAnimating()) {
+			return;
+		}
+
+		const { x, y, left, right, top, bottom, moving, done } = event.detail;
+
+		const gapValue = this.currentIndex * (this.itemGap / this.slidesToShow);
+
+		const currentWidth =
+			(this.currentIndex * this.sliderWidth) / this.slidesToShow;
+		const currentHeight =
+			(this.currentIndex * this.sliderHeight) / this.slidesToShow;
+
+		const horizontalValue = Math.ceil(currentWidth + gapValue - x);
+		const verticalValue = Math.ceil(currentHeight + gapValue - y);
+
+		if (moving) {
+			this.$slider.style.setProperty(
+				'--_horizontal-value',
+				`-${horizontalValue}px`
+			);
+
+			this.$slider.style.setProperty(
+				'--_vertical-value',
+				`-${verticalValue}px`
+			);
+		}
+
+		if (done) {
+			this.$slider.classList.add('animating');
+			this.$slider.style.removeProperty('--_horizontal-value');
+			this.$slider.style.removeProperty('--_vertical-value');
+		}
+
+		if (done && (left || top)) {
+			slideNext();
+			triggerEvent(this.$element, 'slide_next_swiped');
+		}
+
+		if (done && (right || bottom)) {
+			slidePrev();
+			triggerEvent(this.$element, 'slide_prev_swiped');
+		}
+	};
+
 	const removeEvents = () => {
-		/*this.$element
-			.querySelector( this.settings.prevControlSelector )
-			.removeEventListener( 'click', handlePrev );
+		const $buttons = this.$element.querySelectorAll(
+			this.settings.sliderPagination
+		);
+
+		$buttons.forEach(($button) => {
+			$button.removeEventListener('click', handleDot);
+
+			if ($button.classList.contains('current')) {
+				$button.remove();
+			}
+		});
 
 		this.$element
-			.querySelector( this.settings.nextControlSelector )
-			.removeEventListener( 'click', handleNext );*/
+			.querySelector(this.settings.sliderNavigationPrevious)
+			.removeEventListener('click', handlePrev);
 
-		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.removeEventListener( 'click', handleSyncItemsClick );
-		} );
+		this.$element
+			.querySelector(this.settings.sliderNavigationNext)
+			.removeEventListener('click', handleNext);
 
-		this.$slider.querySelectorAll( 'li' ).forEach( ( $li ) => {
-			$li.removeEventListener( 'click', handleCenterClick );
-		} );
-
-		this.$slider.removeEventListener( 'transitionstart', beforeSlide );
-		this.$slider.removeEventListener( 'transitionend', afterSlide );
+		this.$slider.removeEventListener('transitionstart', beforeSlide);
+		this.$slider.removeEventListener('transitionend', afterSlide);
 
 		this.cleanupSwipe();
 		// this.$container.removeEventListener( 'swipe', handleSwipe );
 	};
 
-	const to = ( index ) => {
-		if ( index < 0 ) {
-			return;
-		}
-
-		if ( index > this.itemsCount ) {
-			return;
-		}
-
-		const actualIndex = ( this.allItemsCount - this.itemsCount ) / 2;
-
-		// const centerIndex = this.visibleItem > 1 && this.visibleItem % 2 === 1 ? -2 : -1;
-
-		const i = parseInt( index, 10 );
-
-		const newIndex = i + actualIndex;
-
-		if ( isAnimating() ) {
-			return;
-		}
-
-		if ( newIndex === this.currentIndex ) {
-			return;
-		}
-
-		this.$slider.classList.add( 'animating' );
-
-		setCurrentIndex( newIndex );
-	};
-
-	const goto = ( index ) => {
-		this.$slider.classList.add( 'animating' );
-		setCurrentIndex( index );
-	};
-
 	const reset = () => {
 		removeEvents();
-		this.$slider.querySelectorAll( 'li.clone' ).forEach( ( $cloned ) => {
-			$cloned.remove();
-		} );
 
-		setCurrentIndex( 0 );
+		this.$slider.querySelectorAll(':scope > .clone').forEach(($cloned) => {
+			$cloned.remove();
+		});
+
+		setCurrentIndex(0);
+		setCurrentDot(0);
 		removeClasses();
-		this.$slider.querySelector( 'li' ).classList.add( 'active' );
-		this.$element.classList.remove( 'is-horizontal' );
-		this.$element.classList.remove( 'is-horizontal' );
-		this.$element.classList.remove( 'is-active-center' );
+
+		this.$slider
+			.querySelectorAll(':scope > *')
+			[this.initialSlide].classList.add('active');
+		this.$element.classList.remove('is-horizontal');
+		this.$element.classList.remove('is-horizontal');
+		this.$element.classList.remove('is-active-center');
 	};
 
 	// Expose to public.
-	const expose = () => ( {
+	const expose = () => ({
 		handlePrev,
 		handleNext,
 		removeEvents,
-		currentElement,
-		visibleTotal,
-		visibleElements,
-		getCurrentIndex,
-		isAnimating,
-		to,
-		goto,
+		goToDot,
+		goToSlide,
 		reset,
-	} );
+	});
 
 	return init();
 }

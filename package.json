@@ -13,9 +13,9 @@
 		"package": "./bin/package.js"
 	},
 	"scripts": {
-		"clean": "rm -rf ./assets",
+		"clean": "rm -rf ./build",
 		"ready": "npm run clean && npm run build",
-		"build": "wp-scripts build --webpack-copy-php --output-path=assets --webpack-no-externals --experimental-modules",
+		"build": "wp-scripts build --webpack-copy-php --experimental-modules",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
 		"format": "wp-scripts format",
@@ -32,16 +32,16 @@
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js",
 		"rimraf": "./node_modules/rimraf/bin.js",
-		"start": "rm -rf ./assets && wp-scripts start --webpack-copy-php --output-path=assets --webpack-no-externals --experimental-modules"
+		"start": "rm -rf ./build && wp-scripts start --webpack-copy-php --experimental-modules"
 	},
 	"dependencies": {
 		"@storepress/utils": "^0.2.6"
 	},
 	"devDependencies": {
-		"@wordpress/eslint-plugin": "^21.1.0",
-		"@wordpress/scripts": "^27.9.0",
-		"eslint-plugin-you-dont-need-lodash-underscore": "6.13.0",
-		"fs-extra": "^11.1.1",
+		"@wordpress/eslint-plugin": "^21.4.0",
+		"@wordpress/scripts": "^30.4.0",
+		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
+		"fs-extra": "^11.2.0",
 		"webpack-remove-empty-scripts": "^1.0.4"
 	}
 }

@@ -10,6 +10,7 @@ package-lock.json
 
 node_modules
 assets
+build
 dist
 dist-ssr
 *.local
