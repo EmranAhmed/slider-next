@@ -2,23 +2,43 @@
 
 @use "./mixins" as slider;
 
-$default-font: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,"Helvetica Neue", sans-serif;
+$default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
 [data-slider-settings] {
 	font-family: $default-font;
 
 	@include slider.slider-init();
 
-  & {
-	  --slide-item: 1 !important; // pagination based on this
-	  --show-item: 1 !important;
-  }
+	& {
+		--slides-to-show: 1 !important;
+		--slides-to-scroll: 1 !important; // pagination based on this
 
-	.storepress-slider-container{
-		box-shadow: 0px 0px 20px 10px rgba(0,0,0,0.51);
+		// --show-infinite: false !important;
+		 --item-gap: 5px !important;
+		--item-padding: 20px;
+	}
+
+	.storepress-slider-container {
+		box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
 		border-radius: 10px;
+
+		padding-inline: var(--item-padding);
 		/*padding-inline: 20px;
 		padding-block: 20px;*/
+
+		&.position-start {
+			padding-inline-end: calc( var(--item-padding) * 2 );
+			padding-inline-start: 0;
+		}
+
+		&.position-middle {
+			/*padding-inline: var(--item-padding);*/
+		}
+
+		&.position-end {
+			padding-inline-end: 0;
+			padding-inline-start: calc( var(--item-padding) * 2 );;
+		}
 	}
 }
 

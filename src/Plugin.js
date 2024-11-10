@@ -11,18 +11,15 @@ import {
 function Plugin(element, options) {
 	// Default Settings
 	const DEFAULTS = {
-		syncWith: null,
-		syncOnSlide: true,
-		syncAfterSlide: false,
-		visibleActiveSlideOnSync: false,
 		containerElement: '.storepress-slider-container',
 		sliderElement: '.storepress-slider',
 		sliderDotsTitle: 'Goto Slider',
+		defaultItemClassName: 'active',
 	};
 
 	const PRIVATE = {
-		moveItemsCSSProperty: '--slide-item',
-		visibleItemsCSSProperty: '--show-item',
+		moveItemsCSSProperty: '--slides-to-scroll',
+		visibleItemsCSSProperty: '--slides-to-show',
 		isInfiniteCSSProperty: '--show-infinite',
 		isHorizontalCSSProperty: '--is-horizontal',
 		isAlwaysCenterCSSProperty: '--is-always-center',
@@ -37,6 +34,30 @@ function Plugin(element, options) {
 	// Collecting settings from html attribute
 	const ATTRIBUTE = 'slider-settings'; //
 
+	const CLASSES = {
+		itemClassName: 'storepress-slider-item',
+		itemVisibleClassName: 'visible',
+		itemCurrentClassName: 'current',
+		itemCloneClassName: 'clone',
+
+		elementClassName: '',
+		elementVerticalClassName: 'is-vertical',
+		elementHorizontalClassName: 'is-horizontal',
+		elementCenterClassName: 'is-active-center',
+		elementInfiniteClassName: 'has-infinite',
+
+		sliderContainerClassName: '',
+		sliderContainerPositionStartClassName: 'position-start',
+		sliderContainerPositionMiddleClassName: 'position-middle',
+		sliderContainerPositionEndClassName: 'position-end',
+
+		sliderClassName: '',
+		sliderAnimatingClassName: 'animating',
+
+		dotClassName: 'dot',
+		dotCurrentClassName: 'current',
+	};
+
 	// Do what you need and return expose fn.
 	const init = () => {
 		this.$element = element; // slider-wrapper
@@ -47,8 +68,8 @@ function Plugin(element, options) {
 			...PRIVATE,
 		};
 
-		this.slidesToShow = 0;
-		this.slidesToScroll = 0;
+		this.slidesToShow = 1;
+		this.slidesToScroll = 1;
 		this.isInfinite = true;
 		this.$container = this.$element.querySelector(
 			this.settings.containerElement
@@ -86,24 +107,28 @@ function Plugin(element, options) {
 		// Add Item Index
 		let activeClassAdded = false;
 		this.$items.forEach(($item, index) => {
-			$item.classList.add(this.settings.sliderItemClassName);
+			$item.classList.add(CLASSES.itemClassName);
 			$item.setAttribute('aria-hidden', 'true');
 			$item.dataset.index = index + 1;
 
+			// Disable Image dragging
 			$item.querySelectorAll('img').forEach(($img) => {
 				$img.setAttribute('draggable', false);
 			});
 
-			if (!activeClassAdded) {
-				if ($item.classList.contains('active')) {
-					activeClassAdded = true;
-					this.initialSlide = parseInt($item.dataset.index, 10);
-				}
+			if (
+				!activeClassAdded &&
+				$item.classList.contains(this.settings.defaultItemClassName)
+			) {
+				activeClassAdded = true;
+				this.initialSlide = parseInt($item.dataset.index, 10);
+				$item.classList.add(CLASSES.itemCurrentClassName);
+				$item.classList.remove(this.settings.defaultItemClassName);
 			}
 		});
 
 		if (!activeClassAdded) {
-			this.$items[0].classList.add('active');
+			this.$items[0].classList.add(CLASSES.itemCurrentClassName);
 			this.initialSlide = 1;
 		}
 
@@ -161,21 +186,23 @@ function Plugin(element, options) {
 		}
 
 		// Control from CSS
-		this.$element.classList.remove('is-vertical');
-		this.$element.classList.remove('is-horizontal');
-		this.$element.classList.remove('is-active-center');
+		this.$element.classList.remove(CLASSES.elementVerticalClassName);
+		this.$element.classList.remove(CLASSES.elementHorizontalClassName);
+		this.$element.classList.remove(CLASSES.elementCenterClassName);
+
+		if (this.isInfinite) {
+			this.$element.classList.add(CLASSES.elementInfiniteClassName);
+		}
 
 		if (this.isHorizontal) {
-			this.$element.classList.add('is-horizontal');
+			this.$element.classList.add(CLASSES.elementHorizontalClassName);
 		} else {
-			this.$element.classList.add('is-vertical');
+			this.$element.classList.add(CLASSES.elementVerticalClassName);
 		}
 
 		this.totalDots = getTotalDots();
 		this.dotsData = createDotsObject();
 		this.itemsData = createItemObject();
-
-		// console.log(this.dotsData);
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
 		const initialDot = getDotIndexByItemIndex(initialIndex);
@@ -189,25 +216,23 @@ function Plugin(element, options) {
 		);
 
 		$button.style.display = 'none';
-		//$button.setAttribute('aria-hidden'); // removeProperty
 
 		const $parent = $button.parentElement;
 
 		for (let i = 1; i <= this.totalDots; i++) {
 			const $cloned = $button.cloneNode(true);
-			$cloned.classList.remove('current');
-			$cloned.classList.remove('active');
+			$cloned.classList.remove(CLASSES.dotCurrentClassName);
 			$cloned.removeAttribute('aria-current');
 			$cloned.removeAttribute('aria-hidden');
 			$cloned.style.removeProperty('display');
 
 			const itemIndex = getItemIndexByDotIndex(i);
 
-			$cloned.classList.add('dot');
+			$cloned.classList.add(CLASSES.dotClassName);
 
 			if (this.currentDot === i) {
 				$cloned.setAttribute('aria-current', 'true');
-				$cloned.classList.add('current');
+				$cloned.classList.add(CLASSES.dotCurrentClassName);
 			}
 
 			$cloned.setAttribute(
@@ -216,7 +241,7 @@ function Plugin(element, options) {
 			);
 
 			$cloned.dataset.targetSlide = itemIndex;
-			$cloned.dataset.dotIndex = i;
+			$cloned.dataset.dotIndex = i.toString();
 
 			$cloned.innerText = itemIndex;
 
@@ -224,6 +249,32 @@ function Plugin(element, options) {
 
 			$parent.append($cloned);
 		}
+	};
+
+	const updatePaging = (currentDot) => {
+		const $buttons = this.$element.querySelectorAll(
+			this.settings.sliderPagination
+		);
+
+		// Next Reset
+		if (this.currentDot > this.totalDots) {
+			currentDot = 1;
+		}
+
+		// Prev Reset
+		if (this.currentDot < 1) {
+			currentDot = this.totalDots;
+		}
+
+		$buttons.forEach(($button, index) => {
+			$button.removeAttribute('aria-current', 'true');
+			$button.classList.remove(CLASSES.dotCurrentClassName);
+
+			if (currentDot === index) {
+				$button.setAttribute('aria-current', 'true');
+				$button.classList.add(CLASSES.dotCurrentClassName);
+			}
+		});
 	};
 
 	const handleDot = (event) => {
@@ -263,32 +314,6 @@ function Plugin(element, options) {
 		goToDot(dotIndex);
 	};
 
-	const updatePaging = (currentDot) => {
-		const $buttons = this.$element.querySelectorAll(
-			this.settings.sliderPagination
-		);
-
-		// Next Reset
-		if (this.currentDot > this.totalDots) {
-			currentDot = 1;
-		}
-
-		if (this.currentDot < 1) {
-			currentDot = this.totalDots;
-		}
-
-		// const currentDot = this.currentDot;
-		$buttons.forEach(($button, index) => {
-			$button.removeAttribute('aria-current', 'true');
-			$button.classList.remove('current');
-
-			if (currentDot === index) {
-				$button.setAttribute('aria-current', 'true');
-				$button.classList.add('current');
-			}
-		});
-	};
-
 	const getTotalDots = () => {
 		return (
 			Math.ceil(
@@ -322,6 +347,7 @@ function Plugin(element, options) {
 		if (this.isInfinite) {
 			dotsData[0] = 0;
 			dotsData[this.totalDots + 1] = this.totalItems + this.slidesToShow;
+			// dotsData[this.totalDots + 1] = this.totalItems + this.slidesToScroll;
 		}
 
 		return dotsData;
@@ -399,6 +425,66 @@ function Plugin(element, options) {
 
 	const setCurrentDot = (index) => {
 		this.currentDot = parseInt(index, 10);
+
+		if (this.currentDot === 1) {
+			// start
+			this.$container.classList.remove(
+				CLASSES.sliderContainerPositionEndClassName,
+				CLASSES.sliderContainerPositionMiddleClassName
+			);
+			this.$container.classList.add(
+				CLASSES.sliderContainerPositionStartClassName
+			);
+		}
+
+		if (this.currentDot > 1 && this.currentDot < this.totalDots) {
+			// middle
+			this.$container.classList.remove(
+				CLASSES.sliderContainerPositionStartClassName,
+				CLASSES.sliderContainerPositionEndClassName
+			);
+			this.$container.classList.add(
+				CLASSES.sliderContainerPositionMiddleClassName
+			);
+		}
+
+		if (this.currentDot === this.totalDots) {
+			// end
+			this.$container.classList.remove(
+				CLASSES.sliderContainerPositionStartClassName,
+				CLASSES.sliderContainerPositionMiddleClassName
+			);
+
+			this.$container.classList.add(
+				CLASSES.sliderContainerPositionEndClassName
+			);
+		}
+
+		// Infinite
+		if (!this.isInfinite) {
+			return;
+		}
+		if (this.currentDot < 1) {
+			// Infinite End
+			this.$container.classList.remove(
+				CLASSES.sliderContainerPositionStartClassName,
+				CLASSES.sliderContainerPositionMiddleClassName
+			);
+			this.$container.classList.add(
+				CLASSES.sliderContainerPositionEndClassName
+			);
+		}
+
+		if (this.currentDot > this.totalDots) {
+			// Infinite Start
+			this.$container.classList.remove(
+				CLASSES.sliderContainerPositionEndClassName,
+				CLASSES.sliderContainerPositionMiddleClassName
+			);
+			this.$container.classList.add(
+				CLASSES.sliderContainerPositionStartClassName
+			);
+		}
 	};
 
 	const cloneItems = () => {
@@ -415,13 +501,19 @@ function Plugin(element, options) {
 			const nodeForPrepend =
 				this.$items[lastItemsIndex - index].cloneNode(true);
 
-			nodeForAppend.classList.add('clone');
-			nodeForAppend.classList.remove('current');
-			nodeForAppend.classList.remove('active');
+			// Append
+			nodeForAppend.classList.remove(
+				CLASSES.itemCurrentClassName,
+				CLASSES.itemVisibleClassName
+			);
+			nodeForAppend.classList.add(CLASSES.itemCloneClassName);
 
-			nodeForPrepend.classList.add('clone');
-			nodeForPrepend.classList.remove('active');
-			nodeForPrepend.classList.remove('current');
+			// Prepend
+			nodeForPrepend.classList.remove(
+				CLASSES.itemCurrentClassName,
+				CLASSES.itemVisibleClassName
+			);
+			nodeForPrepend.classList.add(CLASSES.itemCloneClassName);
 
 			// Append First Items
 			this.$slider.append(nodeForAppend);
@@ -435,25 +527,27 @@ function Plugin(element, options) {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
 		$items[this.currentIndex].setAttribute('aria-hidden', 'false');
-		$items[this.currentIndex].classList.add('current');
+		$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
 
 		for (let i = 0; i < this.slidesToShow; i++) {
 			const key = i + this.currentIndex;
 			$items[key].setAttribute('aria-hidden', 'false');
-			$items[key].classList.add('active');
+			$items[key].classList.add(CLASSES.itemVisibleClassName);
 		}
 	};
 
 	const isAnimating = () => {
-		return this.$slider.classList.contains('animating');
+		return this.$slider.classList.contains(
+			CLASSES.sliderAnimatingClassName
+		);
 	};
 
 	const addAnimatingClass = () => {
-		this.$slider.classList.add('animating');
+		this.$slider.classList.add(CLASSES.sliderAnimatingClassName);
 	};
 
 	const removeAnimatingClass = () => {
-		this.$slider.classList.remove('animating');
+		this.$slider.classList.remove(CLASSES.sliderAnimatingClassName);
 	};
 
 	const addEvents = () => {
@@ -475,23 +569,23 @@ function Plugin(element, options) {
 	};
 
 	const removeClasses = () => {
-		//this.$slider.classList.remove( 'animating' );
 		const $items = this.$slider.querySelectorAll(':scope > *');
 		$items.forEach(($item) => {
 			$item.setAttribute('aria-hidden', 'true');
-			$item.classList.remove('active');
-			$item.classList.remove('current');
+			$item.classList.remove(CLASSES.itemCurrentClassName);
+			$item.classList.remove(CLASSES.itemVisibleClassName);
 		});
 	};
 
 	const beforeSlide = () => {
 		removeClasses();
-		// @TODO: trigger event for before slide
+		triggerEvent(this.$element, 'beforeSlide', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+		});
 	};
 
 	const afterSlide = () => {
-		// @TODO: trigger event for before slide
-
 		removeAnimatingClass();
 
 		// Reset Next
@@ -509,6 +603,11 @@ function Plugin(element, options) {
 		}
 
 		addClasses();
+
+		triggerEvent(this.$element, 'afterSlide', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+		});
 	};
 
 	const handleNext = (event) => {
@@ -587,32 +686,30 @@ function Plugin(element, options) {
 		}
 
 		if (done) {
-			this.$slider.classList.add('animating');
+			addAnimatingClass();
 			this.$slider.style.removeProperty('--_horizontal-value');
 			this.$slider.style.removeProperty('--_vertical-value');
 		}
 
 		if (done && (left || top)) {
 			slideNext();
-			triggerEvent(this.$element, 'slide_next_swiped');
 		}
 
 		if (done && (right || bottom)) {
 			slidePrev();
-			triggerEvent(this.$element, 'slide_prev_swiped');
 		}
 	};
 
 	const removeEvents = () => {
-		const $buttons = this.$element.querySelectorAll(
+		const $dots = this.$element.querySelectorAll(
 			this.settings.sliderPagination
 		);
 
-		$buttons.forEach(($button) => {
-			$button.removeEventListener('click', handleDot);
+		$dots.forEach(($dot) => {
+			$dot.removeEventListener('click', handleDot);
 
-			if ($button.classList.contains('current')) {
-				$button.remove();
+			if ($dot.classList.contains(CLASSES.dotClassName)) {
+				$dot.remove();
 			}
 		});
 
@@ -634,7 +731,9 @@ function Plugin(element, options) {
 	const reset = () => {
 		removeEvents();
 
-		this.$slider.querySelectorAll(':scope > .clone').forEach(($cloned) => {
+		const cloneSelector = `:scope > .${CLASSES.itemCloneClassName}`;
+
+		this.$slider.querySelectorAll(cloneSelector).forEach(($cloned) => {
 			$cloned.remove();
 		});
 
@@ -644,10 +743,16 @@ function Plugin(element, options) {
 
 		this.$slider
 			.querySelectorAll(':scope > *')
-			[this.initialSlide].classList.add('active');
-		this.$element.classList.remove('is-horizontal');
-		this.$element.classList.remove('is-horizontal');
-		this.$element.classList.remove('is-active-center');
+			[
+				this.initialSlide
+			].classList.add(this.settings.defaultItemClassName);
+
+		this.$element.classList.remove(
+			CLASSES.elementInfiniteClassName,
+			CLASSES.elementHorizontalClassName,
+			CLASSES.elementVerticalClassName,
+			CLASSES.elementCenterClassName
+		);
 	};
 
 	// Expose to public.

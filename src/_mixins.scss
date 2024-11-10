@@ -1,8 +1,9 @@
 @mixin variables() {
 
 	& {
-		--slide-item: 1;
-		--show-item: 1;
+
+		--slides-to-show: 1;
+		--slides-to-scroll: 1;
 		--show-infinite: true;
 		--is-horizontal: true;
 		--is-always-center: false;
@@ -40,6 +41,24 @@
 		height: auto;
 		/*padding-inline: 20px;
 		padding-block: 20px;*/
+
+		/*padding-inline: 20px;*/
+		/*padding-inline: 20px;
+		padding-block: 20px;*/
+
+		&.position-start {
+			/*padding-inline-end: 40px;
+			padding-inline-start: 0px;*/
+		}
+
+		&.position-middle {
+			/*padding-inline: 20px;*/
+		}
+
+		&.position-end {
+			/*padding-inline-end: 0px;
+			padding-inline-start: 40px;*/
+		}
 	}
 }
 
@@ -47,15 +66,15 @@
 	& {
 		will-change: auto;
 
-		--_item-width: calc(100% / var(--show-item));
-		--_item-height: calc(100% / var(--show-item));
-		--_column-gap-count: calc(var(--show-item) - 1);
-		--_column-size: calc(calc(var(--item-gap) / var(--show-item)) * var(--_column-gap-count));
-		--_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--show-item)));
+		--_item-width: calc(100% / var(--slides-to-show));
+		--_item-height: calc(100% / var(--slides-to-show));
+		--_column-gap-count: calc(var(--slides-to-show) - 1);
+		--_column-size: calc(calc(var(--item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
+		--_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--slides-to-show)));
 
 		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) + var(--_gap-value)) * -1);
 		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) + var(--_gap-value)) * -1);
-		--_center-item: calc(calc(var(--show-item) - var(--slide-item)) / 2);
+		--_center-item: calc(calc(var(--slides-to-show) - var(--slides-to-scroll)) / 2);
 		--_center-item-width: calc(var(--_item-width) * var(--_center-item));
 		--_center-item-height: calc(var(--_item-height) * var(--_center-item));
 
