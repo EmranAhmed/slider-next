@@ -225,9 +225,9 @@ function Plugin(element, options) {
 		this.dotsData = createDotsObject();
 		this.itemsData = createItemObject();
 
-		console.log(this.totalDots);
+		/*console.log(this.totalDots);
 		console.log(this.dotsData);
-		console.log(this.itemsData);
+		console.log(this.itemsData);*/
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
 		const initialDot = getDotIndexByItemIndex(initialIndex);
@@ -320,6 +320,11 @@ function Plugin(element, options) {
 		}
 
 		addAnimatingClass();
+
+		if (dotIndex === this.currentDot) {
+			removeAnimatingClass();
+		}
+
 		const currentDot = dotIndex;
 		const index = getItemIndexByDotIndex(currentDot);
 		setCurrentIndex(index);
@@ -519,7 +524,8 @@ function Plugin(element, options) {
 
 		const lastItemsIndex = this.totalItems - 1;
 
-		const itemsToClone = this.slidesToShow + this.centerItem;
+		// const itemsToClone = this.slidesToShow + this.centerItem;
+		const itemsToClone = this.slidesToShow;
 
 		for (let index = 0; index < itemsToClone; index++) {
 			const nodeForAppend = this.$items[index].cloneNode(true);
@@ -559,8 +565,8 @@ function Plugin(element, options) {
 			const end = this.currentIndex + this.centerItem;
 
 			for (let i = start; i <= end; i++) {
-				$items[i].setAttribute('aria-hidden', 'false');
-				$items[i].classList.add(CLASSES.itemVisibleClassName);
+				//$items[i].setAttribute('aria-hidden', 'false');
+				//$items[i].classList.add(CLASSES.itemVisibleClassName);
 			}
 		} else {
 			for (let i = 0; i < this.slidesToShow; i++) {
