@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 
 import {
@@ -61,6 +61,7 @@ function StorePressSlider() {
 				goToSlide(index);
 			}
 		},
+
 		gotoDotWith(el, index) {
 			for (const { goToDot } of this.getInstance(el)) {
 				goToDot(index);
