@@ -216,10 +216,6 @@ function Plugin(element, options) {
 		if (this.isCenter) {
 			this.$element.classList.add(CLASSES.elementCenterClassName);
 			this.slidesToScroll = 1;
-			/*this.$element.style.setProperty(
-				'--slides-to-scroll',
-				this.slidesToScroll
-			);*/
 			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
 			this.isInfinite = true;
 		}
@@ -332,6 +328,12 @@ function Plugin(element, options) {
 		const index = parseInt(event.target.dataset.dotIndex, 10);
 
 		goToDot(index);
+	};
+
+	const handleItem = (event) => {
+		const index = parseInt(event.target.dataset.index, 10);
+
+		goToSlide(index);
 	};
 
 	const goToDot = (dotIndex) => {
@@ -591,17 +593,15 @@ function Plugin(element, options) {
 	const addClasses = () => {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
-		//$items[this.currentIndex].setAttribute('aria-hidden', 'false');
-		//$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
-
 		$items[this.currentIndex].setAttribute('aria-hidden', 'false');
 		$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
 
-		// @TODO: fix here
-		for (let i = 0; i < this.slidesToShow; i++) {
-			const key = i + this.currentIndex;
-			$items[key].setAttribute('aria-hidden', 'false');
-			$items[key].classList.add(CLASSES.itemVisibleClassName);
+		const start = this.currentIndex - this.centerItem;
+		const end = start + this.slidesToShow;
+
+		for (let i = start; i < end; i++) {
+			$items[i].setAttribute('aria-hidden', 'false');
+			$items[i].classList.add(CLASSES.itemVisibleClassName);
 		}
 	};
 
@@ -628,6 +628,8 @@ function Plugin(element, options) {
 			this.settings.sliderNavigationNext
 		);
 
+		const $items = this.$slider.querySelectorAll(':scope > *');
+
 		if (null !== $prevButton) {
 			$prevButton.addEventListener('click', handlePrev);
 		}
@@ -643,6 +645,13 @@ function Plugin(element, options) {
 			offset: 50,
 		});
 		this.$container.addEventListener('swipe', handleSwipe);
+
+		console.log(this.isActiveOnSelect);
+		if (this.isActiveOnSelect) {
+			$items.forEach(($item) => {
+				$item.addEventListener('click', handleItem);
+			});
+		}
 	};
 
 	const removeClasses = () => {
@@ -810,12 +819,18 @@ function Plugin(element, options) {
 			this.settings.sliderPagination
 		);
 
+		const $items = this.$slider.querySelectorAll(':scope > *');
+
 		$dots.forEach(($dot) => {
 			$dot.removeEventListener('click', handleDot);
 
 			if ($dot.classList.contains(CLASSES.dotClassName)) {
 				$dot.remove();
 			}
+		});
+
+		$items.forEach(($item) => {
+			$item.removeEventListener('click', handleItem);
 		});
 
 		this.$element

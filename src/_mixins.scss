@@ -74,7 +74,6 @@
 
 		 --_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--slides-to-show)));
 
-
 		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) + var(--_gap-value)) * -1);
 		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) + var(--_gap-value)) * -1);
 
