@@ -10,15 +10,17 @@ $default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-San
 	@include slider.slider-init();
 
 	& {
-		--slides-to-show: 1 !important;
+		--slides-to-show: 5 !important;
 
 		--slides-to-scroll: 1 !important;
 
 		--infinite: true !important;
 
-		--is-always-center: false !important;
+		--is-always-center: true !important;
 
 		--item-padding: 20px;
+
+		--item-gap: 20px !important;
 	}
 
 	.storepress-slider-container {

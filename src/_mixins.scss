@@ -68,15 +68,22 @@
 
 		--_item-width: calc(100% / var(--slides-to-show));
 		--_item-height: calc(100% / var(--slides-to-show));
+
 		--_column-gap-count: calc(var(--slides-to-show) - 1);
 		--_column-size: calc(calc(var(--item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
-		--_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--slides-to-show)));
+
+		 --_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--slides-to-show)));
+
 
 		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) + var(--_gap-value)) * -1);
 		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) + var(--_gap-value)) * -1);
-		--_center-item: calc(calc(var(--slides-to-show) - var(--slides-to-scroll)) / 2);
-		--_center-item-width: calc(var(--_item-width) * var(--_center-item));
-		--_center-item-height: calc(var(--_item-height) * var(--_center-item));
+
+
+		--_center-item-gap-value: calc( var(--_column-size) / 2 );
+		--_center-item: calc( (var(--slides-to-show) - var(--slides-to-scroll)) / 2);
+
+		--_center-item-width: calc(var(--_item-width) * var(--_center-item) + var(--_center-item-gap-value));
+		--_center-item-height: calc(var(--_item-height) * var(--_center-item) + var(--_center-item-gap-value));
 
 		transform: translateX(var(--_horizontal-value));
 		// transform: translateY(var(--vertical-value));
@@ -109,8 +116,8 @@
 
 @mixin slider-active-center-style() {
 	& {
-		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) - var(--_center-item-width) + var(--_gap-value)) * -1);
-		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) - var(--_center-item-height) + var(--_gap-value)) * -1);
+		--_horizontal-value: calc( ( ( (var(--_item-width) * var(--_current-index)) + var(--_gap-value) ) - var(--_center-item-width) )  * -1);
+		--_vertical-value: calc( ( ( (var(--_item-height) * var(--_current-index)) + var(--_gap-value) ) - var(--_center-item-height) )  * -1);
 	}
 }
 
@@ -232,7 +239,7 @@
 
 	&.is-active-center {
 		.storepress-slider {
-			@include slider-active-center-style();
+			 @include slider-active-center-style();
 		}
 	}
 

@@ -26,7 +26,19 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			outline: 0.2px solid;
+			/*outline: 0.2px solid;*/
+		}
+
+		.storepress-slider > div:before{
+
+			--unitless: calc(tan(atan2(var(--_column-size),1px)));
+
+			content: counter(c);
+			counter-reset: c var(--unitless);
+
+			font-size: 12px;
+			font-weight: bold;
+			font-family: system-ui,sans-serif;
 		}
 	</style>
 </head>
@@ -39,29 +51,29 @@
 
 		<div class="storepress-slider-container">
 			<div class="storepress-slider">
-				<div class="active"><img src="images/beanie.jpg" /></div>
+				<!--<div class="active"><img src="images/beanie.jpg" /></div>
 				<div><img src="images/belt.jpg" /></div>
 				<div><img src="images/cap.jpg" /></div>
 				<div><img src="images/hoodie-blue-1.jpg" /></div>
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>
+				<div><img src="images/tshirt-2.jpg" /></div>-->
 
 
-				<!--<div class="active">01</div>
-				<div>02</div>
-				<div>03</div>
-				<div>04</div>
-				<div>05</div>
-				<div>06</div>
-				<div>07</div>
-
-				<div>08</div>
-				<div >09</div>
-				<div>10</div>
-				<div>11</div>
-				<div>12</div>
-				<div>13</div>-->
+				<div class="active" style="background-color: #bbbbbb">01</div>
+				<div style="background-color: #702222">02</div>
+				<div style="background-color: #b051d0">03</div>
+				<div style="background-color: #357c6b">04</div>
+				<div style="background-color: #9b1358">05</div>
+				<div style="background-color: #1a852f">06</div>
+				<div style="background-color: #2b6091">07</div>
+				<!--
+											<div>08</div>
+											<div >09</div>
+											<div>10</div>
+											<div>11</div>
+											<div>12</div>
+											<div>13</div>-->
 			</div>
 		</div>
 
@@ -101,74 +113,73 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 <script type="text/javascript">
 
 
-	document.getElementById('prev').addEventListener('click', ()=>{
+	document.getElementById('prev').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_prev', {
 			element: ['[data-slider-settings]'],
 			settings: {},
-		});
+		})
 	})
 
-	document.getElementById('next').addEventListener('click', ()=>{
+	document.getElementById('next').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_next', {
 			element: ['[data-slider-settings]'],
 			settings: {},
-		});
+		})
 	})
 
-
-	document.getElementById('goto-one-1').addEventListener('click', ()=>{
+	document.getElementById('goto-one-1').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 1
-		});
+			index: 1,
+		})
 	})
 
-	document.getElementById('goto-one-2').addEventListener('click', ()=>{
+	document.getElementById('goto-one-2').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 2
-		});
+			index: 2,
+		})
 	})
 
-	document.getElementById('goto-one-3').addEventListener('click', ()=>{
+	document.getElementById('goto-one-3').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 3
-		});
+			index: 3,
+		})
 	})
 
-	document.getElementById('goto-one-4').addEventListener('click', ()=>{
+	document.getElementById('goto-one-4').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 4
-		});
+			index: 4,
+		})
 	})
 
-	document.getElementById('goto-one-5').addEventListener('click', ()=>{
+	document.getElementById('goto-one-5').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 5
-		});
+			index: 5,
+		})
 	})
 
-	document.getElementById('goto-one-6').addEventListener('click', ()=>{
+	document.getElementById('goto-one-6').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 6
-		});
+			index: 6,
+		})
 	})
-	document.getElementById('goto-one-7').addEventListener('click', ()=>{
+	document.getElementById('goto-one-7').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 7
-		});
+			index: 7,
+		})
 	})
 
-	document.getElementById('goto-one-8').addEventListener('click', ()=>{
+	document.getElementById('goto-one-8').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
-			index: 8
-		});
+			index: 8,
+		})
 	})
 
 

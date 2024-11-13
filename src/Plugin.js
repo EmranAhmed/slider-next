@@ -46,7 +46,9 @@ function Plugin(element, options) {
 		elementVerticalClassName: 'is-vertical',
 		elementHorizontalClassName: 'is-horizontal',
 		elementCenterClassName: 'is-active-center',
-		elementInfiniteClassName: 'has-infinite',
+		elementHasInfiniteClassName: 'has-infinite',
+		elementHasDotClassName: 'has-dots',
+		elementHasArrowClassName: 'has-arrow',
 
 		sliderContainerClassName: '',
 		sliderContainerPositionStartClassName: 'position-start',
@@ -104,16 +106,26 @@ function Plugin(element, options) {
 		return expose();
 	};
 
+	const getElementComputedStyle = (cssProperty) => {
+		return window
+			.getComputedStyle(this.$element)
+			.getPropertyValue(cssProperty);
+	};
+
+	const getSliderComputedStyle = (cssProperty) => {
+		return window
+			.getComputedStyle(this.$slider)
+			.getPropertyValue(cssProperty);
+	};
+
 	const initial = () => {
 		// Add Container A11y
 		this.$container.setAttribute('aria-live', 'polite');
 
-		const computedStyle = window.getComputedStyle(this.$element);
-
 		// Infinite
-		const infiniteString = computedStyle
-			.getPropertyValue(this.settings.isInfiniteCSSProperty)
-			.toLowerCase();
+		const infiniteString = getElementComputedStyle(
+			this.settings.isInfiniteCSSProperty
+		).toLowerCase();
 
 		this.isInfinite = cssVariableIsTrue(infiniteString);
 
@@ -146,44 +158,40 @@ function Plugin(element, options) {
 		}
 
 		// Horizontal
-		const horizontalString = computedStyle
-			.getPropertyValue(this.settings.isHorizontalCSSProperty)
-			.toLowerCase();
+		const horizontalString = getElementComputedStyle(
+			this.settings.isHorizontalCSSProperty
+		).toLowerCase();
 
 		this.isHorizontal = cssVariableIsTrue(horizontalString);
 
 		// Always center
-		const alwaysCenterString = computedStyle
-			.getPropertyValue(this.settings.isAlwaysCenterCSSProperty)
-			.toLowerCase();
+		const alwaysCenterString = getElementComputedStyle(
+			this.settings.isAlwaysCenterCSSProperty
+		).toLowerCase();
 
 		this.isCenter = cssVariableIsTrue(alwaysCenterString);
 
 		// Goto Index on Click
-		const activeOnSelect = computedStyle
-			.getPropertyValue(this.settings.isActiveSelectCSSProperty)
-			.toLowerCase();
+		const activeOnSelect = getElementComputedStyle(
+			this.settings.isActiveSelectCSSProperty
+		).toLowerCase();
 
 		this.isActiveOnSelect = cssVariableIsTrue(activeOnSelect);
 
 		// Slide To Show
 		this.slidesToShow = parseInt(
-			computedStyle.getPropertyValue(
-				this.settings.slidesToShowCSSProperty
-			),
+			getElementComputedStyle(this.settings.slidesToShowCSSProperty),
 			10
 		);
 
 		this.slidesToScroll = parseInt(
-			computedStyle.getPropertyValue(
-				this.settings.slidesToScrollCSSProperty
-			),
+			getElementComputedStyle(this.settings.slidesToScrollCSSProperty),
 			10
 		);
 
 		// Item GAP
 		this.itemGap = parseInt(
-			computedStyle.getPropertyValue(this.settings.itemGapCSSProperty),
+			getElementComputedStyle(this.settings.itemGapCSSProperty),
 			10
 		);
 
@@ -200,19 +208,24 @@ function Plugin(element, options) {
 			this.isCenter = false;
 		}
 
-		if (this.isCenter) {
-			this.$element.classList.add(CLASSES.elementCenterClassName);
-			this.slidesToScroll = 1;
-			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
-		}
-
 		// Control from CSS
 		this.$element.classList.remove(CLASSES.elementVerticalClassName);
 		this.$element.classList.remove(CLASSES.elementHorizontalClassName);
 		this.$element.classList.remove(CLASSES.elementCenterClassName);
 
+		if (this.isCenter) {
+			this.$element.classList.add(CLASSES.elementCenterClassName);
+			this.slidesToScroll = 1;
+			/*this.$element.style.setProperty(
+				'--slides-to-scroll',
+				this.slidesToScroll
+			);*/
+			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
+			this.isInfinite = true;
+		}
+
 		if (this.isInfinite) {
-			this.$element.classList.add(CLASSES.elementInfiniteClassName);
+			this.$element.classList.add(CLASSES.elementHasInfiniteClassName);
 		}
 
 		if (this.isHorizontal) {
@@ -225,9 +238,9 @@ function Plugin(element, options) {
 		this.dotsData = createDotsObject();
 		this.itemsData = createItemObject();
 
-		/*console.log(this.totalDots);
-		console.log(this.dotsData);
-		console.log(this.itemsData);*/
+		console.log(this.totalDots);
+		console.log('dot', this.dotsData);
+		console.log('item', this.itemsData);
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
 		const initialDot = getDotIndexByItemIndex(initialIndex);
@@ -236,12 +249,22 @@ function Plugin(element, options) {
 
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
+
+		triggerEvent(this.$element, 'afterInit', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+			totalDots: this.totalDots,
+		});
 	};
 
 	const initialPaging = () => {
 		const $button = this.$element.querySelector(
 			this.settings.sliderPagination
 		);
+
+		if (null === $button) {
+			return;
+		}
 
 		$button.style.display = 'none';
 
@@ -330,6 +353,11 @@ function Plugin(element, options) {
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
 		updatePaging(dotIndex);
+
+		triggerEvent(this.$element, 'afterGoto', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+		});
 	};
 
 	const goToSlide = (slideIndex) => {
@@ -344,7 +372,9 @@ function Plugin(element, options) {
 
 		const dotIndex = getDotIndexByItemIndex(index);
 
-		goToDot(dotIndex);
+		const goto = this.slidesToScroll > 1 ? dotIndex : slideIndex;
+
+		goToDot(goto);
 	};
 
 	const getTotalDots = () => {
@@ -396,14 +426,16 @@ function Plugin(element, options) {
 
 		let index = 0;
 
-		while (index + this.slidesToShow <= this.totalItems) {
-			result.push(items.slice(index, index + this.slidesToShow));
+		const slidesToShow = this.slidesToShow;
+
+		while (index + slidesToShow <= this.totalItems) {
+			result.push(items.slice(index, index + slidesToShow));
 			index += this.slidesToScroll;
 		}
 
 		// Add the last segment if needed to cover any trailing elements
 		if (index < items.length) {
-			result.push(items.slice(items.length - this.slidesToShow));
+			result.push(items.slice(items.length - slidesToShow));
 		}
 
 		result.forEach((sub) => {
@@ -524,6 +556,8 @@ function Plugin(element, options) {
 
 		const lastItemsIndex = this.totalItems - 1;
 
+		// console.log('cc', this.centerItem);
+
 		// const itemsToClone = this.slidesToShow + this.centerItem;
 		const itemsToClone = this.slidesToShow;
 
@@ -557,23 +591,17 @@ function Plugin(element, options) {
 	const addClasses = () => {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
+		//$items[this.currentIndex].setAttribute('aria-hidden', 'false');
+		//$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
+
 		$items[this.currentIndex].setAttribute('aria-hidden', 'false');
 		$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
 
-		if (this.isCenter) {
-			const start = this.currentIndex - this.centerItem;
-			const end = this.currentIndex + this.centerItem;
-
-			for (let i = start; i <= end; i++) {
-				//$items[i].setAttribute('aria-hidden', 'false');
-				//$items[i].classList.add(CLASSES.itemVisibleClassName);
-			}
-		} else {
-			for (let i = 0; i < this.slidesToShow; i++) {
-				const key = i + this.currentIndex;
-				$items[key].setAttribute('aria-hidden', 'false');
-				$items[key].classList.add(CLASSES.itemVisibleClassName);
-			}
+		// @TODO: fix here
+		for (let i = 0; i < this.slidesToShow; i++) {
+			const key = i + this.currentIndex;
+			$items[key].setAttribute('aria-hidden', 'false');
+			$items[key].classList.add(CLASSES.itemVisibleClassName);
 		}
 	};
 
@@ -592,13 +620,21 @@ function Plugin(element, options) {
 	};
 
 	const addEvents = () => {
-		this.$element
-			.querySelector(this.settings.sliderNavigationPrevious)
-			.addEventListener('click', handlePrev);
+		const $prevButton = this.$element.querySelector(
+			this.settings.sliderNavigationPrevious
+		);
 
-		this.$element
-			.querySelector(this.settings.sliderNavigationNext)
-			.addEventListener('click', handleNext);
+		const $nextButton = this.$element.querySelector(
+			this.settings.sliderNavigationNext
+		);
+
+		if (null !== $prevButton) {
+			$prevButton.addEventListener('click', handlePrev);
+		}
+
+		if (null !== $nextButton) {
+			$nextButton.addEventListener('click', handleNext);
+		}
 
 		this.$slider.addEventListener('transitionstart', beforeSlide);
 		this.$slider.addEventListener('transitionend', afterSlide);
@@ -679,6 +715,11 @@ function Plugin(element, options) {
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
 		updatePaging(currentDot);
+
+		triggerEvent(this.$element, 'afterPrev', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+		});
 	};
 
 	const slideNext = () => {
@@ -694,6 +735,11 @@ function Plugin(element, options) {
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
 		updatePaging(currentDot);
+
+		triggerEvent(this.$element, 'afterNext', {
+			currentIndex: this.currentIndex,
+			currentDot: this.currentDot,
+		});
 	};
 
 	const handleSwipe = (event) => {
@@ -701,17 +747,26 @@ function Plugin(element, options) {
 			return;
 		}
 
+		const gapCount = this.slidesToShow - 1;
+		const gapSize = this.isCenter
+			? ((this.itemGap / this.slidesToShow) * gapCount) / 2
+			: 0;
+
 		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
 		const gapValue = this.currentIndex * (this.itemGap / this.slidesToShow);
 
 		const currentWidth =
-			(this.currentIndex * this.sliderWidth) / this.slidesToShow;
+			((this.currentIndex - this.centerItem) * this.sliderWidth) /
+			this.slidesToShow;
 		const currentHeight =
-			(this.currentIndex * this.sliderHeight) / this.slidesToShow;
+			((this.currentIndex - this.centerItem) * this.sliderHeight) /
+			this.slidesToShow;
 
-		const horizontalValue = Math.ceil(currentWidth + gapValue - x) * -1;
-		const verticalValue = Math.ceil(currentHeight + gapValue - y) * -1;
+		const horizontalValue =
+			Math.ceil(currentWidth - gapSize + gapValue - x) * -1;
+		const verticalValue =
+			Math.ceil(currentHeight - gapSize + gapValue - y) * -1;
 		// Disable over swipe
 		if (!this.isInfinite) {
 			if (this.currentDot === this.totalDots && x < 0) {
@@ -798,7 +853,7 @@ function Plugin(element, options) {
 			].classList.add(this.settings.defaultItemClassName);
 
 		this.$element.classList.remove(
-			CLASSES.elementInfiniteClassName,
+			CLASSES.elementHasInfiniteClassName,
 			CLASSES.elementHorizontalClassName,
 			CLASSES.elementVerticalClassName,
 			CLASSES.elementCenterClassName
