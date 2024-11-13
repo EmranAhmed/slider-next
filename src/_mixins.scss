@@ -10,10 +10,12 @@
 		--is-active-select: false;
 		--_current-index: 0; // private value
 		// stylelint-disable-next-line length-zero-no-unit
-		--item-gap: 0px;
+		--slider-gap: 1px;
 		--control-navigation-color: #000;
 		--sliding-speed: 500ms;
-		--sliding-style: ease;
+		//--sliding-style: ease;
+		// Generate Transition: https://matthewlein.com/tools/ceaser
+		--sliding-style: cubic-bezier(1.000, 0.000, 0.000, 1.000); /* easeInOutExpo */
 	}
 }
 
@@ -38,7 +40,8 @@
 		position: relative;
 		overflow: hidden;
 		width: 100%;
-		height: auto;
+		 /*height: auto;*/
+		height: 100%;
 		/*padding-inline: 20px;
 		padding-block: 20px;*/
 
@@ -70,9 +73,9 @@
 		--_item-height: calc(100% / var(--slides-to-show));
 
 		--_column-gap-count: calc(var(--slides-to-show) - 1);
-		--_column-size: calc(calc(var(--item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
+		--_column-size: calc(calc(var(--slider-gap) / var(--slides-to-show)) * var(--_column-gap-count));
 
-		 --_gap-value: calc(var(--_current-index) * calc(var(--item-gap) / var(--slides-to-show)));
+		 --_gap-value: calc(var(--_current-index) * calc(var(--slider-gap) / var(--slides-to-show)));
 
 		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-index) + var(--_gap-value)) * -1);
 		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-index) + var(--_gap-value)) * -1);
@@ -90,7 +93,7 @@
 		list-style: none;
 		height: 100%;
 		display: grid;
-		gap: var(--item-gap);
+		gap: var(--slider-gap);
 
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));

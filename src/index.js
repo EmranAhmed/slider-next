@@ -175,6 +175,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		element: ['[data-slider-settings]'],
 		settings: {},
 	});
+
+	let timer;
+	window.addEventListener('resize', () => {
+		clearTimeout(timer);
+
+		timer = setTimeout(() => {
+			triggerEvent(document, 'slider_re_init', {
+				element: ['[data-slider-settings]'],
+				settings: {},
+			});
+		}, 300);
+	});
 });
 
 export default StorePressSlider;

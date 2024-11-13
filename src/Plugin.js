@@ -26,7 +26,7 @@ function Plugin(element, options) {
 		isHorizontalCSSProperty: '--is-horizontal',
 		isAlwaysCenterCSSProperty: '--is-always-center',
 		isActiveSelectCSSProperty: '--is-active-select',
-		itemGapCSSProperty: '--item-gap',
+		itemGapCSSProperty: '--slider-gap',
 		sliderItemClassName: 'storepress-slider-item',
 		sliderNavigationPrevious: '.storepress-slider-navigation-previous',
 		sliderNavigationNext: '.storepress-slider-navigation-next',
@@ -90,8 +90,10 @@ function Plugin(element, options) {
 		this.itemGap = 0;
 		this.centerItem = 0;
 		this.isCenter = false;
+		this.isActiveOnSelect = false;
 		this.dotsData = {};
 		this.itemsData = {};
+		this.isSwiping = false;
 
 		initial();
 
@@ -109,12 +111,6 @@ function Plugin(element, options) {
 	const getElementComputedStyle = (cssProperty) => {
 		return window
 			.getComputedStyle(this.$element)
-			.getPropertyValue(cssProperty);
-	};
-
-	const getSliderComputedStyle = (cssProperty) => {
-		return window
-			.getComputedStyle(this.$slider)
 			.getPropertyValue(cssProperty);
 	};
 
@@ -218,6 +214,7 @@ function Plugin(element, options) {
 			this.slidesToScroll = 1;
 			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
 			this.isInfinite = true;
+			this.isActiveOnSelect = true;
 		}
 
 		if (this.isInfinite) {
@@ -234,9 +231,9 @@ function Plugin(element, options) {
 		this.dotsData = createDotsObject();
 		this.itemsData = createItemObject();
 
-		console.log(this.totalDots);
+		/*console.log(this.totalDots);
 		console.log('dot', this.dotsData);
-		console.log('item', this.itemsData);
+		console.log('item', this.itemsData);*/
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
 		const initialDot = getDotIndexByItemIndex(initialIndex);
@@ -331,6 +328,10 @@ function Plugin(element, options) {
 	};
 
 	const handleItem = (event) => {
+		if (this.isSwiping) {
+			return false;
+		}
+
 		const index = parseInt(event.target.dataset.index, 10);
 
 		goToSlide(index);
@@ -646,10 +647,9 @@ function Plugin(element, options) {
 		});
 		this.$container.addEventListener('swipe', handleSwipe);
 
-		console.log(this.isActiveOnSelect);
-		if (this.isActiveOnSelect) {
+		if (this.isCenter && this.isActiveOnSelect) {
 			$items.forEach(($item) => {
-				$item.addEventListener('click', handleItem);
+				$item.addEventListener('pointerup', handleItem);
 			});
 		}
 	};
@@ -788,6 +788,10 @@ function Plugin(element, options) {
 		}
 
 		if (moving) {
+			this.isSwiping = true;
+
+			// console.log(left);
+
 			this.$slider.style.setProperty(
 				'--_horizontal-value',
 				`${horizontalValue}px`
@@ -803,6 +807,7 @@ function Plugin(element, options) {
 			addAnimatingClass();
 			this.$slider.style.removeProperty('--_horizontal-value');
 			this.$slider.style.removeProperty('--_vertical-value');
+			this.isSwiping = false;
 		}
 
 		if (done && (left || top)) {
@@ -830,7 +835,7 @@ function Plugin(element, options) {
 		});
 
 		$items.forEach(($item) => {
-			$item.removeEventListener('click', handleItem);
+			$item.removeEventListener('pointerup', handleItem);
 		});
 
 		this.$element

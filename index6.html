@@ -9,36 +9,43 @@
 	<style>
 		.container-2 {
 			max-width: 400px;
-			/*aspect-ratio: 1;*/
+			aspect-ratio: 1;
 			margin: 20px auto;
+
 			display: flex;
 			flex-direction: column;
-			gap: 5px;
 
-			@media (max-width: 800px) {
-				flex-direction: column;
+			@media (max-width: 1200px) {
+				/*flex-direction: column;*/
 			}
+
 		}
 
 		.storepress-slider > div {
 			position: relative;
-			height: 300px;
+			height: 100%;
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			/*outline: 0.2px solid;*/
 		}
 
 		.storepress-slider > div:before{
 
-			--unitless: calc(tan(atan2(var(--_column-size),1px)));
+			/*--unitless: calc(tan(atan2(var(--_column-size),1px)));
 
 			content: counter(c);
 			counter-reset: c var(--unitless);
 
 			font-size: 12px;
 			font-weight: bold;
-			font-family: system-ui,sans-serif;
+			font-family: system-ui,sans-serif;*/
+		}
+
+		.slider-wrapper{
+			--is-horizontal: true;
+			@media (max-width: 1200px) {
+				--is-horizontal: false;
+			}
 		}
 	</style>
 </head>
