@@ -193,25 +193,39 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 //
 
 
+/*
 	const items =     ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 	const show = 3;
 	let move = 3;
-	const infinite = true;
+	const infinite = false;
 	const center = false;
 	const totalItems = items.length
 	// const clonedItems = totalItems + ( infinite ? show * 2 : 0)
 	const startIndex = infinite ? show : 0;
-	const endIndex = infinite ? (totalItems + show) - 1: totalItems - 1;
+	const endIndex = infinite ? (totalItems + show) - 1: totalItems - show;
+*/
 
 	// {
-	// 1: [3,4],
-	// 2: [5,6],
-	// 3: [7,8],
+	// 1: [0,1,2],
+	// 2: [3,4,5],
+	// 3: [6,7],
 	// 4: [9]
 	// }
 
 
-	function createDotsObject(){
+	function __createDotsObject(){
+
+
+		const items = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+		const show = 3;
+		let move = 3;
+		const infinite = false;
+		const center = false;
+		const totalItems = items.length
+		// const clonedItems = totalItems + ( infinite ? show * 2 : 0)
+		const startIndex = infinite ? show : 0;
+		const endIndex = infinite ? (totalItems + show) - 1: totalItems - show;
+
 		let dotIndex = 1;
 		const dot = {};
 		const dotToIndexMap = {}
@@ -228,7 +242,7 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 
 				if( endIndex >= x){
 					dot[dotIndex].push(  x );
-					arr.push(x)
+					arr.push( x )
 				}
 			}
 			dotIndex++
@@ -237,9 +251,7 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 		return { dot, dotToIndexMap, arr};
 	}
 
-	console.log(createDotsObject())
-
-
+	// console.log(__createDotsObject(), '--')
 
 
 </script>

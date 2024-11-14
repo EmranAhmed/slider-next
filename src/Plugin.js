@@ -230,8 +230,8 @@ function Plugin(element, options) {
 		this.dotsData = createDotsObject();
 		this.itemsData = createItemObject();
 
-		/*console.log(this.totalDots);
-		console.log('dot', this.dotsData);
+		/*console.log('total dot', this.totalDots);
+		console.log('dots data', this.dotsData);
 		console.log('item', this.itemsData);*/
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
@@ -356,7 +356,7 @@ function Plugin(element, options) {
 		setCurrentDot(currentDot);
 		updatePaging(dotIndex);
 
-		triggerEvent(this.$element, 'afterGoto', {
+		triggerEvent(this.$element, 'afterGotoDot', {
 			currentIndex: this.currentIndex,
 			currentDot: this.currentDot,
 		});
@@ -401,10 +401,14 @@ function Plugin(element, options) {
 		dotsData[1] = this.isInfinite ? this.slidesToShow : 0;
 
 		let currentIndex = this.isInfinite ? this.slidesToShow : 0;
-		// const endIndex = this.totalDots + this.slidesToShow;
+		const endIndex = this.totalItems - this.slidesToShow;
 
 		for (let index = 2; index <= this.totalDots; index++) {
-			const ci = currentIndex + this.slidesToScroll;
+			let ci = currentIndex + this.slidesToScroll;
+
+			if (!this.isInfinite && endIndex < ci) {
+				ci = endIndex;
+			}
 
 			dotsData[index] = ci;
 
