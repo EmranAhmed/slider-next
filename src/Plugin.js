@@ -213,7 +213,6 @@ function Plugin(element, options) {
 			this.$element.classList.add(CLASSES.elementCenterClassName);
 			this.slidesToScroll = 1;
 			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
-			this.isInfinite = true;
 			this.isActiveOnSelect = true;
 		}
 
@@ -381,6 +380,10 @@ function Plugin(element, options) {
 	};
 
 	const getTotalDots = () => {
+		if (this.isCenter) {
+			return this.totalItems;
+		}
+
 		if (this.isInfinite) {
 			return Math.ceil(this.totalItems / this.slidesToScroll);
 		}
@@ -601,6 +604,10 @@ function Plugin(element, options) {
 		const end = start + this.slidesToShow;
 
 		for (let i = start; i < end; i++) {
+			if (!$items[i]) {
+				continue;
+			}
+
 			$items[i].setAttribute('aria-hidden', 'false');
 			$items[i].classList.add(CLASSES.itemVisibleClassName);
 		}
