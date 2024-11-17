@@ -215,14 +215,16 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 
 	function getState(){
 
-		const show = 3;
-		let move = 1;
+		const slidesToShow = 3;
+		let slidesToScroll = 3;
 		const infinite = false;
-		// const center = false;
+		 const center = false;
 		const totalItems = 7
 		// const clonedTotal = totalItems + ( infinite ? ((show * 2) - move) : 0)
-		const startIndex = infinite ? show : 0;
-		const endIndex = infinite ? (totalItems + show) - 1: totalItems - show;
+		const startIndex = infinite ? slidesToShow : 0;
+		const endIndex = infinite ? (totalItems + slidesToShow) - 1: totalItems - 1;
+
+
 
 		let dotIndex = 1; // start  dot index from 1
 		const data = {};
@@ -233,9 +235,37 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 
 		let lastIndex = 0;
 		let item = 1;
-		for (let index = startIndex; index <= endIndex; index+=move) {
+
+		const dotsCount = infinite ? Math.ceil(totalItems / slidesToScroll) : Math.ceil((totalItems - slidesToShow) / slidesToScroll) + 1
+
+		const totalDots = center ? totalItems : dotsCount
+
+		//console.log(totalDots) // 3
+
+		// @TODO: 
+
+		const di = {}
+		for (let a = 1; a <= totalDots; a++){
+			di[a] = []
+			for (let index = startIndex; index <= endIndex; index+=slidesToScroll) {
+				// di[a].push(index)
+				console.log(index, '---')
+			}
+		}
+
+		console.log(di)
+
+		return;
+
+
+
+
+		for (let index = startIndex; index <= endIndex; index+=slidesToScroll) {
+
+			//console.log(index)
+
 			data[dotIndex] = [];
-			for (let x = index; x < index + move; x++) {
+			for (let x = index; x < index + slidesToScroll; x++) {
 
 				if( !Object.hasOwn(dotToIndexMap, dotIndex) ){
 					dotToIndexMap[dotIndex] = x
@@ -269,7 +299,7 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 		return { data, dots, dotToIndexMap, itemToIndexMap, indexToDotMap, firstDotIndex, lastDotIndex};
 	}
 
-	// console.log(getState(), '--')
+	 console.log(getState(), '--')
 
 
 </script>

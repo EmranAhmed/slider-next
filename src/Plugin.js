@@ -294,10 +294,10 @@ function Plugin(element, options) {
 		this.itemsData = createItemObject();
 		this.data = getData();
 
-		/*console.log('total dot', this.totalDots);
+		console.log('total dot', this.totalDots);
 		console.log('dots data', this.dotsData);
-		console.log('item', this.itemsData);*/
-		console.log(this.data);
+		console.log('item', this.itemsData);
+		// console.log(this.data);
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
 		const initialDot = getDotIndexByItemIndex(initialIndex);
@@ -466,7 +466,14 @@ function Plugin(element, options) {
 		dotsData[1] = this.isInfinite ? this.slidesToShow : 0;
 
 		let currentIndex = this.isInfinite ? this.slidesToShow : 0;
-		const endIndex = this.totalItems - this.slidesToShow;
+
+		let endIndex = this.isInfinite
+			? this.totalItems - this.slidesToShow
+			: this.totalItems - this.slidesToShow;
+
+		if (this.isCenter && !this.isInfinite) {
+			endIndex = this.totalItems - 1;
+		}
 
 		for (let index = 2; index <= this.totalDots; index++) {
 			let ci = currentIndex + this.slidesToScroll;
