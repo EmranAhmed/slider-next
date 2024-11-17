@@ -213,45 +213,63 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 	// }
 
 
-	function __createDotsObject(){
+	function getState(){
 
-
-		const items = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 		const show = 3;
-		let move = 3;
+		let move = 1;
 		const infinite = false;
-		const center = false;
-		const totalItems = items.length
-		// const clonedItems = totalItems + ( infinite ? show * 2 : 0)
+		// const center = false;
+		const totalItems = 7
+		// const clonedTotal = totalItems + ( infinite ? ((show * 2) - move) : 0)
 		const startIndex = infinite ? show : 0;
 		const endIndex = infinite ? (totalItems + show) - 1: totalItems - show;
 
-		let dotIndex = 1;
-		const dot = {};
+		let dotIndex = 1; // start  dot index from 1
+		const data = {};
+		const dots = [];
 		const dotToIndexMap = {}
-		const arr = ['']
+		const itemToIndexMap = {}
+		const indexToDotMap = {}
 
+		let lastIndex = 0;
+		let item = 1;
 		for (let index = startIndex; index <= endIndex; index+=move) {
-			dot[dotIndex] = [];
+			data[dotIndex] = [];
 			for (let x = index; x < index + move; x++) {
 
-				if( !dotToIndexMap[dotIndex] ){
+				if( !Object.hasOwn(dotToIndexMap, dotIndex) ){
 					dotToIndexMap[dotIndex] = x
 				}
 
-
 				if( endIndex >= x){
-					dot[dotIndex].push(  x );
-					arr.push( x )
+					data[dotIndex].push( x );
+					indexToDotMap[x] = dotIndex
+					lastIndex = x
+					itemToIndexMap[item] = x
+					item++
 				}
 			}
+			dots.push(dotIndex)
 			dotIndex++
 		}
 
-		return { dot, dotToIndexMap, arr};
+		const lastDotIndex = dots.at(-1)
+		const firstDotIndex = dots.at(0)
+
+		// for (let y = lastIndex + 1; y < clonedTotal; y++) {
+			// data[lastDotIndex].push( y );
+		// }
+
+		for (let i =  1; i <= totalItems; i++) {
+			if( !Object.hasOwn(itemToIndexMap, i) ){
+				itemToIndexMap[i] = lastIndex
+			}
+		}
+
+		return { data, dots, dotToIndexMap, itemToIndexMap, indexToDotMap, firstDotIndex, lastDotIndex};
 	}
 
-	// console.log(__createDotsObject(), '--')
+	// console.log(getState(), '--')
 
 
 </script>

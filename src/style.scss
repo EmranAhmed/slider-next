@@ -12,9 +12,9 @@ $default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-San
 	& {
 		--slides-to-show: 3 !important;
 
-		--slides-to-scroll: 3 !important;
+		--slides-to-scroll: 2 !important;
 
-		--infinite: false !important;
+		--infinite: true !important;
 
 		--is-always-center: false !important;
 
