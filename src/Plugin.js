@@ -20,13 +20,13 @@ function Plugin(element, options) {
 	const PRIVATE = {
 		slidesToScrollCSSProperty: '--slides-to-scroll',
 		slidesToShowCSSProperty: '--slides-to-show',
-		isInfiniteCSSProperty: '--infinite',
+		isInfiniteCSSProperty: '--infinite-slides',
 		showDotsCSSProperty: '--show-pagination',
 		showArrowCSSProperty: '--show-navigation',
 		isHorizontalCSSProperty: '--is-horizontal',
 		isAlwaysCenterCSSProperty: '--is-always-center',
 		isActiveSelectCSSProperty: '--is-active-select',
-		itemGapCSSProperty: '--slider-gap',
+		itemGapCSSProperty: '--slider-item-gap',
 		sliderItemClassName: 'storepress-slider-item',
 		sliderNavigationPrevious: '.storepress-slider-navigation-previous',
 		sliderNavigationNext: '.storepress-slider-navigation-next',
@@ -177,6 +177,12 @@ function Plugin(element, options) {
 			.getPropertyValue(cssProperty);
 	};
 
+	const getSliderComputedStyle = (cssProperty) => {
+		return window
+			.getComputedStyle(this.$slider)
+			.getPropertyValue(cssProperty);
+	};
+
 	const initial = () => {
 		// Add Container A11y
 		this.$container.setAttribute('aria-live', 'polite');
@@ -249,10 +255,7 @@ function Plugin(element, options) {
 		);
 
 		// Item GAP
-		this.itemGap = parseInt(
-			getElementComputedStyle(this.settings.itemGapCSSProperty),
-			10
-		);
+		this.itemGap = parseInt(getSliderComputedStyle('gap'), 10);
 
 		if (this.slidesToShow < this.slidesToScroll) {
 			this.slidesToScroll = this.slidesToShow;
@@ -277,6 +280,10 @@ function Plugin(element, options) {
 			this.slidesToScroll = 1;
 			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
 			this.isActiveOnSelect = true;
+			this.$element.style.setProperty(
+				this.settings.slidesToScrollCSSProperty,
+				this.slidesToScroll
+			);
 		}
 
 		if (this.isInfinite) {
@@ -294,9 +301,9 @@ function Plugin(element, options) {
 		this.itemsData = createItemObject();
 		this.data = getData();
 
-		console.log('total dot', this.totalDots);
+		/*console.log('total dot', this.totalDots);
 		console.log('dots data', this.dotsData);
-		console.log('item', this.itemsData);
+		console.log('item', this.itemsData);*/
 		// console.log(this.data);
 
 		const initialIndex = getBalancedIndex(this.initialSlide);
@@ -403,10 +410,9 @@ function Plugin(element, options) {
 
 	const goToDot = (dotIndex) => {
 		if (dotIndex < 1 || dotIndex > this.totalDots) {
-			console.warn(
+			throw new RangeError(
 				`Dot index ${dotIndex} is not available. Available range ${1} - ${this.totalDots}`
 			);
-			return;
 		}
 
 		addAnimatingClass();
@@ -431,10 +437,9 @@ function Plugin(element, options) {
 		const index = this.isInfinite ? slideIndex : slideIndex - 1;
 
 		if (slideIndex < 1 || slideIndex > this.totalItems) {
-			console.warn(
+			throw new RangeError(
 				`Item index ${slideIndex} is not available. Available range ${1} - ${this.totalItems}`
 			);
-			return;
 		}
 
 		const dotIndex = getDotIndexByItemIndex(index);
@@ -563,8 +568,16 @@ function Plugin(element, options) {
 	};
 
 	const setCurrentIndex = (index) => {
-		this.currentIndex = parseInt(index, 10);
-		this.$element.style.setProperty('--_current-index', this.currentIndex);
+		const ci = this.isInfinite
+			? parseInt(index, 10) + this.slidesToScroll
+			: parseInt(index, 10);
+
+		this.currentIndex = ci;
+		this.$element.style.setProperty('--_current-slider-index', ci);
+	};
+
+	const getCurrentIndex = () => {
+		return this.currentIndex;
 	};
 
 	const setCurrentDot = (index) => {
@@ -641,7 +654,7 @@ function Plugin(element, options) {
 		// console.log('cc', this.centerItem);
 
 		// const itemsToClone = this.slidesToShow + this.centerItem;
-		const itemsToClone = this.slidesToShow;
+		const itemsToClone = this.slidesToShow + this.slidesToScroll;
 
 		for (let index = 0; index < itemsToClone; index++) {
 			const nodeForAppend = this.$items[index].cloneNode(true);
@@ -865,13 +878,13 @@ function Plugin(element, options) {
 
 		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
-		const gapValue = this.currentIndex * (this.itemGap / this.slidesToShow);
+		const gapValue = getCurrentIndex() * (this.itemGap / this.slidesToShow);
 
 		const currentWidth =
-			((this.currentIndex - this.centerItem) * this.sliderWidth) /
+			((getCurrentIndex() - this.centerItem) * this.sliderWidth) /
 			this.slidesToShow;
 		const currentHeight =
-			((this.currentIndex - this.centerItem) * this.sliderHeight) /
+			((getCurrentIndex() - this.centerItem) * this.sliderHeight) /
 			this.slidesToShow;
 
 		const horizontalValue =

@@ -119,7 +119,6 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 
 <script type="text/javascript">
 
-
 	document.getElementById('prev').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_prev', {
 			element: ['[data-slider-settings]'],
@@ -175,6 +174,7 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 			index: 6,
 		})
 	})
+
 	document.getElementById('goto-one-7').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
 			element: ['[data-slider-settings]'],
@@ -188,119 +188,6 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 			index: 8,
 		})
 	})
-
-
-//
-
-
-/*
-	const items =     ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-	const show = 3;
-	let move = 3;
-	const infinite = false;
-	const center = false;
-	const totalItems = items.length
-	// const clonedItems = totalItems + ( infinite ? show * 2 : 0)
-	const startIndex = infinite ? show : 0;
-	const endIndex = infinite ? (totalItems + show) - 1: totalItems - show;
-*/
-
-	// {
-	// 1: [0,1,2],
-	// 2: [3,4,5],
-	// 3: [6,7],
-	// 4: [9]
-	// }
-
-
-	function getState(){
-
-		const slidesToShow = 3;
-		let slidesToScroll = 3;
-		const infinite = false;
-		 const center = false;
-		const totalItems = 7
-		// const clonedTotal = totalItems + ( infinite ? ((show * 2) - move) : 0)
-		const startIndex = infinite ? slidesToShow : 0;
-		const endIndex = infinite ? (totalItems + slidesToShow) - 1: totalItems - 1;
-
-
-
-		let dotIndex = 1; // start  dot index from 1
-		const data = {};
-		const dots = [];
-		const dotToIndexMap = {}
-		const itemToIndexMap = {}
-		const indexToDotMap = {}
-
-		let lastIndex = 0;
-		let item = 1;
-
-		const dotsCount = infinite ? Math.ceil(totalItems / slidesToScroll) : Math.ceil((totalItems - slidesToShow) / slidesToScroll) + 1
-
-		const totalDots = center ? totalItems : dotsCount
-
-		//console.log(totalDots) // 3
-
-		// @TODO: 
-
-		const di = {}
-		for (let a = 1; a <= totalDots; a++){
-			di[a] = []
-			for (let index = startIndex; index <= endIndex; index+=slidesToScroll) {
-				// di[a].push(index)
-				console.log(index, '---')
-			}
-		}
-
-		console.log(di)
-
-		return;
-
-
-
-
-		for (let index = startIndex; index <= endIndex; index+=slidesToScroll) {
-
-			//console.log(index)
-
-			data[dotIndex] = [];
-			for (let x = index; x < index + slidesToScroll; x++) {
-
-				if( !Object.hasOwn(dotToIndexMap, dotIndex) ){
-					dotToIndexMap[dotIndex] = x
-				}
-
-				if( endIndex >= x){
-					data[dotIndex].push( x );
-					indexToDotMap[x] = dotIndex
-					lastIndex = x
-					itemToIndexMap[item] = x
-					item++
-				}
-			}
-			dots.push(dotIndex)
-			dotIndex++
-		}
-
-		const lastDotIndex = dots.at(-1)
-		const firstDotIndex = dots.at(0)
-
-		// for (let y = lastIndex + 1; y < clonedTotal; y++) {
-			// data[lastDotIndex].push( y );
-		// }
-
-		for (let i =  1; i <= totalItems; i++) {
-			if( !Object.hasOwn(itemToIndexMap, i) ){
-				itemToIndexMap[i] = lastIndex
-			}
-		}
-
-		return { data, dots, dotToIndexMap, itemToIndexMap, indexToDotMap, firstDotIndex, lastDotIndex};
-	}
-
-	 console.log(getState(), '--')
-
 
 </script>
 
