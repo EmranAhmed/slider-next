@@ -23,6 +23,15 @@
 
 		.slider-wrapper:not(:has(.storepress-slider img)){
 			height: 100%;
+			/*width: 100%;*/
+		}
+
+		.slider-wrapper.is-vertical{
+			height: 100%;
+		}
+
+		.slider-wrapper.is-vertical .storepress-slider img{
+			width: 100%;
 		}
 
 		.storepress-slider > div {
@@ -52,24 +61,24 @@
 
 			margin-block: 10px;
 
+			/*--is-horizontal: false;*/
+
 			@media (max-width: 900px) {
 
-				--slides-to-show: 1;
+				--slides-to-show: 2;
 
-				--slides-to-scroll: 1;
+				--slides-to-scroll: 2;
 
 				/*--is-horizontal: false;*/
 			}
 
 			@media (max-width: 500px) {
 
-				--slides-to-show: 1;
+				--slides-to-show: 3;
 
-				--slides-to-scroll: 1;
+				--slides-to-scroll: 3;
 
 				--is-horizontal: false;
-
-				--slides-autoplay: true;
 			}
 		}
 
