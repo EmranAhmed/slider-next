@@ -306,9 +306,11 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 	> * {
 
+		--_position: calc(-50% - (var(--control-navigation-size) / 2) );
+
 		position: absolute;
 		top: 50%;
-		transform: translateY(calc(-50% - 10px));
+		transform: translateY(var(--_position));
 
 		border: none;
 		cursor: pointer;
