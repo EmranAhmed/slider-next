@@ -43,6 +43,7 @@
 
 		.slider-wrapper{
 			--is-horizontal: true;
+			margin-block: 10px;
 			@media (max-width: 1200px) {
 				--is-horizontal: false;
 			}
@@ -86,8 +87,12 @@
 
 		<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
 			<div class="storepress-slider-navigation">
-				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous"></button>
-				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next"></button>
+				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" /></svg>
+				</button>
+				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" /></svg>
+				</button>
 			</div>
 
 			<div class="storepress-slider-pagination">
@@ -120,70 +125,70 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 <script type="text/javascript">
 
 	document.getElementById('prev').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_prev', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_prev', {
 			element: ['[data-slider-settings]'],
 			settings: {},
 		})
 	})
 
 	document.getElementById('next').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_next', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_next', {
 			element: ['[data-slider-settings]'],
 			settings: {},
 		})
 	})
 
 	document.getElementById('goto-one-1').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 1,
 		})
 	})
 
 	document.getElementById('goto-one-2').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 2,
 		})
 	})
 
 	document.getElementById('goto-one-3').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 3,
 		})
 	})
 
 	document.getElementById('goto-one-4').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 4,
 		})
 	})
 
 	document.getElementById('goto-one-5').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 5,
 		})
 	})
 
 	document.getElementById('goto-one-6').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 6,
 		})
 	})
 
 	document.getElementById('goto-one-7').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 7,
 		})
 	})
 
 	document.getElementById('goto-one-8').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'slider_goto_slider', {
+		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 			element: ['[data-slider-settings]'],
 			index: 8,
 		})

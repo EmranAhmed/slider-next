@@ -3,15 +3,44 @@
 	"version": "0.0.1",
 	"description": "StorePress Slider Plugin",
 	"author": "Emran Ahmed",
-	"private": true,
-	"license": "GPLv3",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"slider",
+		"responsive",
+		"scss",
+		"css slider"
+	],
+	"homepage": "https://emranahmed.github.io/slider-next/",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/EmranAhmed/slider-next"
+		"url": "https://github.com/EmranAhmed/slider-next.git"
 	},
-	"bin": {
-		"package": "./bin/package.js"
+	"bugs": {
+		"url": "https://github.com/EmranAhmed/slider-next/issues"
 	},
+	"lint-staged": {
+		"./src/*.scss": [
+			"npm run lint:css"
+		],
+		"./src/*.{js,ts,tsx}": [
+			"npm run lint:js"
+		],
+		"./*.md": [
+			"npm run lint:md:docs"
+		]
+	},
+	"files": [
+		"build/**",
+		"src/**"
+	],
+	"main": "build/index.js",
+	"module": "src/index.js",
+	"publishConfig" : {
+		"access" : "public"
+	},
+	"sideEffects" : [
+		"src/**"
+	],
 	"scripts": {
 		"clean": "rm -rf ./build",
 		"ready": "npm run clean && npm run build",
@@ -20,7 +49,9 @@
 		"check-licenses": "wp-scripts check-licenses",
 		"format": "wp-scripts format",
 		"lint:css": "wp-scripts lint-style",
+		"lint:css:fix": "npm run lint:css -- --fix",
 		"lint:js": "wp-scripts lint-js",
+		"lint:js:fix": "npm run lint:js -- --fix",
 		"lint:md:docs": "wp-scripts lint-md-docs",
 		"lint:pkg-json": "wp-scripts lint-pkg-json",
 		"packages-update": "wp-scripts packages-update",
@@ -31,8 +62,8 @@
 		"zip": "./bin/package.js --zip",
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js",
-		"rimraf": "./node_modules/rimraf/bin.js",
-		"start": "rm -rf ./build && wp-scripts start --webpack-copy-php --experimental-modules"
+		"start": "rm -rf ./build && wp-scripts start --webpack-copy-php --experimental-modules",
+		"husky": "husky install && npx husky add .husky/pre-commit \"npx lint-staged\""
 	},
 	"dependencies": {
 		"@storepress/utils": "^0.2.6"
@@ -42,6 +73,8 @@
 		"@wordpress/scripts": "^30.4.0",
 		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
 		"fs-extra": "^11.2.0",
-		"webpack-remove-empty-scripts": "^1.0.4"
+		"webpack-remove-empty-scripts": "^1.0.4",
+		"husky": "^8.0.0",
+		"lint-staged": "^15.2.5"
 	}
 }

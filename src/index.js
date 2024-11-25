@@ -70,7 +70,7 @@ function StorePressSlider() {
 	};
 
 	// Slider ReInit.
-	document.addEventListener('slider_re_init', (event) => {
+	document.addEventListener('storepress_slider_re_init', (event) => {
 		const defaultSettings = {};
 		const settings = { ...defaultSettings, ...event.detail?.settings };
 		const element = event.detail?.element;
@@ -85,7 +85,7 @@ function StorePressSlider() {
 	});
 
 	// Slider Init.
-	document.addEventListener('slider_init', (event) => {
+	document.addEventListener('storepress_slider_init', (event) => {
 		const defaultSettings = {};
 		const settings = { ...defaultSettings, ...event.detail?.settings };
 		const element = event.detail?.element;
@@ -100,7 +100,7 @@ function StorePressSlider() {
 	});
 
 	// Next Slide
-	document.addEventListener('slider_next', (event) => {
+	document.addEventListener('storepress_slider_next', (event) => {
 		const element = event.detail?.element;
 
 		if (Array.isArray(element)) {
@@ -113,7 +113,7 @@ function StorePressSlider() {
 	});
 
 	// Prev Slide
-	document.addEventListener('slider_prev', (event) => {
+	document.addEventListener('storepress_slider_prev', (event) => {
 		const element = event.detail?.element;
 
 		if (Array.isArray(element)) {
@@ -126,7 +126,7 @@ function StorePressSlider() {
 	});
 
 	// Goto Slide
-	document.addEventListener('slider_goto_slider', (event) => {
+	document.addEventListener('storepress_slider_goto_slider', (event) => {
 		const element = event.detail?.element;
 		const index = event.detail?.index;
 
@@ -140,7 +140,7 @@ function StorePressSlider() {
 	});
 
 	// Goto Dot
-	document.addEventListener('slider_goto_dot', (event) => {
+	document.addEventListener('storepress_slider_goto_dot', (event) => {
 		const element = event.detail?.element;
 		const index = event.detail?.index;
 
@@ -154,7 +154,7 @@ function StorePressSlider() {
 	});
 
 	// Destroy
-	document.addEventListener('slider_destroy', (event) => {
+	document.addEventListener('storepress_slider_destroy', (event) => {
 		const element = event.detail?.element;
 
 		if (Array.isArray(element)) {
@@ -171,17 +171,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	StorePressSlider();
 	// Dispatch / trigger Events:
 
-	triggerEvent(document, 'slider_init', {
+	triggerEvent(document, 'storepress_slider_init', {
 		element: ['[data-slider-settings]'],
 		settings: {},
 	});
 
-	let timer;
-	window.addEventListener('resize', () => {
-		clearTimeout(timer);
+	let timeOutId;
 
-		timer = setTimeout(() => {
-			triggerEvent(document, 'slider_re_init', {
+	window.addEventListener('resize', () => {
+		clearTimeout(timeOutId);
+
+		timeOutId = setTimeout(() => {
+			triggerEvent(document, 'storepress_slider_re_init', {
 				element: ['[data-slider-settings]'],
 				settings: {},
 			});

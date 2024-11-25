@@ -1,9 +1,10 @@
 !.eslintrc.js
 bin
 images
-assets
+build
 languages
 node_modules
 vendor
 webpack*
 postcss*
+/*.js

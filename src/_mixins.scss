@@ -63,6 +63,19 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	inherits: true;
 	initial-value: true;
 }
+
+@property --slides-autoplay {
+	syntax: "<custom-ident>|<integer>";
+	inherits: true;
+	initial-value: false;
+}
+
+@property --slides-autoplay-speed {
+	syntax: "<integer>";
+	inherits: true;
+	initial-value: 3000;
+}
+
 @property --is-horizontal {
 	syntax: "<custom-ident>|<integer>";
 	inherits: true;
@@ -89,6 +102,17 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	inherits: true;
 	initial-value: 0px;
 }
+@property --control-navigation-color {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: #000;
+}
+
+@property --control-navigation-size {
+	syntax: "<length>";
+	inherits: true;
+	initial-value: 30px;
+}
 
 @mixin variables() {
 
@@ -103,9 +127,12 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--is-horizontal: true;
 		--is-always-center: false;
 		--is-active-select: false;
+		--slides-autoplay: false;
+		--slides-autoplay-timeout: 3000; // In Milliseconds.
 		--_current-slider-index: 0;
 		--slider-item-gap: 0px;
 		--control-navigation-color: #000;
+		--control-navigation-size: 30px;
 		--sliding-duration: 500ms;
 		// Generate Transition: https://matthewlein.com/tools/ceaser
 		--sliding-timing-function: var(--ease-out-cubic); /* easeInOutExpo */
@@ -274,27 +301,34 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+
 	> * {
 
 		position: absolute;
 		top: 50%;
 		transform: translateY(calc(-50% - 10px));
 
-		border: 1rem solid transparent;
+		border: none;
 		cursor: pointer;
 		background-color: transparent;
-		/*margin-block: 1rem;*/
+		margin-block: 10px;
+		width: var(--control-navigation-size);
+		aspect-ratio: 1;
+		padding: 5px;
+
+		img, svg {
+			display: block;
+			width: 100%;
+			height: 100%;
+			fill: var(--control-navigation-color);
+		}
 
 		&.storepress-slider-navigation-previous{
 			left: 0;
-			border-right-color: var(--control-navigation-color);
-			border-left-width: 0;
 			user-select: none;
 		}
 		&.storepress-slider-navigation-next{
 			right: 0;
-			border-left-color: var(--control-navigation-color);
-			border-right-width: 0;
 			user-select: none;
 		}
 	}

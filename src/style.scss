@@ -10,11 +10,13 @@ $default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-San
 	@include slider.slider-init();
 
 	& {
-		--slides-to-show: 3;
+		--slides-to-show: 1;
 
-		--slides-to-scroll: 3;
+		--slides-to-scroll: 1;
 
 		--infinite-slides: true;
+
+		--slides-autoplay: false;
 
 		--is-always-center: false;
 
