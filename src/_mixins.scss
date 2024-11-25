@@ -142,8 +142,10 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 @mixin wrapper-style() {
 	& {
 		position: relative;
-		width: 100%;
-		height: 100%;
+		display: flex;
+		flex-direction: column;
+		/*width: 100%;
+		height: 100%;*/
 	}
 }
 
@@ -311,7 +313,7 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		border: none;
 		cursor: pointer;
 		background-color: transparent;
-		margin-block: 10px;
+		/*margin-block: 10px;*/
 		width: var(--control-navigation-size);
 		aspect-ratio: 1;
 		padding: 5px;

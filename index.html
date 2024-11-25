@@ -21,9 +21,12 @@
 
 		}
 
+		.slider-wrapper:not(:has(.storepress-slider img)){
+			height: 100%;
+		}
+
 		.storepress-slider > div {
 			position: relative;
-			height: 100%;
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -42,11 +45,36 @@
 		}
 
 		.slider-wrapper{
-			--is-horizontal: true;
+
+			--slides-to-show: 3;
+
+			--slides-to-scroll: 3;
+
 			margin-block: 10px;
-			@media (max-width: 1200px) {
-				--is-horizontal: false;
+
+			@media (max-width: 900px) {
+
+				--slides-to-show: 1;
+
+				--slides-to-scroll: 1;
+
+				/*--is-horizontal: false;*/
 			}
+
+			@media (max-width: 500px) {
+
+				--slides-to-show: 1;
+
+				--slides-to-scroll: 1;
+
+				--is-horizontal: false;
+
+				--slides-autoplay: true;
+			}
+		}
+
+		.storepress-slider-container {
+
 		}
 	</style>
 </head>
@@ -59,22 +87,24 @@
 
 		<div class="storepress-slider-container">
 			<div class="storepress-slider">
-				<!--<div class="active"><img src="images/beanie.jpg" /></div>
+				<div class="active"><img src="images/beanie.jpg" /></div>
 				<div><img src="images/belt.jpg" /></div>
 				<div><img src="images/cap.jpg" /></div>
 				<div><img src="images/hoodie-blue-1.jpg" /></div>
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>-->
+				<div><img src="images/tshirt-2.jpg" /></div>
 
 
-				<div class="active" style="background-color: #bbbbbb">01</div>
+				<!--<div class="active" style="background-color: #bbbbbb">01</div>
 				<div style="background-color: #702222">02</div>
 				<div style="background-color: #b051d0">03</div>
 				<div style="background-color: #357c6b">04</div>
 				<div style="background-color: #9b1358">05</div>
 				<div style="background-color: #1a852f">06</div>
-				<div style="background-color: #2b6091">07</div>
+				<div style="background-color: #2b6091">07</div>-->
+
+
 				<!--
 											<div>08</div>
 											<div >09</div>
@@ -123,6 +153,12 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 <script type="text/javascript" src="./build/slider.js"></script>
 
 <script type="text/javascript">
+
+
+	StorePress.Utils.triggerEvent(document, 'storepress_slider_init', {
+		element: ['.slider-2'],
+		settings: {},
+	});
 
 	document.getElementById('prev').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'storepress_slider_prev', {

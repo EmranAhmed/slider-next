@@ -338,7 +338,7 @@ function Plugin(element, options) {
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
 
 		triggerEvent(this.$element, 'afterInit', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 			totalDots: this.totalDots,
 		});
@@ -453,7 +453,7 @@ function Plugin(element, options) {
 		restartAutoPlay();
 
 		triggerEvent(this.$element, 'afterGotoDot', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 		});
 	};
@@ -593,7 +593,9 @@ function Plugin(element, options) {
 	};
 
 	const setCurrentIndex = (index) => {
-		this.currentIndex = parseInt(index, 10);
+		this.currentIndex = this.isInfinite
+			? parseInt(index, 10) + this.slidesToScroll
+			: parseInt(index, 10);
 
 		this.$element.style.setProperty(
 			this.settings.sliderCurrentIndexCSSProperty,
@@ -679,7 +681,7 @@ function Plugin(element, options) {
 		// console.log('cc', this.centerItem);
 
 		// const itemsToClone = this.slidesToShow + this.centerItem;
-		const itemsToClone = this.slidesToShow;
+		const itemsToClone = this.slidesToShow + this.slidesToScroll;
 
 		for (let index = 0; index < itemsToClone; index++) {
 			const nodeForAppend = this.$items[index].cloneNode(true);
@@ -850,7 +852,7 @@ function Plugin(element, options) {
 	const beforeSlide = () => {
 		removeClasses();
 		triggerEvent(this.$element, 'beforeSlide', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 		});
 	};
@@ -875,7 +877,7 @@ function Plugin(element, options) {
 		addClasses();
 
 		triggerEvent(this.$element, 'afterSlide', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 		});
 	};
@@ -914,7 +916,7 @@ function Plugin(element, options) {
 		updatePaging(currentDot);
 
 		triggerEvent(this.$element, 'afterPrev', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 		});
 	};
@@ -934,7 +936,7 @@ function Plugin(element, options) {
 		updatePaging(currentDot);
 
 		triggerEvent(this.$element, 'afterNext', {
-			currentIndex: this.currentIndex,
+			currentIndex: getCurrentIndex(),
 			currentDot: this.currentDot,
 		});
 	};
