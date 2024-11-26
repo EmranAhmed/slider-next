@@ -29,6 +29,8 @@ function Plugin(element, options) {
 		itemGapCSSProperty: '--slider-item-gap',
 		slidesAutoPlayCSSProperty: '--slides-autoplay',
 		slidesAutoPlayTimeoutCSSProperty: '--slides-autoplay-timeout',
+		slidesShowControlPaginationCSSProperty: '--show-control-pagination',
+		slidesShowControlNavigationCSSProperty: '--show-control-navigation',
 		sliderNavigationPrevious: '.storepress-slider-navigation-previous',
 		sliderNavigationNext: '.storepress-slider-navigation-next',
 		sliderPagination: '.storepress-slider-pagination > button',
@@ -336,6 +338,28 @@ function Plugin(element, options) {
 
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
+
+		// Pagination
+		const showPagination = getElementComputedStyle(
+			this.settings.slidesShowControlPaginationCSSProperty
+		).toLowerCase();
+
+		this.hasPagination = cssVariableIsTrue(showPagination);
+
+		if (this.hasPagination) {
+			this.$element.classList.add(CLASSES.elementHasDotClassName);
+		}
+
+		// Navigation
+		const showNavigation = getElementComputedStyle(
+			this.settings.slidesShowControlNavigationCSSProperty
+		).toLowerCase();
+
+		this.hasNavigation = cssVariableIsTrue(showNavigation);
+
+		if (this.hasNavigation) {
+			this.$element.classList.add(CLASSES.elementHasArrowClassName);
+		}
 
 		triggerEvent(this.$element, 'afterInit', {
 			currentIndex: getCurrentIndex(),

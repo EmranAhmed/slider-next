@@ -8,52 +8,44 @@
 	<link rel="stylesheet" href="./build/style-slider.css" />
 	<style>
 		.container-2 {
-			max-width: 400px;
-			aspect-ratio: 1;
-			margin: 20px auto;
-
-			display: flex;
-			flex-direction: column;
-
-			@media (max-width: 1200px) {
-				/*flex-direction: column;*/
-			}
-
+			width: 400px;
+			height: 400px;
+			margin: 50px auto;
+			display: block;
 		}
 
-		.slider-wrapper:not(:has(.storepress-slider img)){
-			height: 100%;
-			/*width: 100%;*/
+
+/*		.slider-wrapper,
+		.slider-wrapper.is-horizontal{
+			height: fit-content;
+			width: 100%;
 		}
 
 		.slider-wrapper.is-vertical{
 			height: 100%;
+			width: fit-content;
+		}*/
+
+		/** Use 100% height and width for full width and full height */
+		.slider-wrapper:not(:has(.storepress-slider img)),
+		.slider-wrapper.is-horizontal:not(:has(.storepress-slider img)) {
+			/*height: 100%;*/
 		}
 
-		.slider-wrapper.is-vertical .storepress-slider img{
-			width: 100%;
+		.slider-wrapper.is-vertical:not(:has(.storepress-slider img)) {
+			/*width: 100%;*/
 		}
 
-		.storepress-slider > div {
-			position: relative;
-			display: flex;
-			justify-content: center;
-			align-items: center;
+		.slider-wrapper .storepress-slider > * > *:not(img),
+		.slider-wrapper.is-horizontal .storepress-slider > * > *:not(img) {
+			height: 200px;
 		}
 
-		.storepress-slider > div:before{
-
-			/*--unitless: calc(tan(atan2(var(--_column-size),1px)));
-
-			content: counter(c);
-			counter-reset: c var(--unitless);
-
-			font-size: 12px;
-			font-weight: bold;
-			font-family: system-ui,sans-serif;*/
+		.slider-wrapper.is-vertical .storepress-slider > * > *:not(img) {
+			width: 200px;
 		}
 
-		.slider-wrapper{
+		.slider-wrapper {
 
 			--slides-to-show: 3;
 
@@ -61,18 +53,9 @@
 
 			margin-block: 10px;
 
-			/*--is-horizontal: false;*/
+			--is-horizontal: true;
 
-			@media (max-width: 900px) {
-
-				--slides-to-show: 2;
-
-				--slides-to-scroll: 2;
-
-				/*--is-horizontal: false;*/
-			}
-
-			@media (max-width: 500px) {
+			@media (max-width: 1600px) {
 
 				--slides-to-show: 3;
 
@@ -80,10 +63,6 @@
 
 				--is-horizontal: false;
 			}
-		}
-
-		.storepress-slider-container {
-
 		}
 	</style>
 </head>
@@ -105,13 +84,27 @@
 				<div><img src="images/tshirt-2.jpg" /></div>
 
 
-				<!--<div class="active" style="background-color: #bbbbbb">01</div>
-				<div style="background-color: #702222">02</div>
-				<div style="background-color: #b051d0">03</div>
-				<div style="background-color: #357c6b">04</div>
-				<div style="background-color: #9b1358">05</div>
-				<div style="background-color: #1a852f">06</div>
-				<div style="background-color: #2b6091">07</div>-->
+				<!--<div class="active" style="background-color: #bbbbbb">
+					<div>01</div>
+				</div>
+				<div style="background-color: #702222">
+					<div>02</div>
+				</div>
+				<div style="background-color: #b051d0">
+					<div>03</div>
+				</div>
+				<div style="background-color: #357c6b">
+					<div>04</div>
+				</div>
+				<div style="background-color: #9b1358">
+					<div>05</div>
+				</div>
+				<div style="background-color: #1a852f">
+					<div>06</div>
+				</div>
+				<div style="background-color: #2b6091">
+					<div>07</div>
+				</div>-->
 
 
 				<!--
@@ -127,10 +120,14 @@
 		<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
 			<div class="storepress-slider-navigation">
 				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
-					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" /></svg>
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+						<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
+					</svg>
 				</button>
 				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
-					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" /></svg>
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+						<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
+					</svg>
 				</button>
 			</div>
 
@@ -167,7 +164,7 @@ Goto <a id="goto-one-8" href="#">Slide 8</a>
 	StorePress.Utils.triggerEvent(document, 'storepress_slider_init', {
 		element: ['.slider-2'],
 		settings: {},
-	});
+	})
 
 	document.getElementById('prev').addEventListener('click', () => {
 		StorePress.Utils.triggerEvent(document, 'storepress_slider_prev', {

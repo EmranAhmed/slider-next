@@ -1,44 +1,43 @@
-
 // Github: https://github.com/matthewlein/Ceaser/blob/master/developer/ceaser-easings.scss
 // Cubic
-$easeInCubic    : cubic-bezier(0.550, 0.055, 0.675, 0.190);
-$easeOutCubic   : cubic-bezier(0.215, 0.610, 0.355, 1.000);
-$easeInOutCubic : cubic-bezier(0.645, 0.045, 0.355, 1.000);
+$easeInCubic: cubic-bezier(0.550, 0.055, 0.675, 0.190);
+$easeOutCubic: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+$easeInOutCubic: cubic-bezier(0.645, 0.045, 0.355, 1.000);
 
 // Circ
-$easeInCirc     : cubic-bezier(0.600, 0.040, 0.980, 0.335);
-$easeOutCirc    : cubic-bezier(0.075, 0.820, 0.165, 1.000);
-$easeInOutCirc  : cubic-bezier(0.785, 0.135, 0.150, 0.860);
+$easeInCirc: cubic-bezier(0.600, 0.040, 0.980, 0.335);
+$easeOutCirc: cubic-bezier(0.075, 0.820, 0.165, 1.000);
+$easeInOutCirc: cubic-bezier(0.785, 0.135, 0.150, 0.860);
 
 // Expo
-$easeInExpo     : cubic-bezier(0.950, 0.050, 0.795, 0.035);
-$easeOutExpo    : cubic-bezier(0.190, 1.000, 0.220, 1.000);
-$easeInOutExpo  : cubic-bezier(1.000, 0.000, 0.000, 1.000);
+$easeInExpo: cubic-bezier(0.950, 0.050, 0.795, 0.035);
+$easeOutExpo: cubic-bezier(0.190, 1.000, 0.220, 1.000);
+$easeInOutExpo: cubic-bezier(1.000, 0.000, 0.000, 1.000);
 
 // Quad
-$easeInQuad     : cubic-bezier(0.550, 0.085, 0.680, 0.530);
-$easeOutQuad    : cubic-bezier(0.250, 0.460, 0.450, 0.940);
-$easeInOutQuad  : cubic-bezier(0.455, 0.030, 0.515, 0.955);
+$easeInQuad: cubic-bezier(0.550, 0.085, 0.680, 0.530);
+$easeOutQuad: cubic-bezier(0.250, 0.460, 0.450, 0.940);
+$easeInOutQuad: cubic-bezier(0.455, 0.030, 0.515, 0.955);
 
 // Quart
-$easeInQuart    : cubic-bezier(0.895, 0.030, 0.685, 0.220);
-$easeOutQuart   : cubic-bezier(0.165, 0.840, 0.440, 1.000);
-$easeInOutQuart : cubic-bezier(0.770, 0.000, 0.175, 1.000);
+$easeInQuart: cubic-bezier(0.895, 0.030, 0.685, 0.220);
+$easeOutQuart: cubic-bezier(0.165, 0.840, 0.440, 1.000);
+$easeInOutQuart: cubic-bezier(0.770, 0.000, 0.175, 1.000);
 
 // Quint
-$easeInQuint    : cubic-bezier(0.755, 0.050, 0.855, 0.060);
-$easeOutQuint   : cubic-bezier(0.230, 1.000, 0.320, 1.000);
-$easeInOutQuint : cubic-bezier(0.860, 0.000, 0.070, 1.000);
+$easeInQuint: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+$easeOutQuint: cubic-bezier(0.230, 1.000, 0.320, 1.000);
+$easeInOutQuint: cubic-bezier(0.860, 0.000, 0.070, 1.000);
 
 // Sine
-$easeInSine     : cubic-bezier(0.470, 0.000, 0.745, 0.715);
-$easeOutSine    : cubic-bezier(0.390, 0.575, 0.565, 1.000);
-$easeInOutSine  : cubic-bezier(0.445, 0.050, 0.550, 0.950);
+$easeInSine: cubic-bezier(0.470, 0.000, 0.745, 0.715);
+$easeOutSine: cubic-bezier(0.390, 0.575, 0.565, 1.000);
+$easeInOutSine: cubic-bezier(0.445, 0.050, 0.550, 0.950);
 
 // Back
-$easeInBack     : cubic-bezier(0.600, -0.280, 0.735, 0.045);
-$easeOutBack    : cubic-bezier(0.175,  0.885, 0.320, 1.275);
-$easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
+$easeInBack: cubic-bezier(0.600, -0.280, 0.735, 0.045);
+$easeOutBack: cubic-bezier(0.175, 0.885, 0.320, 1.275);
+$easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @property --_current-slider-index {
 	syntax: "<integer>";
@@ -81,11 +80,13 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	inherits: true;
 	initial-value: true;
 }
+
 @property --is-always-center {
 	syntax: "<custom-ident>|<integer>";
 	inherits: true;
 	initial-value: false;
 }
+
 @property --is-active-select {
 	syntax: "<custom-ident>|<integer>";
 	inherits: true;
@@ -97,11 +98,13 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	inherits: true;
 	initial-value: 500ms;
 }
+
 @property --slider-item-gap {
 	syntax: "<length>";
 	inherits: true;
 	initial-value: 0px;
 }
+
 @property --control-navigation-color {
 	syntax: "<color>";
 	inherits: true;
@@ -112,6 +115,18 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	syntax: "<length>";
 	inherits: true;
 	initial-value: 30px;
+}
+
+@property --show-control-pagination {
+	syntax: "<custom-ident>|<integer>";
+	inherits: true;
+	initial-value: true;
+}
+
+@property --show-control-navigation {
+	syntax: "<custom-ident>|<integer>";
+	inherits: true;
+	initial-value: true;
 }
 
 @mixin variables() {
@@ -128,6 +143,8 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--is-always-center: false;
 		--is-active-select: false;
 		--slides-autoplay: false;
+		--show-control-pagination: true;
+		--show-control-navigation: true;
 		--slides-autoplay-timeout: 3000; // In Milliseconds.
 		--_current-slider-index: 0;
 		--slider-item-gap: 0px;
@@ -144,8 +161,19 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		/*width: 100%;
-		height: 100%;*/
+
+		height: fit-content;
+		width: 100%;
+
+		&.is-horizontal {
+			height: fit-content;
+			width: 100%;
+		}
+
+		&.is-vertical {
+			height: 100%;
+			width: fit-content;
+		}
 	}
 }
 
@@ -162,27 +190,19 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		position: relative;
 		overflow: hidden;
 		width: 100%;
-		 /*height: auto;*/
 		height: 100%;
-		/*padding-inline: 20px;
-		padding-block: 20px;*/
-
-		/*padding-inline: 20px;*/
-		/*padding-inline: 20px;
-		padding-block: 20px;*/
+		display: block;
 
 		&.position-start {
-			/*padding-inline-end: 40px;
-			padding-inline-start: 0px;*/
+			padding-inline: 0;
 		}
 
 		&.position-middle {
-			/*padding-inline: 20px;*/
+			padding-inline: 0;
 		}
 
 		&.position-end {
-			/*padding-inline-end: 0px;
-			padding-inline-start: 40px;*/
+			padding-inline: 0;
 		}
 	}
 }
@@ -197,14 +217,14 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--_column-gap-count: calc(var(--slides-to-show) - 1);
 		--_column-size: calc(calc(var(--slider-item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
 
-		 --_gap-value: calc(var(--_current-slider-index) * calc(var(--slider-item-gap) / var(--slides-to-show)));
+		--_gap-value: calc(var(--_current-slider-index) * calc(var(--slider-item-gap) / var(--slides-to-show)));
 
 		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-slider-index) + var(--_gap-value)) * -1);
 		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-slider-index) + var(--_gap-value)) * -1);
 
 
-		--_center-item-gap-value: calc( var(--_column-size) / 2 );
-		--_center-item: calc( (var(--slides-to-show) - var(--slides-to-scroll)) / 2);
+		--_center-item-gap-value: calc(var(--_column-size) / 2);
+		--_center-item: calc((var(--slides-to-show) - var(--slides-to-scroll)) / 2);
 
 		--_center-item-width: calc(var(--_item-width) * var(--_center-item) + var(--_center-item-gap-value));
 		--_center-item-height: calc(var(--_item-height) * var(--_center-item) + var(--_center-item-gap-value));
@@ -213,13 +233,15 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		// transform: translateY(var(--vertical-value));
 
 		list-style: none;
-		height: 100%;
 		display: grid;
 		gap: var(--slider-item-gap);
 
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 		user-select: none;
+
+		height: 100%;
+		width: 100%;
 	}
 }
 
@@ -229,10 +251,20 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		align-items: center;
 		justify-content: center;
 		flex-direction: column;
-		img {
+		position: relative;
+
+		> img {
 			display: block;
 			width: 100%;
+			height: 100%;
 			object-fit: cover;
+			user-select: none;
+		}
+
+		> *:not(img) {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			user-select: none;
 		}
 	}
@@ -240,8 +272,8 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin slider-active-center-style() {
 	& {
-		--_horizontal-value: calc( ( ( (var(--_item-width) * var(--_current-slider-index)) + var(--_gap-value) ) - var(--_center-item-width) )  * -1);
-		--_vertical-value: calc( ( ( (var(--_item-height) * var(--_current-slider-index)) + var(--_gap-value) ) - var(--_center-item-height) )  * -1);
+		--_horizontal-value: calc((((var(--_item-width) * var(--_current-slider-index)) + var(--_gap-value)) - var(--_center-item-width)) * -1);
+		--_vertical-value: calc((((var(--_item-height) * var(--_current-slider-index)) + var(--_gap-value)) - var(--_center-item-height)) * -1);
 	}
 }
 
@@ -260,21 +292,22 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		grid-auto-flow: row;
 		grid-auto-rows: calc(var(--_item-height) - var(--_column-size));
 		grid-auto-columns: auto;
-		img {
-			width: auto;
+		/*img {
+			width: 100%;
 			height: 100%;
-		}
+		}*/
 	}
 }
 
-@mixin slider-pagination-style(){
+@mixin slider-pagination-style() {
 	& {
-		position: relative;
+		position: absolute;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		gap: 5px;
 		margin-block: 10px;
+
 		> * {
 			background-color: transparent;
 			margin-inline: 5px;
@@ -292,48 +325,75 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			box-sizing: border-box;
 			border-radius: 50%;
 
-			&.current{
+			&.current {
 				background-color: var(--control-navigation-color);
 			}
 		}
 	}
 }
 
-@mixin slider-navigation-style(){
+@mixin slider-navigation-style() {
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 
 	> * {
 
-		--_position: calc(-50% - (var(--control-navigation-size) / 2) );
-
+		//--_position: calc(-50% - (var(--control-navigation-size) / 2) );
 		position: absolute;
-		top: 50%;
-		transform: translateY(var(--_position));
-
 		border: none;
 		cursor: pointer;
 		background-color: transparent;
-		/*margin-block: 10px;*/
 		width: var(--control-navigation-size);
 		aspect-ratio: 1;
 		padding: 5px;
+
+		top: 50%;
+		transform: translateY(-50%);
+
+		/*@container style(--is-horizontal: true) {
+			top: 50%;
+			transform: translateY(-50%);
+		}*/
+
+		/*@container style(--is-horizontal: false) {
+			left: 50%;
+			transform: translateX(-50%);
+		}*/
 
 		img, svg {
 			display: block;
 			width: 100%;
 			height: 100%;
 			fill: var(--control-navigation-color);
+			/*@container style(--is-horizontal: false) {
+				transform: rotate(90deg);
+			}*/
 		}
 
-		&.storepress-slider-navigation-previous{
+		&.storepress-slider-navigation-previous {
+			/*left: 0;*/
+			user-select: none;
 			left: 0;
-			user-select: none;
+
+			/*@container style(--is-horizontal: true) {
+				left: 0;
+			}
+			@container style(--is-horizontal: false) {
+				top: 0;
+			}*/
 		}
-		&.storepress-slider-navigation-next{
-			right: 0;
+
+		&.storepress-slider-navigation-next {
+
 			user-select: none;
+			right: 0;
+			/*@container style(--is-horizontal: true) {
+				right: 0;
+			}
+			@container style(--is-horizontal: false) {
+				bottom: 0;
+			}*/
 		}
 	}
 }
@@ -370,26 +430,12 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		}
 	}
 
-	&.is-active-center {
-		.storepress-slider {
-			 @include slider-active-center-style();
-		}
-	}
-
-	&.is-horizontal {
-		.storepress-slider {
-			@include slider-horizontal-style();
-		}
-	}
-
-	&.is-vertical {
-		.storepress-slider {
-			@include slider-vertical-style();
-		}
-	}
 
 	// Slider Controls
 	> .storepress-slider-controls {
+
+		display: flex;
+		justify-content: center;
 
 		// Slider Pagination
 		.storepress-slider-pagination {
@@ -399,6 +445,74 @@ $easeInOutBack  : cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		// Slider Navigation | Next Prev
 		.storepress-slider-navigation {
 			@include slider-navigation-style();
+		}
+	}
+
+	&:not(.has-dots) {
+		.storepress-slider-pagination {
+			display: none;
+		}
+	}
+	&:not(.has-arrow) {
+		.storepress-slider-navigation {
+			display: none;
+		}
+	}
+
+	&.is-active-center {
+		.storepress-slider {
+			@include slider-active-center-style();
+		}
+	}
+
+	&.is-horizontal {
+		.storepress-slider {
+			@include slider-horizontal-style();
+		}
+
+		.storepress-slider-navigation {
+			> * {
+
+				top: 50%;
+				transform: translateY(-50%);
+
+				&.storepress-slider-navigation-previous {
+					left: 0;
+				}
+
+				&.storepress-slider-navigation-next {
+					right: 0;
+				}
+			}
+		}
+	}
+
+	&.is-vertical {
+		.storepress-slider {
+			@include slider-vertical-style();
+		}
+
+		.storepress-slider-navigation {
+			> * {
+
+				left: 50%;
+				transform: translateX(-50%);
+
+				img, svg {
+					transform: rotate(90deg);
+				}
+
+				&.storepress-slider-navigation-previous {
+					top: 0;
+					left: auto;
+				}
+
+				&.storepress-slider-navigation-next {
+					bottom: 0;
+					right: auto;
+					top: auto;
+				}
+			}
 		}
 	}
 }
