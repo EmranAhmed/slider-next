@@ -24,24 +24,28 @@
 			/*width: 100%;*/
 		}
 
-		.slider-wrapper .storepress-slider > * > *,
-		.slider-wrapper.is-horizontal .storepress-slider > * > * {
-			height: 200px;
-		}
-
-		.slider-wrapper.is-vertical .storepress-slider > * > * {
-			width: 200px;
-		}
 
 		.slider-wrapper {
 
-			--slides-to-show: 3;
+			--slides-to-show: 2;
 
-			--slides-to-scroll: 3;
+			--slides-to-scroll: 2;
 
 			margin-block: 50px;
 
+			--slider-min-item-size: 200px;
+
+			--is-active-select: true;
+
+			--infinite-slides: true;
+
+			--is-always-center: true;
+
 			--is-horizontal: true;
+
+			--slider-item-gap: 1px;
+
+			--item-padding: 10px;
 
 			@media (max-width: 1600px) {
 
@@ -52,6 +56,30 @@
 				--is-horizontal: false;
 			}
 		}
+
+		.storepress-slider-container {
+			box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
+			border-radius: 10px;
+
+			padding-inline: 10px;
+
+			/*padding-inline: 20px;
+			padding-block: 20px;*/
+
+			/*&.position-start {
+				padding-inline-end: calc( var(--item-padding) * 2 );
+				padding-inline-start: 0;
+			}
+
+			&.position-middle {
+				padding-inline: var(--item-padding);
+			}
+
+			&.position-end {
+				padding-inline-end: 0;
+				padding-inline-start: calc( var(--item-padding) * 2 );
+			}*/
+		}
 	</style>
 </head>
 
@@ -59,6 +87,7 @@
 
 <div class="container-2">
 
+<!--
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
 
 		<div class="storepress-slider-container">
@@ -72,7 +101,7 @@
 				<div><img src="images/tshirt-2.jpg" /></div>
 
 
-				<!--<div class="active" style="background-color: #bbbbbb">
+				&lt;!&ndash;<div class="active" style="background-color: #bbbbbb">
 					<div>01</div>
 				</div>
 				<div style="background-color: #702222">
@@ -92,16 +121,16 @@
 				</div>
 				<div style="background-color: #2b6091">
 					<div>07</div>
-				</div>-->
+				</div>&ndash;&gt;
 
 
-				<!--
+				&lt;!&ndash;
 											<div>08</div>
 											<div >09</div>
 											<div>10</div>
 											<div>11</div>
 											<div>12</div>
-											<div>13</div>-->
+											<div>13</div>&ndash;&gt;
 			</div>
 		</div>
 
@@ -124,6 +153,7 @@
 			</div>
 		</div>
 	</div>
+-->
 
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
 
@@ -190,7 +220,6 @@
 			</div>
 		</div>
 	</div>
-
 
 </div>
 

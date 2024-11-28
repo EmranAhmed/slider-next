@@ -129,6 +129,12 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	initial-value: true;
 }
 
+@property --slider-min-item-size {
+	syntax: "<length>";
+	inherits: true;
+	initial-value: 100px;
+}
+
 @mixin variables() {
 
 	& {
@@ -150,6 +156,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--slider-item-gap: 0px;
 		--control-navigation-color: #000;
 		--control-navigation-size: 30px;
+		--slider-min-item-size: 100px;
 		--sliding-duration: 500ms;
 		// Generate Transition: https://matthewlein.com/tools/ceaser
 		--sliding-timing-function: var(--ease-out-cubic); /* easeInOutExpo */
@@ -192,18 +199,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		width: 100%;
 		height: 100%;
 		display: block;
-
-		&.position-start {
-			padding-inline: 0;
-		}
-
-		&.position-middle {
-			padding-inline: 0;
-		}
-
-		&.position-end {
-			padding-inline: 0;
-		}
 	}
 }
 
@@ -255,8 +250,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		> img {
 			display: block;
-			/*width: 100%;
-			height: 100%;*/
+			width: 100%;
+			height: auto;
 			object-fit: cover;
 			user-select: none;
 		}
@@ -266,6 +261,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			justify-content: center;
 			align-items: center;
 			user-select: none;
+			min-height: var(--slider-min-item-size);
 		}
 	}
 }
@@ -430,7 +426,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		}
 	}
 
-
 	// Slider Controls
 	> .storepress-slider-controls {
 
@@ -470,10 +465,16 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		.storepress-slider {
 			@include slider-horizontal-style();
 
-			img {
-				width: 100%;
-			}
+			> * {
+				> img {
+					width: 100%;
+					height: auto;
+				}
 
+				> *:not(img) {
+					min-height: var(--slider-min-item-size);
+				}
+			}
 		}
 
 		.storepress-slider-navigation {
@@ -496,9 +497,17 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	&.is-vertical {
 		.storepress-slider {
 			@include slider-vertical-style();
-			img {
-				height: 100%;
+			> * {
+				> img {
+					width: auto;
+					height: 100%;
+				}
+
+				> *:not(img) {
+					min-width: var(--slider-min-item-size);
+				}
 			}
+
 		}
 
 		.storepress-slider-navigation {

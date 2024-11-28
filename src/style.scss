@@ -22,33 +22,7 @@ $default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-San
 
 		--is-active-select: false;
 
-		--item-padding: 0px;
-
-		--slider-item-gap: 1px;
-	}
-
-	.storepress-slider-container {
-		box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
-		border-radius: 10px;
-
-		/*padding-inline: var(--item-padding);*/
-
-		/*padding-inline: 20px;
-		padding-block: 20px;*/
-
-		/*&.position-start {
-			padding-inline-end: calc( var(--item-padding) * 2 );
-			padding-inline-start: 0;
-		}
-
-		&.position-middle {
-			padding-inline: var(--item-padding);
-		}
-
-		&.position-end {
-			padding-inline-end: 0;
-			padding-inline-start: calc( var(--item-padding) * 2 );
-		}*/
+		--slider-item-gap: 0px;
 	}
 
 
