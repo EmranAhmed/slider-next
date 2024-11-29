@@ -168,6 +168,7 @@ function Plugin(element, options) {
 			$item.classList.add(CLASSES.itemClassName);
 			$item.setAttribute('aria-hidden', 'true');
 			$item.dataset.index = index + 1;
+			// $item.dataset.index = index;
 
 			// Disable Image dragging
 			$item.querySelectorAll('img').forEach(($img) => {
@@ -326,6 +327,59 @@ function Plugin(element, options) {
 		});
 	};
 
+	const cloneItems = () => {
+		if (!this.isInfinite) {
+			return;
+		}
+
+		const lastItemsIndex = this.totalItems - 1;
+
+		for (let index = 0; index < this.itemsToClone; index++) {
+			const nodeForAppend = this.$items[index].cloneNode(true);
+			const nodeForPrepend =
+				this.$items[lastItemsIndex - index].cloneNode(true);
+
+			// Append
+			nodeForAppend.classList.remove(
+				CLASSES.itemCurrentClassName,
+				CLASSES.itemVisibleClassName
+			);
+			nodeForAppend.classList.add(CLASSES.itemCloneClassName);
+
+			// Prepend
+			nodeForPrepend.classList.remove(
+				CLASSES.itemCurrentClassName,
+				CLASSES.itemVisibleClassName
+			);
+			nodeForPrepend.classList.add(CLASSES.itemCloneClassName);
+
+			// Append First Items
+			this.$slider.append(nodeForAppend);
+
+			// Prepend Last Items
+			this.$slider.prepend(nodeForPrepend);
+		}
+
+		const $items = this.$slider.querySelectorAll(':scope > *');
+
+		$items.forEach(($item, index) => {
+			// $item.dataset.index = index + 1 - this.itemsToClone;
+			// $item.dataset.index = index;
+
+			if (index < this.startIndex) {
+				//$item.dataset.index = index - this.startIndex;
+				//$item.dataset.index = index * -1;
+				$item.dataset.index = index * -1;
+			}
+
+			if (index > this.endIndex) {
+				//$item.dataset.index = this.endIndex - index + 1;
+				//$item.dataset.index = (index + 1 - this.itemsToClone) * -1;
+				$item.dataset.index = index * -1;
+			}
+		});
+	};
+
 	const initialPaging = () => {
 		const $button = this.$element.querySelector(
 			this.settings.sliderPagination
@@ -409,6 +463,36 @@ function Plugin(element, options) {
 		goToDot(index);
 	};
 
+	const resetClonedIndex = () => {
+		const currentIndex = getCurrentIndex();
+
+		if (currentIndex < this.startIndex || currentIndex > this.endIndex) {
+			const prevIndex = currentIndex + this.totalItems;
+			const nextIndex = currentIndex - this.totalItems;
+
+			const ci = currentIndex < this.startIndex ? prevIndex : nextIndex;
+
+			setCurrentIndex(ci);
+		}
+	};
+
+	const goToClonedSlide = (index) => {
+		const i = parseInt(index, 10);
+		const pindex = i * -1;
+
+		const prevIndex = pindex + this.totalItems;
+		const nextIndex = pindex - this.totalItems;
+
+		const ci = pindex < this.startIndex ? prevIndex : nextIndex;
+
+		const dot = getDotIndexByItemIndex(ci);
+
+		addAnimatingClass();
+		setCurrentIndex(pindex);
+		setCurrentDot(dot);
+		updatePaging(dot);
+	};
+
 	const handleItem = (event) => {
 		if (this.isSwiping) {
 			return false;
@@ -419,41 +503,8 @@ function Plugin(element, options) {
 		if (index > 0) {
 			goToSlide(index);
 		} else {
-			// index = -1, -2
-
-			const centerDot = Math.floor(this.endDot / 2);
-
-			// console.log(index);
-
-			// console.log(getCurrentDot(), index, this.startDot);
-			/*if (getCurrentDot() === this.endDot) {
-				goToDot(getCurrentDot() + 1);
-			}
-
-			if (getCurrentDot() === this.startDot) {
-				goToDot(getCurrentDot() - 1);
-			}*/
-
-			if (getCurrentDot() > centerDot) {
-				goToDot(getCurrentDot() + index * -1);
-			}
-
-			if (getCurrentDot() < centerDot) {
-				goToDot(getCurrentDot() - index * -1);
-			}
+			goToClonedSlide(index);
 		}
-
-		/*goToSlide(index);*/
-
-		/*if (this.isCenter && slideIndex < 0) {
-			if (getCurrentDot() === this.endDot) {
-				goToDot(getCurrentDot() + 1);
-			}
-
-			if (getCurrentDot() === this.startDot) {
-				goToDot(getCurrentDot() - 1);
-			}
-		}*/
 	};
 
 	const goToDot = (dotIndex) => {
@@ -476,15 +527,15 @@ function Plugin(element, options) {
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
 
-		if (currentDot < 0 || currentDot > this.totalDots + 1) {
+		/*if (currentDot < 0 || currentDot > this.totalDots + 1) {
 			const dot =
 				currentDot < 0
 					? this.totalDots + currentDot
 					: currentDot - this.totalDots;
 			updatePaging(dot);
-		} else {
-			updatePaging(currentDot);
-		}
+		} else {*/
+		updatePaging(currentDot);
+		//}
 
 		restartAutoPlay();
 
@@ -604,10 +655,10 @@ function Plugin(element, options) {
 		// console.log(dotToItem);
 
 		// @TODO: Add dynamically
-		dotToItem[-2] = 2;
+		/*dotToItem[-2] = 2;
 		dotToItem[-1] = 3;
 		dotToItem[9] = 13;
-		dotToItem[10] = 14;
+		dotToItem[10] = 14;*/
 
 		return {
 			data,
@@ -758,54 +809,6 @@ function Plugin(element, options) {
 
 	const getCurrentDot = () => {
 		return this.currentDot;
-	};
-
-	const cloneItems = () => {
-		if (!this.isInfinite) {
-			return;
-		}
-
-		const lastItemsIndex = this.totalItems - 1;
-
-		for (let index = 0; index < this.itemsToClone; index++) {
-			const nodeForAppend = this.$items[index].cloneNode(true);
-			const nodeForPrepend =
-				this.$items[lastItemsIndex - index].cloneNode(true);
-
-			// Append
-			nodeForAppend.classList.remove(
-				CLASSES.itemCurrentClassName,
-				CLASSES.itemVisibleClassName
-			);
-			nodeForAppend.classList.add(CLASSES.itemCloneClassName);
-
-			// Prepend
-			nodeForPrepend.classList.remove(
-				CLASSES.itemCurrentClassName,
-				CLASSES.itemVisibleClassName
-			);
-			nodeForPrepend.classList.add(CLASSES.itemCloneClassName);
-
-			// Append First Items
-			this.$slider.append(nodeForAppend);
-
-			// Prepend Last Items
-			this.$slider.prepend(nodeForPrepend);
-		}
-
-		const $items = this.$slider.querySelectorAll(':scope > *');
-
-		$items.forEach(($item, index) => {
-			// $item.dataset.index = index + 1 - this.itemsToClone;
-
-			if (index < this.startIndex) {
-				$item.dataset.index = index - this.startIndex;
-			}
-
-			if (index > this.endIndex) {
-				$item.dataset.index = this.endIndex - index;
-			}
-		});
 	};
 
 	const addClasses = () => {
@@ -960,16 +963,7 @@ function Plugin(element, options) {
 	const afterSlide = () => {
 		removeAnimatingClass();
 
-		if (getCurrentDot() < 0 || getCurrentDot() > this.totalDots + 1) {
-			const d =
-				getCurrentDot() < 0
-					? this.totalDots + getCurrentDot()
-					: getCurrentDot() - this.totalDots;
-			setCurrentDot(d);
-			const index = getItemIndexByDotIndex(d);
-			setCurrentIndex(index);
-			return;
-		}
+		resetClonedIndex();
 
 		// Reset Next
 		if (getCurrentDot() > this.totalDots) {
