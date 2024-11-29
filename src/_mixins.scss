@@ -262,6 +262,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			align-items: center;
 			user-select: none;
 			min-height: var(--slider-min-item-size);
+			width: 100%;
 		}
 	}
 }
@@ -473,6 +474,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 				> *:not(img) {
 					min-height: var(--slider-min-item-size);
+					width: 100%;
 				}
 			}
 		}
@@ -505,6 +507,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 				> *:not(img) {
 					min-width: var(--slider-min-item-size);
+					height: 100%;
 				}
 			}
 

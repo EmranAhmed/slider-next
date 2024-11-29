@@ -372,25 +372,31 @@ function Plugin(element, options) {
 	};
 
 	const updatePaging = (currentDot) => {
+		/*if (currentDot < 0) {
+			return;
+		}*/
+
 		const $buttons = this.$element.querySelectorAll(
 			this.settings.sliderPagination
 		);
 
+		let dot = currentDot;
+
 		// Next Reset
-		if (this.currentDot > this.totalDots) {
-			currentDot = 1;
+		if (currentDot > this.totalDots) {
+			dot = 1;
 		}
 
 		// Prev Reset
-		if (this.currentDot < 1) {
-			currentDot = this.totalDots;
+		if (currentDot < 1) {
+			dot = this.totalDots;
 		}
 
 		$buttons.forEach(($button, index) => {
 			$button.removeAttribute('aria-current', 'true');
 			$button.classList.remove(CLASSES.dotCurrentClassName);
 
-			if (currentDot === index) {
+			if (dot === index) {
 				$button.setAttribute('aria-current', 'true');
 				$button.classList.add(CLASSES.dotCurrentClassName);
 			}
@@ -410,7 +416,44 @@ function Plugin(element, options) {
 
 		const index = parseInt(event.currentTarget.dataset.index, 10);
 
-		goToSlide(index);
+		if (index > 0) {
+			goToSlide(index);
+		} else {
+			// index = -1, -2
+
+			const centerDot = Math.floor(this.endDot / 2);
+
+			// console.log(index);
+
+			// console.log(getCurrentDot(), index, this.startDot);
+			/*if (getCurrentDot() === this.endDot) {
+				goToDot(getCurrentDot() + 1);
+			}
+
+			if (getCurrentDot() === this.startDot) {
+				goToDot(getCurrentDot() - 1);
+			}*/
+
+			if (getCurrentDot() > centerDot) {
+				goToDot(getCurrentDot() + index * -1);
+			}
+
+			if (getCurrentDot() < centerDot) {
+				goToDot(getCurrentDot() - index * -1);
+			}
+		}
+
+		/*goToSlide(index);*/
+
+		/*if (this.isCenter && slideIndex < 0) {
+			if (getCurrentDot() === this.endDot) {
+				goToDot(getCurrentDot() + 1);
+			}
+
+			if (getCurrentDot() === this.startDot) {
+				goToDot(getCurrentDot() - 1);
+			}
+		}*/
 	};
 
 	const goToDot = (dotIndex) => {
@@ -428,10 +471,20 @@ function Plugin(element, options) {
 		addAnimatingClass();
 
 		const currentDot = dotIndex;
+
 		const index = getItemIndexByDotIndex(currentDot);
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
-		updatePaging(dotIndex);
+
+		if (currentDot < 0 || currentDot > this.totalDots + 1) {
+			const dot =
+				currentDot < 0
+					? this.totalDots + currentDot
+					: currentDot - this.totalDots;
+			updatePaging(dot);
+		} else {
+			updatePaging(currentDot);
+		}
 
 		restartAutoPlay();
 
@@ -444,17 +497,6 @@ function Plugin(element, options) {
 	const goToSlide = (slideIndex) => {
 		const index = slideIndex - 1; // we start slide index from 1
 		let getIndex = this.isInfinite ? index + this.itemsToClone : index;
-
-		if (this.isCenter && slideIndex < 0) {
-			if (getCurrentDot() === this.endDot) {
-				goToDot(getCurrentDot() + 1);
-			}
-
-			if (getCurrentDot() === this.startDot) {
-				goToDot(getCurrentDot() - 1);
-			}
-			return;
-		}
 
 		if (slideIndex < 1 || slideIndex > this.totalItems) {
 			throw new RangeError(
@@ -503,7 +545,7 @@ function Plugin(element, options) {
 
 	const getDataForInfinite = () => {
 		const data = [];
-		const dotToItem = [];
+		const dotToItem = {};
 		const itemToDot = {};
 
 		const startIndex = this.itemsToClone;
@@ -543,7 +585,8 @@ function Plugin(element, options) {
 
 		// Dot To Item
 		for (let index = 0; index < data.length; index++) {
-			dotToItem.push(data[index].at(0));
+			// dotToItem.push(data[index].at(0));
+			dotToItem[index] = data[index].at(0);
 		}
 
 		const dotStart = 1;
@@ -558,6 +601,14 @@ function Plugin(element, options) {
 		const itemStartIndex = this.itemsToClone;
 		const itemEndIndex = this.totalItems + this.itemsToClone - 1;
 
+		// console.log(dotToItem);
+
+		// @TODO: Add dynamically
+		dotToItem[-2] = 2;
+		dotToItem[-1] = 3;
+		dotToItem[9] = 13;
+		dotToItem[10] = 14;
+
 		return {
 			data,
 			dotToItem,
@@ -571,7 +622,7 @@ function Plugin(element, options) {
 
 	const getDataForNonInfinite = () => {
 		const data = [];
-		const dotToItem = [];
+		const dotToItem = {};
 		const itemToDot = {};
 
 		const startIndex = 0;
@@ -611,7 +662,8 @@ function Plugin(element, options) {
 
 		// Dot To Item
 		for (let index = 0; index < data.length; index++) {
-			dotToItem.push(data[index].at(0));
+			// dotToItem.push(data[index].at(0));
+			dotToItem[index] = data[index].at(0);
 		}
 
 		const dotStart = 1;
@@ -743,10 +795,15 @@ function Plugin(element, options) {
 
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
-		$items.forEach(($item) => {
-			if ($item.classList.contains(CLASSES.itemCloneClassName)) {
-				const index = parseInt($item.dataset.index, 10) * -1;
-				$item.dataset.index = index;
+		$items.forEach(($item, index) => {
+			// $item.dataset.index = index + 1 - this.itemsToClone;
+
+			if (index < this.startIndex) {
+				$item.dataset.index = index - this.startIndex;
+			}
+
+			if (index > this.endIndex) {
+				$item.dataset.index = this.endIndex - index;
 			}
 		});
 	};
@@ -903,15 +960,26 @@ function Plugin(element, options) {
 	const afterSlide = () => {
 		removeAnimatingClass();
 
+		if (getCurrentDot() < 0 || getCurrentDot() > this.totalDots + 1) {
+			const d =
+				getCurrentDot() < 0
+					? this.totalDots + getCurrentDot()
+					: getCurrentDot() - this.totalDots;
+			setCurrentDot(d);
+			const index = getItemIndexByDotIndex(d);
+			setCurrentIndex(index);
+			return;
+		}
+
 		// Reset Next
-		if (this.currentDot > this.totalDots) {
+		if (getCurrentDot() > this.totalDots) {
 			setCurrentDot(1);
 			const index = getItemIndexByDotIndex(1);
 			setCurrentIndex(index);
 		}
 
 		// Reset Prev
-		if (this.currentDot < 1) {
+		if (getCurrentDot() < 1) {
 			setCurrentDot(this.totalDots);
 			const index = getItemIndexByDotIndex(this.totalDots);
 			setCurrentIndex(index);
