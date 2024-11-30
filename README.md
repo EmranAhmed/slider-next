@@ -26,7 +26,6 @@ npm i @storepress/slider @storepress/utils --save
 - Lets create slider markup.
 
 ```html
-
 <div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
   <div class="storepress-slider-container">
     <div class="storepress-slider">
@@ -73,7 +72,6 @@ npm i @storepress/slider @storepress/utils --save
     </div>
   </div>
 </div>
-
 ```
 
 - Create `custom-slider.scss` file
