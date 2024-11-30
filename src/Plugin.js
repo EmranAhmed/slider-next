@@ -141,12 +141,55 @@ function Plugin(element, options) {
 		// Add Container A11y
 		this.$container.setAttribute('aria-live', 'polite');
 
+		// Slide To Show
+		this.slidesToShow = parseInt(
+			getElementComputedStyle(this.settings.slidesToShowCSSProperty),
+			10
+		);
+
+		this.slidesToScroll = parseInt(
+			getElementComputedStyle(this.settings.slidesToScrollCSSProperty),
+			10
+		);
+
+		// scroll quantity should not max then visible quantity.
+		if (this.slidesToShow < this.slidesToScroll) {
+			this.slidesToScroll = this.slidesToShow;
+			this.$element.style.setProperty(
+				this.settings.slidesToScrollCSSProperty,
+				this.slidesToScroll
+			);
+		}
+
 		// Infinite
 		const infiniteString = getElementComputedStyle(
 			this.settings.isInfiniteCSSProperty
 		).toLowerCase();
 
 		this.isInfinite = cssVariableIsTrue(infiniteString);
+
+		// Total items should more or equal to visible quantity.
+		if (this.slidesToShow >= this.totalItems) {
+			this.isInfinite = false;
+			this.$element.style.setProperty(
+				this.settings.isInfiniteCSSProperty,
+				false
+			);
+			this.slidesToShow = this.totalItems;
+			this.$element.style.setProperty(
+				this.settings.slidesToShowCSSProperty,
+				this.slidesToShow
+			);
+		}
+
+		// Total items should more or equal to visible quantity and scroll quantity.
+		if (this.slidesToShow + this.slidesToScroll >= this.totalItems) {
+			this.slidesToScroll = 1;
+			this.$element.style.setProperty(
+				this.settings.slidesToScrollCSSProperty,
+				this.slidesToScroll
+			);
+		}
 
 		// AutoPlay
 		const autoplayString = getElementComputedStyle(
@@ -162,34 +205,8 @@ function Plugin(element, options) {
 			10
 		);
 
-		// Add Item Index
-		let activeClassAdded = false;
-		this.$items.forEach(($item, index) => {
-			$item.classList.add(CLASSES.itemClassName);
-			$item.setAttribute('aria-hidden', 'true');
-			$item.dataset.index = index + 1;
-			// $item.dataset.index = index;
-
-			// Disable Image dragging
-			$item.querySelectorAll('img').forEach(($img) => {
-				$img.setAttribute('draggable', false);
-			});
-
-			if (
-				!activeClassAdded &&
-				$item.classList.contains(this.settings.defaultItemClassName)
-			) {
-				activeClassAdded = true;
-				this.initialSlide = parseInt(index, 10);
-				$item.classList.add(CLASSES.itemCurrentClassName);
-				$item.classList.remove(this.settings.defaultItemClassName);
-			}
-		});
-
-		if (!activeClassAdded) {
-			this.$items[0].classList.add(CLASSES.itemCurrentClassName);
-			this.initialSlide = 0;
-		}
+		// Add Item Index and Set Initial Slide.
+		setInitialItem();
 
 		// Horizontal
 		const horizontalString = getElementComputedStyle(
@@ -205,39 +222,24 @@ function Plugin(element, options) {
 
 		this.isCenter = cssVariableIsTrue(alwaysCenterString);
 
-		// Goto Index on Click
+		// Goto Index on Item Click
 		const activeOnSelect = getElementComputedStyle(
 			this.settings.isActiveSelectCSSProperty
 		).toLowerCase();
 
 		this.isActiveOnSelect = cssVariableIsTrue(activeOnSelect);
 
-		// Slide To Show
-		this.slidesToShow = parseInt(
-			getElementComputedStyle(this.settings.slidesToShowCSSProperty),
-			10
-		);
-
-		this.slidesToScroll = parseInt(
-			getElementComputedStyle(this.settings.slidesToScrollCSSProperty),
-			10
-		);
-
 		// Item GAP
 		this.itemGap = parseInt(getSliderComputedStyle('gap'), 10);
 
-		if (this.slidesToShow < this.slidesToScroll) {
-			this.slidesToScroll = this.slidesToShow;
-		}
-
-		this.validCenter =
+		/*this.validCenter =
 			this.slidesToShow > 2 &&
 			this.slidesToShow % 2 === 1 &&
 			this.isCenter;
 
 		if (!this.validCenter) {
 			// this.isCenter = false;
-		}
+		}*/
 
 		// Control from CSS
 		this.$element.classList.remove(
@@ -250,7 +252,6 @@ function Plugin(element, options) {
 			this.$element.classList.add(CLASSES.elementCenterClassName);
 			this.slidesToScroll = 1;
 			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
-			// this.isActiveOnSelect = true;
 			this.$element.style.setProperty(
 				this.settings.slidesToScrollCSSProperty,
 				this.slidesToScroll
@@ -283,13 +284,9 @@ function Plugin(element, options) {
 		this.endDot = this.data.dotEnd;
 
 		this.dotsData = this.data.dotToItem;
-		this.itemsData = this.data.itemToDot; // get dot from item index
+		this.itemsData = this.data.itemToDot;
 
-		const initialIndex = getBalancedIndex(
-			this.isInfinite
-				? this.initialSlide + this.itemsToClone
-				: this.initialSlide
-		);
+		const initialIndex = getBalancedIndex(getIndex(this.initialSlide));
 		const initialDot = getDotIndexByItemIndex(initialIndex);
 
 		setCurrentIndex(initialIndex);
@@ -322,9 +319,50 @@ function Plugin(element, options) {
 
 		triggerEvent(this.$element, 'afterInit', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
 			totalDots: this.totalDots,
 		});
+	};
+
+	const setInitialItem = () => {
+		// @TODO: Will assign initial slide from css variable.
+		let activeClassAdded = false;
+		this.initialSlide = 0;
+		this.$items.forEach(($item, index) => {
+			$item.classList.add(CLASSES.itemClassName);
+			$item.setAttribute('aria-hidden', 'true');
+			$item.dataset.index = index + 1;
+
+			// Disable Image dragging
+			$item.querySelectorAll('img').forEach(($img) => {
+				$img.setAttribute('draggable', false);
+			});
+
+			if (
+				!activeClassAdded &&
+				$item.classList.contains(this.settings.defaultItemClassName)
+			) {
+				activeClassAdded = true;
+				this.initialSlide = parseInt(index, 10);
+				//$item.classList.add(CLASSES.itemCurrentClassName);
+				$item.classList.remove(this.settings.defaultItemClassName);
+			}
+		});
+
+		this.$items[this.initialSlide].classList.add(
+			CLASSES.itemCurrentClassName
+		);
+	};
+
+	const getIndex = (index) => {
+		return this.isInfinite ? index + this.itemsToClone : index;
+	};
+
+	const getCloneIndex = (index) => {
+		const prevIndex = index + this.totalItems;
+		const nextIndex = index - this.totalItems;
+
+		return index < this.startIndex ? prevIndex : nextIndex;
 	};
 
 	const cloneItems = () => {
@@ -363,18 +401,7 @@ function Plugin(element, options) {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
 		$items.forEach(($item, index) => {
-			// $item.dataset.index = index + 1 - this.itemsToClone;
-			// $item.dataset.index = index;
-
-			if (index < this.startIndex) {
-				//$item.dataset.index = index - this.startIndex;
-				//$item.dataset.index = index * -1;
-				$item.dataset.index = index * -1;
-			}
-
-			if (index > this.endIndex) {
-				//$item.dataset.index = this.endIndex - index + 1;
-				//$item.dataset.index = (index + 1 - this.itemsToClone) * -1;
+			if (index < this.startIndex || index > this.endIndex) {
 				$item.dataset.index = index * -1;
 			}
 		});
@@ -414,7 +441,7 @@ function Plugin(element, options) {
 				`${this.settings.sliderDotsTitle} ${itemIndex}`
 			);
 
-			$cloned.dataset.targetSlide = itemIndex;
+			// $cloned.dataset.targetSlide = itemIndex;
 			$cloned.dataset.dotIndex = i.toString();
 
 			$cloned.innerText = itemIndex;
@@ -426,10 +453,6 @@ function Plugin(element, options) {
 	};
 
 	const updatePaging = (currentDot) => {
-		/*if (currentDot < 0) {
-			return;
-		}*/
-
 		const $buttons = this.$element.querySelectorAll(
 			this.settings.sliderPagination
 		);
@@ -437,13 +460,13 @@ function Plugin(element, options) {
 		let dot = currentDot;
 
 		// Next Reset
-		if (currentDot > this.totalDots) {
-			dot = 1;
+		if (currentDot > this.endDot) {
+			dot = this.startDot;
 		}
 
 		// Prev Reset
-		if (currentDot < 1) {
-			dot = this.totalDots;
+		if (currentDot < this.startDot) {
+			dot = this.endDot;
 		}
 
 		$buttons.forEach(($button, index) => {
@@ -463,34 +486,34 @@ function Plugin(element, options) {
 		goToDot(index);
 	};
 
-	const resetClonedIndex = () => {
+	const resetIndex = () => {
+		if (!this.isInfinite) {
+			return;
+		}
+
 		const currentIndex = getCurrentIndex();
 
 		if (currentIndex < this.startIndex || currentIndex > this.endIndex) {
-			const prevIndex = currentIndex + this.totalItems;
-			const nextIndex = currentIndex - this.totalItems;
-
-			const ci = currentIndex < this.startIndex ? prevIndex : nextIndex;
+			const ci = getCloneIndex(currentIndex);
 
 			setCurrentIndex(ci);
 		}
 	};
 
-	const goToClonedSlide = (index) => {
-		const i = parseInt(index, 10);
-		const pindex = i * -1;
+	const resetDot = () => {
+		// Reset Next
+		if (getCurrentDot() > this.totalDots) {
+			setCurrentDot(1);
+			const index = getItemIndexByDotIndex(1);
+			setCurrentIndex(index);
+		}
 
-		const prevIndex = pindex + this.totalItems;
-		const nextIndex = pindex - this.totalItems;
-
-		const ci = pindex < this.startIndex ? prevIndex : nextIndex;
-
-		const dot = getDotIndexByItemIndex(ci);
-
-		addAnimatingClass();
-		setCurrentIndex(pindex);
-		setCurrentDot(dot);
-		updatePaging(dot);
+		// Reset Prev
+		if (getCurrentDot() < 1) {
+			setCurrentDot(this.totalDots);
+			const index = getItemIndexByDotIndex(this.totalDots);
+			setCurrentIndex(index);
+		}
 	};
 
 	const handleItem = (event) => {
@@ -508,7 +531,7 @@ function Plugin(element, options) {
 	};
 
 	const goToDot = (dotIndex) => {
-		if ((dotIndex < 1 || dotIndex > this.totalDots) && !this.isCenter) {
+		if (dotIndex < 1 || dotIndex > this.totalDots) {
 			throw new RangeError(
 				`Dot index ${dotIndex} is not available. Available range ${1} - ${this.totalDots}`
 			);
@@ -526,28 +549,20 @@ function Plugin(element, options) {
 		const index = getItemIndexByDotIndex(currentDot);
 		setCurrentIndex(index);
 		setCurrentDot(currentDot);
-
-		/*if (currentDot < 0 || currentDot > this.totalDots + 1) {
-			const dot =
-				currentDot < 0
-					? this.totalDots + currentDot
-					: currentDot - this.totalDots;
-			updatePaging(dot);
-		} else {*/
 		updatePaging(currentDot);
-		//}
 
 		restartAutoPlay();
 
-		triggerEvent(this.$element, 'afterGotoDot', {
+		triggerEvent(this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
 		});
 	};
 
 	const goToSlide = (slideIndex) => {
-		const index = slideIndex - 1; // we start slide index from 1
-		let getIndex = this.isInfinite ? index + this.itemsToClone : index;
+		// we start slide index from 1
+		let currentIndex = getIndex(slideIndex - 1);
 
 		if (slideIndex < 1 || slideIndex > this.totalItems) {
 			throw new RangeError(
@@ -557,24 +572,46 @@ function Plugin(element, options) {
 
 		const limit = this.endIndex;
 
-		if (!this.isInfinite && getIndex > limit) {
-			getIndex = limit;
+		if (!this.isInfinite && currentIndex > limit) {
+			currentIndex = limit;
 		}
 
-		if (getIndex === getCurrentIndex()) {
+		if (currentIndex === getCurrentIndex()) {
 			removeAnimatingClass();
 			return;
 		}
+
 		addAnimatingClass();
-		const dotIndex = getDotIndexByItemIndex(getIndex);
+		const dotIndex = getDotIndexByItemIndex(currentIndex);
 
 		setCurrentDot(dotIndex);
 		updatePaging(dotIndex);
-		setCurrentIndex(getIndex);
+		setCurrentIndex(currentIndex);
 		restartAutoPlay();
 		triggerEvent(this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
+		});
+	};
+
+	const goToClonedSlide = (index) => {
+		const currentIndex = index * -1;
+
+		const ci = getCloneIndex(currentIndex);
+
+		const dotIndex = getDotIndexByItemIndex(ci);
+
+		addAnimatingClass();
+		setCurrentIndex(currentIndex);
+		setCurrentDot(dotIndex);
+		updatePaging(dotIndex);
+		restartAutoPlay();
+
+		triggerEvent(this.$element, 'afterGotoSlide', {
+			currentIndex: getCloneIndex(currentIndex),
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCloneIndex(currentIndex)),
 		});
 	};
 
@@ -651,14 +688,6 @@ function Plugin(element, options) {
 
 		const itemStartIndex = this.itemsToClone;
 		const itemEndIndex = this.totalItems + this.itemsToClone - 1;
-
-		// console.log(dotToItem);
-
-		// @TODO: Add dynamically
-		/*dotToItem[-2] = 2;
-		dotToItem[-1] = 3;
-		dotToItem[9] = 13;
-		dotToItem[10] = 14;*/
 
 		return {
 			data,
@@ -772,6 +801,10 @@ function Plugin(element, options) {
 
 	const getCurrentIndex = () => {
 		return this.currentIndex;
+	};
+
+	const getCurrentItemIndex = (index) => {
+		return this.isInfinite ? index - this.itemsToClone + 1 : index + 1;
 	};
 
 	const setPositionClass = () => {
@@ -956,34 +989,26 @@ function Plugin(element, options) {
 		removeClasses();
 		triggerEvent(this.$element, 'beforeSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
 		});
 	};
 
 	const afterSlide = () => {
 		removeAnimatingClass();
 
-		resetClonedIndex();
+		// Clone Index
+		resetIndex();
 
-		// Reset Next
-		if (getCurrentDot() > this.totalDots) {
-			setCurrentDot(1);
-			const index = getItemIndexByDotIndex(1);
-			setCurrentIndex(index);
-		}
-
-		// Reset Prev
-		if (getCurrentDot() < 1) {
-			setCurrentDot(this.totalDots);
-			const index = getItemIndexByDotIndex(this.totalDots);
-			setCurrentIndex(index);
-		}
+		// Prev | Next
+		resetDot();
 
 		addClasses();
 
 		triggerEvent(this.$element, 'afterSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
 		});
 	};
 
@@ -1008,7 +1033,7 @@ function Plugin(element, options) {
 	};
 
 	const slidePrev = () => {
-		const currentDot = this.currentDot - 1;
+		const currentDot = getCurrentDot() - 1;
 
 		if (!this.isInfinite && currentDot <= 0) {
 			return;
@@ -1020,14 +1045,15 @@ function Plugin(element, options) {
 		setCurrentDot(currentDot);
 		updatePaging(currentDot);
 
-		triggerEvent(this.$element, 'afterPrev', {
+		triggerEvent(this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
 		});
 	};
 
 	const slideNext = () => {
-		const currentDot = this.currentDot + 1;
+		const currentDot = getCurrentDot() + 1;
 
 		if (!this.isInfinite && currentDot > this.totalDots) {
 			return;
@@ -1040,9 +1066,10 @@ function Plugin(element, options) {
 		setCurrentDot(currentDot);
 		updatePaging(currentDot);
 
-		triggerEvent(this.$element, 'afterNext', {
+		triggerEvent(this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
-			currentDot: this.currentDot,
+			currentDot: getCurrentDot(),
+			itemIndex: getCurrentItemIndex(getCurrentIndex()),
 		});
 	};
 
@@ -1086,8 +1113,6 @@ function Plugin(element, options) {
 
 		if (moving) {
 			this.isSwiping = true;
-
-			// console.log(left);
 
 			this.$slider.style.setProperty(
 				'--_horizontal-value',

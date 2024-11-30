@@ -39,8 +39,11 @@ function StorePressSlider() {
 		},
 
 		destroyWith(el) {
-			for (const { destroy } of this.getInstance(el)) {
+			const instance = this.getPluginInstance(el);
+
+			for (const { destroy, element, reset } of instance) {
 				destroy();
+				element.removeEventListener('destroy', reset);
 			}
 		},
 

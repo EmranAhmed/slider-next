@@ -27,19 +27,19 @@
 
 		.slider-wrapper {
 
-			--slides-to-show: 4;
+			--slides-to-show: 3;
 
-			--slides-to-scroll: 2;
+			--slides-to-scroll: 3;
 
 			margin-block: 50px;
 
 			--slider-min-item-size: 200px;
 
-			--is-active-select: true;
+			--is-active-select: false;
 
 			--infinite-slides: true;
 
-			--is-always-center: true;
+			--is-always-center: false;
 
 			--is-horizontal: true;
 
@@ -61,7 +61,18 @@
 			box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
 			border-radius: 10px;
 
-			padding-inline: 10px;
+			/*padding-inline: 10px;
+			padding-block: 0;*/
+
+			@container style(--is-horizontal: true) {
+				padding-inline: 10px;
+				padding-block: 0;
+			}
+
+			@container style(--is-horizontal: false) {
+				padding-block: 10px;
+				padding-inline: 0;
+			}
 
 			/*padding-inline: 20px;
 			padding-block: 20px;*/
@@ -87,73 +98,73 @@
 
 <div class="container-2">
 
-<!--
-	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
+	<!--
+		<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
 
-		<div class="storepress-slider-container">
-			<div class="storepress-slider">
-				<div class="active"><img src="images/beanie.jpg" /></div>
-				<div><img src="images/belt.jpg" /></div>
-				<div><img src="images/cap.jpg" /></div>
-				<div><img src="images/hoodie-blue-1.jpg" /></div>
-				<div><img src="images/pennant-1.jpg" /></div>
-				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>
-
-
-				&lt;!&ndash;<div class="active" style="background-color: #bbbbbb">
-					<div>01</div>
-				</div>
-				<div style="background-color: #702222">
-					<div>02</div>
-				</div>
-				<div style="background-color: #b051d0">
-					<div>03</div>
-				</div>
-				<div style="background-color: #357c6b">
-					<div>04</div>
-				</div>
-				<div style="background-color: #9b1358">
-					<div>05</div>
-				</div>
-				<div style="background-color: #1a852f">
-					<div>06</div>
-				</div>
-				<div style="background-color: #2b6091">
-					<div>07</div>
-				</div>&ndash;&gt;
+			<div class="storepress-slider-container">
+				<div class="storepress-slider">
+					<div class="active"><img src="images/beanie.jpg" /></div>
+					<div><img src="images/belt.jpg" /></div>
+					<div><img src="images/cap.jpg" /></div>
+					<div><img src="images/hoodie-blue-1.jpg" /></div>
+					<div><img src="images/pennant-1.jpg" /></div>
+					<div><img src="images/sunglasses-2.jpg" /></div>
+					<div><img src="images/tshirt-2.jpg" /></div>
 
 
-				&lt;!&ndash;
-											<div>08</div>
-											<div >09</div>
-											<div>10</div>
-											<div>11</div>
-											<div>12</div>
-											<div>13</div>&ndash;&gt;
+					&lt;!&ndash;<div class="active" style="background-color: #bbbbbb">
+						<div>01</div>
+					</div>
+					<div style="background-color: #702222">
+						<div>02</div>
+					</div>
+					<div style="background-color: #b051d0">
+						<div>03</div>
+					</div>
+					<div style="background-color: #357c6b">
+						<div>04</div>
+					</div>
+					<div style="background-color: #9b1358">
+						<div>05</div>
+					</div>
+					<div style="background-color: #1a852f">
+						<div>06</div>
+					</div>
+					<div style="background-color: #2b6091">
+						<div>07</div>
+					</div>&ndash;&gt;
+
+
+					&lt;!&ndash;
+												<div>08</div>
+												<div >09</div>
+												<div>10</div>
+												<div>11</div>
+												<div>12</div>
+												<div>13</div>&ndash;&gt;
+				</div>
+			</div>
+
+			<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
+				<div class="storepress-slider-navigation">
+					<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
+						<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+							<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
+						</svg>
+					</button>
+					<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
+						<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+							<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
+						</svg>
+					</button>
+				</div>
+
+				<div class="storepress-slider-pagination">
+					<button>1</button>
+				</div>
 			</div>
 		</div>
-
-		<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
-			<div class="storepress-slider-navigation">
-				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
-					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-						<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
-					</svg>
-				</button>
-				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
-					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-						<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
-					</svg>
-				</button>
-			</div>
-
-			<div class="storepress-slider-pagination">
-				<button>1</button>
-			</div>
-		</div>
-	</div>
--->
+	-->
 
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
 
