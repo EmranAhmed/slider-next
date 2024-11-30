@@ -1190,6 +1190,16 @@ function Plugin(element, options) {
 			this.settings.sliderPagination
 		);
 
+		this.$element.style.removeProperty(this.settings.isInfiniteCSSProperty);
+
+		this.$element.style.removeProperty(
+			this.settings.slidesToShowCSSProperty
+		);
+
+		this.$element.style.removeProperty(
+			this.settings.slidesToScrollCSSProperty
+		);
+
 		$button.style.removeProperty('display');
 	};
 
