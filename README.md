@@ -87,18 +87,25 @@ npm i @storepress/slider @storepress/utils --save
 
   & {
     --slides-to-show: 1;
-
     --slides-to-scroll: 1;
-
+    --slider-can-swipe: true;
+    --slider-initial-item: 0;
     --infinite-slides: true;
-
-    --slides-autoplay: false;
-
+    --is-horizontal: true;
     --is-always-center: false;
-
     --is-active-select: false;
-
+    --slides-autoplay: false;
+    --show-control-pagination: true;
+    --show-control-navigation: true;
+    --slides-autoplay-timeout: 3000; // In Milliseconds.
+    --_current-slider-index: 0;
     --slider-item-gap: 0px;
+    --control-navigation-color: #000;
+    --control-navigation-size: 30px;
+    --slider-min-item-size: 100px;
+    --sliding-duration: 500ms;
+    // Generate Transition: https://matthewlein.com/tools/ceaser
+    --sliding-timing-function: var(--ease-out-cubic); /* easeInOutExpo */
   }
 }
 

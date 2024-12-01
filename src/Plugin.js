@@ -532,6 +532,10 @@ function Plugin(element, options) {
 	};
 
 	const goToDot = (dotIndex) => {
+		if (isAnimating()) {
+			return;
+		}
+
 		if (dotIndex < 1 || dotIndex > this.totalDots) {
 			throw new RangeError(
 				`Dot index ${dotIndex} is not available. Available range ${1} - ${this.totalDots}`
@@ -562,7 +566,12 @@ function Plugin(element, options) {
 	};
 
 	const goToSlide = (slideIndex) => {
+		if (isAnimating()) {
+			return;
+		}
+
 		// we start slide index from 1
+
 		let currentIndex = getIndex(slideIndex - 1);
 
 		if (slideIndex < 1 || slideIndex > this.totalItems) {
@@ -597,6 +606,10 @@ function Plugin(element, options) {
 	};
 
 	const goToClonedSlide = (index) => {
+		if (isAnimating()) {
+			return;
+		}
+
 		const currentIndex = index * -1;
 
 		const ci = getCloneIndex(currentIndex);

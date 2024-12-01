@@ -27,9 +27,9 @@
 
 		.slider-wrapper {
 
-			--slides-to-show: 4;
+			--slides-to-show: 2;
 
-			--slides-to-scroll: 3;
+			--slides-to-scroll: 1;
 
 			margin-block: 50px;
 
@@ -37,11 +37,11 @@
 
 			--is-active-select: true;
 
-			--infinite-slides: false;
+			--infinite-slides: true;
 
 			--is-always-center: false;
 
-			--slides-autoplay: true;
+			--slides-autoplay: false;
 
 			--is-horizontal: true;
 
@@ -258,11 +258,34 @@ Goto <a id="goto-one-6" href="#">Slide 6</a>
 Goto <a id="goto-one-7" href="#">Slide 7</a>
 Goto <a id="goto-one-8" href="#">Slide 8</a>
 
+---
+
+Goto <a class="go" data-target="1" href="#">Slide 1</a>
+Goto <a class="go" data-target="2" href="#">Slide 2</a>
+Goto <a class="go" data-target="3" href="#">Slide 3</a>
+Goto <a class="go" data-target="4" href="#">Slide 4</a>
+Goto <a class="go" data-target="5" href="#">Slide 5</a>
+Goto <a class="go" data-target="6" href="#">Slide 6</a>
+Goto <a class="go" data-target="7" href="#">Slide 7</a>
+Goto <a class="go" data-target="8" href="#">Slide 8</a>
+
 
 <script type="text/javascript" src="./build/storepress-utils.js"></script>
 <script type="text/javascript" src="./build/slider.js"></script>
 
 <script type="text/javascript">
+
+	const $go = document.querySelectorAll('.go');
+
+	$go.forEach(($item)=>{
+		$item.addEventListener('click', ()=>{
+			console.log('from index.html')
+			StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
+				element: ['[data-slider-settings]'],
+				index: parseInt($item.dataset.target) + 1 ,
+			})
+		})
+	});
 
 
 	StorePress.Utils.triggerEvent(document, 'storepress_slider_init', {
