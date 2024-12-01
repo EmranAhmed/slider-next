@@ -341,7 +341,8 @@ function Plugin(element, options) {
 	const setInitialItem = () => {
 		this.$items.forEach(($item, index) => {
 			$item.classList.add(CLASSES.itemClassName);
-			$item.setAttribute('aria-hidden', 'true');
+			//$item.setAttribute('aria-hidden', 'true');
+			$item.setAttribute('inert', true);
 			$item.dataset.index = index + 1;
 
 			// Disable Image dragging
@@ -543,7 +544,6 @@ function Plugin(element, options) {
 		}
 
 		if (dotIndex === this.currentDot) {
-			removeAnimatingClass();
 			return;
 		}
 
@@ -587,7 +587,6 @@ function Plugin(element, options) {
 		}
 
 		if (currentIndex === getCurrentIndex()) {
-			removeAnimatingClass();
 			return;
 		}
 
@@ -867,7 +866,8 @@ function Plugin(element, options) {
 	const addClasses = () => {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
-		$items[this.currentIndex].setAttribute('aria-hidden', 'false');
+		// $items[this.currentIndex].removeAttribute('aria-hidden');
+		$items[this.currentIndex].removeAttribute('inert');
 		$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
 
 		const start = this.currentIndex - this.centerItem;
@@ -878,7 +878,8 @@ function Plugin(element, options) {
 				continue;
 			}
 
-			$items[i].setAttribute('aria-hidden', 'false');
+			//$items[i].removeAttribute('aria-hidden', 'false');
+			$items[i].removeAttribute('inert');
 			$items[i].classList.add(CLASSES.itemVisibleClassName);
 		}
 	};
@@ -886,7 +887,8 @@ function Plugin(element, options) {
 	const removeClasses = () => {
 		const $items = this.$slider.querySelectorAll(':scope > *');
 		$items.forEach(($item) => {
-			$item.setAttribute('aria-hidden', 'true');
+			$item.setAttribute('inert', true);
+			// $item.setAttribute('aria-hidden', 'true');
 			$item.classList.remove(CLASSES.itemCurrentClassName);
 			$item.classList.remove(CLASSES.itemVisibleClassName);
 		});
@@ -1134,6 +1136,7 @@ function Plugin(element, options) {
 
 		if (moving) {
 			this.isSwiping = true;
+			this.$element.classList.add('swiping');
 
 			this.$slider.style.setProperty(
 				'--_horizontal-value',
@@ -1148,6 +1151,7 @@ function Plugin(element, options) {
 
 		if (done) {
 			addAnimatingClass();
+			this.$element.classList.remove('swiping');
 			this.$slider.style.removeProperty('--_horizontal-value');
 			this.$slider.style.removeProperty('--_vertical-value');
 			this.isSwiping = false;
@@ -1155,10 +1159,12 @@ function Plugin(element, options) {
 		}
 
 		if (done && (left || top)) {
+			this.$element.classList.remove('swiping');
 			slideNext();
 		}
 
 		if (done && (right || bottom)) {
+			this.$element.classList.remove('swiping');
 			slidePrev();
 		}
 	};
@@ -1185,6 +1191,7 @@ function Plugin(element, options) {
 			);
 
 			$item.removeAttribute('aria-hidden');
+			$item.removeAttribute('inert');
 			$item.removeAttribute('data-index');
 
 			if (index === this.initialSlide - 1) {
