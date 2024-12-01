@@ -134,6 +134,17 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	inherits: true;
 	initial-value: 100px;
 }
+@property --slider-can-swipe {
+	syntax: "<custom-ident>|<integer>";
+	inherits: true;
+	initial-value: true;
+}
+
+@property --slider-initial-item {
+	syntax: "<integer>";
+	inherits: true;
+	initial-value: 0;
+}
 
 @mixin variables() {
 
@@ -144,6 +155,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		--slides-to-show: 1;
 		--slides-to-scroll: 1;
+		--slider-can-swipe: true;
+		--slider-initial-item: 0;
 		--infinite-slides: true;
 		--is-horizontal: true;
 		--is-always-center: false;
@@ -199,6 +212,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		width: 100%;
 		height: 100%;
 		display: block;
+		box-sizing: border-box;
 	}
 }
 
@@ -237,6 +251,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		height: 100%;
 		width: 100%;
+		box-sizing: border-box;
 	}
 }
 
@@ -247,6 +262,10 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		justify-content: center;
 		flex-direction: column;
 		position: relative;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+
 
 		> img {
 			display: block;
@@ -398,12 +417,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 // .slider-wrapper{ @include slider-init(); }
 @mixin slider-init() {
 
-	*, *::after, *::before {
-		margin: 0;
-		padding: 0;
-		box-sizing: border-box;
-	}
-
 	// Slider Wrapper Variable
 	@include variables();
 
@@ -432,6 +445,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		display: flex;
 		justify-content: center;
+		box-sizing: border-box;
 
 		// Slider Pagination
 		.storepress-slider-pagination {

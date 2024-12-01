@@ -21,6 +21,8 @@ function Plugin(element, options) {
 		slidesToScrollCSSProperty: '--slides-to-scroll',
 		slidesToShowCSSProperty: '--slides-to-show',
 		isInfiniteCSSProperty: '--infinite-slides',
+		canSwipeCSSProperty: '--slider-can-swipe',
+		initialItemCSSProperty: '--slider-initial-item',
 		showDotsCSSProperty: '--show-pagination',
 		showArrowCSSProperty: '--show-navigation',
 		isHorizontalCSSProperty: '--is-horizontal',
@@ -101,6 +103,7 @@ function Plugin(element, options) {
 		this.isAutoPlay = false;
 		this.autoPlayTimeout = 0;
 		this.autoPlayId = null;
+		this.enableSwipe = true;
 		this.cleanupSwipe = noop();
 		this.itemsToClone = 0;
 		this.startIndex = 0;
@@ -151,6 +154,17 @@ function Plugin(element, options) {
 			getElementComputedStyle(this.settings.slidesToScrollCSSProperty),
 			10
 		);
+
+		this.initialSlide = parseInt(
+			getElementComputedStyle(this.settings.initialItemCSSProperty),
+			10
+		);
+
+		const swipeString = getElementComputedStyle(
+			this.settings.canSwipeCSSProperty
+		).toLowerCase();
+
+		this.enableSwipe = cssVariableIsTrue(swipeString);
 
 		// scroll quantity should not max then visible quantity.
 		if (this.slidesToShow < this.slidesToScroll) {
@@ -325,9 +339,6 @@ function Plugin(element, options) {
 	};
 
 	const setInitialItem = () => {
-		// @TODO: Will assign initial slide from css variable.
-		let activeClassAdded = false;
-		this.initialSlide = 0;
 		this.$items.forEach(($item, index) => {
 			$item.classList.add(CLASSES.itemClassName);
 			$item.setAttribute('aria-hidden', 'true');
@@ -337,16 +348,6 @@ function Plugin(element, options) {
 			$item.querySelectorAll('img').forEach(($img) => {
 				$img.setAttribute('draggable', false);
 			});
-
-			if (
-				!activeClassAdded &&
-				$item.classList.contains(this.settings.defaultItemClassName)
-			) {
-				activeClassAdded = true;
-				this.initialSlide = parseInt(index, 10);
-				//$item.classList.add(CLASSES.itemCurrentClassName);
-				$item.classList.remove(this.settings.defaultItemClassName);
-			}
 		});
 
 		this.$items[this.initialSlide].classList.add(
@@ -438,13 +439,13 @@ function Plugin(element, options) {
 
 			$cloned.setAttribute(
 				'aria-label',
-				`${this.settings.sliderDotsTitle} ${itemIndex}`
+				`${this.settings.sliderDotsTitle} ${getDotLabelIndex(itemIndex)}`
 			);
 
 			// $cloned.dataset.targetSlide = itemIndex;
 			$cloned.dataset.dotIndex = i.toString();
 
-			$cloned.innerText = itemIndex;
+			$cloned.innerText = getDotLabelIndex(itemIndex);
 
 			$cloned.addEventListener('click', handleDot);
 
@@ -737,6 +738,8 @@ function Plugin(element, options) {
 		const start = 0;
 		const end = data.at(-1).at(0);
 
+		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
+
 		data.unshift([start]);
 		data.push([end]);
 
@@ -804,6 +807,10 @@ function Plugin(element, options) {
 	};
 
 	const getCurrentItemIndex = (index) => {
+		return this.isInfinite ? index - this.itemsToClone + 1 : index + 1;
+	};
+
+	const getDotLabelIndex = (index) => {
 		return this.isInfinite ? index - this.itemsToClone + 1 : index + 1;
 	};
 
@@ -908,11 +915,11 @@ function Plugin(element, options) {
 		this.$slider.addEventListener('transitionstart', beforeSlide);
 		this.$slider.addEventListener('transitionend', afterSlide);
 
-		this.cleanupSwipe = swipeEvent(this.$container, handleSwipe, {
-			offset: 50,
-		});
-
-		this.$container.addEventListener('swipe', handleSwipe);
+		if (this.enableSwipe) {
+			this.cleanupSwipe = swipeEvent(this.$container, handleSwipe, {
+				offset: 50, // @TODO: Swipe Offset from CSS
+			});
+		}
 
 		if (this.isActiveOnSelect) {
 			$items.forEach(($item) => {
@@ -961,9 +968,9 @@ function Plugin(element, options) {
 
 		this.$container.removeEventListener('pointerleave', startAutoPlay);
 
-		this.cleanupSwipe();
-
-		// this.$container.removeEventListener( 'swipe', handleSwipe );
+		if (this.enableSwipe) {
+			this.cleanupSwipe();
+		}
 	};
 
 	const startAutoPlay = () => {
@@ -973,6 +980,7 @@ function Plugin(element, options) {
 
 		stopAutoPlay();
 
+		// @TODO: If non infinite react end it should start with prev
 		this.autoPlayId = setInterval(slideNext, this.autoPlayTimeout);
 	};
 
