@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 ```css
 
-.slider-wrapper {
+:where(.slider-wrapper) {
 			--slides-to-show: 3;
 
 			--slides-to-scroll: 2;
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-.storepress-slider-container {
+:where(.storepress-slider-container) {
   box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
   border-radius: 10px;
 

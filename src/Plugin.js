@@ -111,6 +111,9 @@ function Plugin(element, options) {
 		this.startDot = 0;
 		this.endDot = 0;
 
+		// @TODO: hideControlOnEnd, adaptiveHeight
+		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
+
 		initial();
 
 		initialPaging();
@@ -245,15 +248,6 @@ function Plugin(element, options) {
 
 		// Item GAP
 		this.itemGap = parseInt(getSliderComputedStyle('gap'), 10);
-
-		/*this.validCenter =
-			this.slidesToShow > 2 &&
-			this.slidesToShow % 2 === 1 &&
-			this.isCenter;
-
-		if (!this.validCenter) {
-			// this.isCenter = false;
-		}*/
 
 		// Control from CSS
 		this.$element.classList.remove(
@@ -410,47 +404,56 @@ function Plugin(element, options) {
 	};
 
 	const initialPaging = () => {
-		const $button = this.$element.querySelector(
+		const $buttons = this.$element.querySelector(
 			this.settings.sliderPagination
 		);
 
-		if (null === $button) {
+		if (null === $buttons) {
 			return;
 		}
 
-		$button.style.display = 'none';
+		$buttons.style.display = 'none';
 
-		const $parent = $button.parentElement;
+		const $parent = $buttons.parentElement;
 
 		for (let i = 1; i <= this.totalDots; i++) {
-			const $cloned = $button.cloneNode(true);
-			$cloned.classList.remove(CLASSES.dotCurrentClassName);
-			$cloned.removeAttribute('aria-current');
-			$cloned.removeAttribute('aria-hidden');
-			$cloned.style.removeProperty('display');
+			const $button = $buttons.cloneNode(true);
+
+			$button.classList.remove(CLASSES.dotCurrentClassName);
+
+			$button.removeAttribute('aria-current');
+			$button.removeAttribute('aria-hidden');
+			$button.removeAttribute('aria-selected');
+			$button.style.removeProperty('display');
+
+			$button.setAttribute('role', 'tab');
+			$button.setAttribute('aria-setsize', this.totalDots);
+			$button.setAttribute('aria-posinset', i);
+			$button.setAttribute('aria-selected', 'false');
 
 			const itemIndex = getItemIndexByDotIndex(i);
 
-			$cloned.classList.add(CLASSES.dotClassName);
+			$button.classList.add(CLASSES.dotClassName);
 
 			if (this.currentDot === i) {
-				$cloned.setAttribute('aria-current', 'true');
-				$cloned.classList.add(CLASSES.dotCurrentClassName);
+				// $button.setAttribute('aria-current', 'true');
+				$button.setAttribute('aria-selected', 'true');
+				$button.classList.add(CLASSES.dotCurrentClassName);
 			}
 
-			$cloned.setAttribute(
+			$button.setAttribute(
 				'aria-label',
 				`${this.settings.sliderDotsTitle} ${getDotLabelIndex(itemIndex)}`
 			);
 
 			// $cloned.dataset.targetSlide = itemIndex;
-			$cloned.dataset.dotIndex = i.toString();
+			$button.dataset.dotIndex = i.toString();
 
-			$cloned.innerText = getDotLabelIndex(itemIndex);
+			$button.innerText = getDotLabelIndex(itemIndex);
 
-			$cloned.addEventListener('click', handleDot);
+			$button.addEventListener('click', handleDot);
 
-			$parent.append($cloned);
+			$parent.append($button);
 		}
 	};
 
@@ -472,11 +475,13 @@ function Plugin(element, options) {
 		}
 
 		$buttons.forEach(($button, index) => {
-			$button.removeAttribute('aria-current', 'true');
+			//$button.removeAttribute('aria-current', 'true');
+			$button.removeAttribute('aria-selected', 'true');
 			$button.classList.remove(CLASSES.dotCurrentClassName);
 
 			if (dot === index) {
-				$button.setAttribute('aria-current', 'true');
+				// $button.setAttribute('aria-current', 'true');
+				$button.setAttribute('aria-selected', 'true');
 				$button.classList.add(CLASSES.dotCurrentClassName);
 			}
 		});
@@ -749,8 +754,6 @@ function Plugin(element, options) {
 
 		const start = 0;
 		const end = data.at(-1).at(0);
-
-		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
 
 		data.unshift([start]);
 		data.push([end]);
