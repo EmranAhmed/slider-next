@@ -58,13 +58,13 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 }
 
 @property --infinite-slides {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: true;
 }
 
 @property --slides-autoplay {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: false;
 }
@@ -76,19 +76,19 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 }
 
 @property --is-horizontal {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: true;
 }
 
 @property --is-always-center {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: false;
 }
 
 @property --is-active-select {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: false;
 }
@@ -105,6 +105,12 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	initial-value: 0px;
 }
 
+@property --_slider-adaptive-size {
+	syntax: "<length>|<percentage>|auto";
+	inherits: true;
+	initial-value: 100%;
+}
+
 @property --control-navigation-color {
 	syntax: "<color>";
 	inherits: true;
@@ -118,13 +124,13 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 }
 
 @property --show-control-pagination {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: true;
 }
 
 @property --show-control-navigation {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: true;
 }
@@ -136,9 +142,14 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 }
 
 @property --slider-can-swipe {
-	syntax: "<custom-ident>|<integer>";
+	syntax: "true|false";
 	inherits: true;
 	initial-value: true;
+}
+@property --is-adaptive-size {
+	syntax: "true|false";
+	inherits: true;
+	initial-value: false;
 }
 
 @property --slider-initial-item {
@@ -167,6 +178,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--show-control-navigation: true;
 		--slides-autoplay-timeout: 3000; // In Milliseconds.
 		--_current-slider-index: 0;
+		--_slider-adaptive-size: 100%;
+		--is-adaptive-size: false;
 		--slider-item-gap: 0px;
 		--control-navigation-color: #000;
 		--control-navigation-size: 30px;
@@ -200,7 +213,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin animating-style() {
 	& {
-		will-change: transform;
+		/*will-change: transform;*/
 		transition: var(--sliding-duration, 500ms);
 		transition-timing-function: var(--sliding-timing-function, ease);
 	}
@@ -219,7 +232,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin slider-style() {
 	& {
-		will-change: auto;
+		/*will-change: auto;*/
 
 		--_item-width: calc(100% / var(--slides-to-show));
 		--_item-height: calc(100% / var(--slides-to-show));
@@ -250,7 +263,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 		user-select: none;
 
-		height: 100%;
+		height: var(--_slider-adaptive-size);
 		width: 100%;
 		box-sizing: border-box;
 	}
@@ -258,16 +271,32 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin slider-item-style() {
 	& {
-		display: flex;
-		align-items: center;
+		display: block;
+		/*align-items: center;
 		justify-content: center;
-		flex-direction: column;
+		flex-direction: column;*/
 		position: relative;
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
 
-		> img {
+		> * {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			user-select: none;
+
+			object-fit: cover; // for image
+
+			width: 100%;
+			height: auto;
+			min-height: var(--slider-min-item-size);
+			min-width: auto;
+
+			box-sizing: border-box;
+		}
+
+/*		> img {
 			display: block;
 			width: 100%;
 			height: auto;
@@ -282,7 +311,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			user-select: none;
 			min-height: var(--slider-min-item-size);
 			width: 100%;
-		}
+		}*/
 	}
 }
 
@@ -348,17 +377,15 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	}
 }
 
-@mixin slider-pagination-previous(){
-	inset: 0;
+@mixin slider-navigation-style-previous() {
 	margin-block: auto;
 	margin-inline: 0 auto;
 }
-@mixin slider-pagination-next(){
-	inset: 0;
+
+@mixin slider-navigation-style-next() {
 	margin-block: auto;
 	margin-inline: auto 0;
 }
-
 
 @mixin slider-navigation-style() {
 	display: flex;
@@ -374,6 +401,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		width: var(--control-navigation-size);
 		aspect-ratio: 1;
 		padding: 5px;
+		inset: 0;
 
 		img, svg {
 			display: block;
@@ -384,12 +412,12 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		&.storepress-slider-navigation-previous {
 			user-select: none;
-			@include slider-pagination-previous();
+			@include slider-navigation-style-previous();
 		}
 
 		&.storepress-slider-navigation-next {
 			user-select: none;
-			@include slider-pagination-next();
+			@include slider-navigation-style-next();
 		}
 	}
 }
@@ -461,8 +489,15 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		.storepress-slider {
 			@include slider-horizontal-style();
 
-			> * {
-				> img {
+			// Slider item
+			> *  > * {
+
+				width: 100%;
+				height: auto;
+				min-height: var(--slider-min-item-size);
+				min-width: auto;
+
+				/*> img {
 					width: 100%;
 					height: auto;
 				}
@@ -470,7 +505,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 				> *:not(img) {
 					min-height: var(--slider-min-item-size);
 					width: 100%;
-				}
+				}*/
 			}
 		}
 	}
@@ -479,7 +514,29 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		.storepress-slider {
 			@include slider-vertical-style();
 
-			> * {
+
+			> *  > * {
+
+				width: auto;
+				height: 100%;
+
+				min-width: var(--slider-min-item-size);
+				min-height: auto;
+
+				/*> img {
+					width: 100%;
+					height: auto;
+				}
+
+				> *:not(img) {
+					min-height: var(--slider-min-item-size);
+					width: 100%;
+				}*/
+			}
+
+
+
+			/*> * {
 				> img {
 					width: auto;
 					height: 100%;
@@ -492,7 +549,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 					min-height: auto;
 					width: auto;
 				}
-			}
+			}*/
 
 		}
 

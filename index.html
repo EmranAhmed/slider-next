@@ -27,17 +27,19 @@
 
 		.slider-wrapper {
 
-			--slides-to-show: 2;
+			--slides-to-show: 1;
 
 			--slides-to-scroll: 1;
 
 			margin-block: 50px;
 
-			--slider-min-item-size: 200px;
+			--slider-min-item-size: 100px;
 
 			--is-active-select: true;
 
 			--infinite-slides: true;
+
+			--is-adaptive-size: true;
 
 			--is-always-center: false;
 
@@ -66,10 +68,10 @@
 			/*padding-inline: 10px;
 			padding-block: 0;*/
 
-			padding-inline: 10px;
-			padding-block: 0;
+/*			padding-inline: 10px;
+			padding-block: 0;*/
 
-			@container style(--is-horizontal: true) {
+/*			@container style(--is-horizontal: true) {
 				padding-inline: 10px;
 				padding-block: 0;
 			}
@@ -77,7 +79,7 @@
 			@container style(--is-horizontal: false) {
 				padding-block: 10px;
 				padding-inline: 0;
-			}
+			}*/
 
 			/*padding-inline: 20px;
 			padding-block: 20px;*/
@@ -96,6 +98,11 @@
 				padding-inline-start: calc( var(--item-padding) * 2 );
 			}*/
 		}
+
+		/*.storepress-slider > * > *{
+			padding: 10px;
+			margin: 10px;
+		}*/
 	</style>
 </head>
 
@@ -175,13 +182,13 @@
 
 		<div class="storepress-slider-container">
 			<div class="storepress-slider">
-				<!--<div class="active"><img src="images/beanie.jpg" /></div>
+				<div class="active"><img src="images/beanie.jpg" /></div>
 				<div><img src="images/belt.jpg" /></div>
 				<div><img src="images/cap.jpg" /></div>
 				<div><img src="images/hoodie-blue-1.jpg" /></div>
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>-->
+				<div><img src="images/tshirt-2.jpg" /></div>
 
 
 				<div class="active">
@@ -279,10 +286,9 @@ Goto <a class="go" data-target="8" href="#">Slide 8</a>
 
 	$go.forEach(($item)=>{
 		$item.addEventListener('click', ()=>{
-			console.log('from index.html')
 			StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
 				element: ['[data-slider-settings]'],
-				index: parseInt($item.dataset.target) + 1 ,
+				index: parseInt($item.dataset.target, 10) + 1 ,
 			})
 		})
 	});

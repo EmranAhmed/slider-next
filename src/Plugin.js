@@ -18,6 +18,8 @@ function Plugin(element, options) {
 
 	const PRIVATE = {
 		sliderCurrentIndexCSSProperty: '--_current-slider-index',
+		sliderAdaptiveSizeCSSProperty: '--_slider-adaptive-size',
+		isAdaptiveSizeCSSProperty: '--is-adaptive-size',
 		slidesToScrollCSSProperty: '--slides-to-scroll',
 		slidesToShowCSSProperty: '--slides-to-show',
 		isInfiniteCSSProperty: '--infinite-slides',
@@ -33,6 +35,7 @@ function Plugin(element, options) {
 		slidesAutoPlayTimeoutCSSProperty: '--slides-autoplay-timeout',
 		slidesShowControlPaginationCSSProperty: '--show-control-pagination',
 		slidesShowControlNavigationCSSProperty: '--show-control-navigation',
+
 		sliderNavigationPrevious: '.storepress-slider-navigation-previous',
 		sliderNavigationNext: '.storepress-slider-navigation-next',
 		sliderPagination: '.storepress-slider-pagination > button',
@@ -110,6 +113,8 @@ function Plugin(element, options) {
 		this.endIndex = 0;
 		this.startDot = 0;
 		this.endDot = 0;
+		this.isAdaptiveSize = false;
+		this.itemsSize = {};
 
 		// @TODO: hideControlOnEnd, adaptiveHeight
 		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
@@ -135,6 +140,10 @@ function Plugin(element, options) {
 		return window
 			.getComputedStyle(this.$element)
 			.getPropertyValue(cssProperty);
+	};
+
+	const getComputedStyle = ($element, property) => {
+		return window.getComputedStyle($element).getPropertyValue(property);
 	};
 
 	const getSliderComputedStyle = (cssProperty) => {
@@ -163,11 +172,19 @@ function Plugin(element, options) {
 			10
 		);
 
+		// Swiping
 		const swipeString = getElementComputedStyle(
 			this.settings.canSwipeCSSProperty
 		).toLowerCase();
 
 		this.enableSwipe = cssVariableIsTrue(swipeString);
+
+		// Adaptive Size
+		const adaptiveSizeString = getElementComputedStyle(
+			this.settings.isAdaptiveSizeCSSProperty
+		).toLowerCase();
+
+		this.isAdaptiveSize = cssVariableIsTrue(adaptiveSizeString);
 
 		// scroll quantity should not max then visible quantity.
 		if (this.slidesToShow < this.slidesToScroll) {
@@ -221,9 +238,6 @@ function Plugin(element, options) {
 			),
 			10
 		);
-
-		// Add Item Index and Set Initial Slide.
-		setInitialItem();
 
 		// Horizontal
 		const horizontalString = getElementComputedStyle(
@@ -297,6 +311,9 @@ function Plugin(element, options) {
 		const initialIndex = getBalancedIndex(getIndex(this.initialSlide));
 		const initialDot = getDotIndexByItemIndex(initialIndex);
 
+		// Add Item Index and Set Initial Slide.
+		setInitialItem();
+
 		setCurrentIndex(initialIndex);
 		setCurrentDot(initialDot);
 
@@ -339,6 +356,15 @@ function Plugin(element, options) {
 			$item.setAttribute('inert', true);
 			$item.dataset.index = index + 1;
 
+			const $itemInner = $item.querySelector(':scope > *');
+
+			this.itemsSize[getIndex(index)] = {
+				height: getComputedStyle($itemInner, 'height'),
+				width: getComputedStyle($itemInner, 'width'),
+			};
+
+			$item.setAttribute('inert', true);
+
 			// Disable Image dragging
 			$item.querySelectorAll('img').forEach(($img) => {
 				$img.setAttribute('draggable', false);
@@ -352,6 +378,10 @@ function Plugin(element, options) {
 
 	const getIndex = (index) => {
 		return this.isInfinite ? index + this.itemsToClone : index;
+	};
+
+	const getSize = (index) => {
+		return this.itemsSize[index];
 	};
 
 	const getCloneIndex = (index) => {
@@ -396,7 +426,15 @@ function Plugin(element, options) {
 
 		const $items = this.$slider.querySelectorAll(':scope > *');
 
+		this.itemsSize = {};
 		$items.forEach(($item, index) => {
+			const $itemInner = $item.querySelector(':scope > *');
+
+			this.itemsSize[index] = {
+				height: getComputedStyle($itemInner, 'height'),
+				width: getComputedStyle($itemInner, 'width'),
+			};
+
 			if (index < this.startIndex || index > this.endIndex) {
 				$item.dataset.index = index * -1;
 			}
@@ -815,6 +853,7 @@ function Plugin(element, options) {
 		);
 
 		setPositionClass();
+		setAdaptiveSize();
 	};
 
 	const getCurrentIndex = () => {
@@ -856,6 +895,22 @@ function Plugin(element, options) {
 				CLASSES.sliderContainerPositionEndClassName
 			);
 		}
+	};
+
+	const setAdaptiveSize = () => {
+		if (
+			this.slidesToShow > 1 ||
+			!this.isAdaptiveSize ||
+			!this.isHorizontal
+		) {
+			return;
+		}
+
+		const index = getCurrentIndex();
+
+		const { height } = getSize(index);
+
+		this.$element.style.setProperty('--_slider-adaptive-size', height);
 	};
 
 	const setCurrentDot = (index) => {
@@ -1232,6 +1287,10 @@ function Plugin(element, options) {
 		);
 
 		$button.style.removeProperty('display');
+
+		this.$element.style.removeProperty(
+			this.settings.sliderAdaptiveSizeCSSProperty
+		);
 	};
 
 	// Expose to public.
