@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Accessible Carousel Slider</title>
+	<style>
+		.slider-wrapper {
+			max-width: 600px;
+			margin: 20px auto;
+			position: relative;
+			border: 2px solid #333;
+			border-radius: 8px;
+			overflow: hidden;
+
+			--slides-to-show: 2;
+			--is-horizontal: true;
+			--slider-index: 1;
+		}
+
+		.storepress-slider-container {
+			position: relative;
+			overflow: hidden;
+			height: 200px;
+		}
+
+		.storepress-slider {
+			display: flex;
+
+			flex-wrap: nowrap;
+			transition: transform 0.3s ease-in-out;
+			height: 100%;
+			width: 100%;
+
+			@container style(--is-horizontal: true) {
+				flex-direction: row;
+				transform: translateX(calc(100% * var(--slider-index) * -1))
+			}
+
+			@container style(--is-horizontal: false) {
+				flex-direction: column;
+				transform: translateY(calc(100% * var(--slider-index) * -1))
+			}
+
+			will-change: transform;
+		}
+
+		.slide {
+
+			@container style(--is-horizontal: true) {
+				min-width: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
+			}
+
+			@container style(--is-horizontal: false) {
+				min-height: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
+			}
+
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 2rem;
+			font-weight: bold;
+			color: white;
+			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+			box-sizing: border-box;
+			padding: 0 5px; /* Small gap between slides */
+		}
+
+		.slide a {
+			color: inherit;
+			text-decoration: none;
+			padding: 20px;
+			display: block;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.slide a:focus {
+			outline: 3px solid #fff;
+			outline-offset: -3px;
+		}
+
+		.storepress-slider-controls {
+			background: rgba(0, 0, 0, 0.1);
+			padding: 15px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 15px;
+		}
+
+		.storepress-slider-navigation {
+			display: flex;
+			gap: 10px;
+		}
+
+		.storepress-slider-navigation button {
+			background: #333;
+			color: white;
+			border: none;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.storepress-slider-navigation button:hover {
+			background: #555;
+			transform: scale(1.1);
+		}
+
+		.storepress-slider-navigation button:focus {
+			outline: 2px solid #007acc;
+			outline-offset: 2px;
+		}
+
+		.storepress-slider-navigation button:disabled {
+			background: #ccc;
+			cursor: not-allowed;
+			transform: none;
+		}
+
+		/* Infinite slider styles */
+
+		.storepress-slider.no-transition {
+			transition: none;
+		}
+
+		.storepress-slider-navigation svg {
+			width: 16px;
+			height: 16px;
+			fill: currentColor;
+		}
+
+		.storepress-slider-pagination {
+			display: flex;
+			gap: 8px;
+		}
+
+		.storepress-slider-pagination button {
+			background: #ddd;
+			border: 2px solid transparent;
+			color: #333;
+			width: 36px;
+			height: 36px;
+			border-radius: 50%;
+			cursor: pointer;
+			font-weight: bold;
+			transition: all 0.2s ease;
+		}
+
+		.storepress-slider-pagination button:hover {
+			background: #bbb;
+		}
+
+		.storepress-slider-pagination button:focus {
+			outline: 2px solid #007acc;
+			outline-offset: 2px;
+		}
+
+		.storepress-slider-pagination button[aria-selected="true"] {
+			background: #333;
+			color: white;
+			border-color: #007acc;
+		}
+
+		.sr-only {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			padding: 0;
+			margin: -1px;
+			overflow: hidden;
+			clip: rect(0, 0, 0, 0);
+			white-space: nowrap;
+			border: 0;
+		}
+
+		.slide-counter {
+			background: rgba(0, 0, 0, 0.7);
+			color: white;
+			padding: 5px 10px;
+			border-radius: 15px;
+			font-size: 0.9rem;
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			z-index: 1;
+		}
+	</style>
+</head>
+<body>
+
+<section role="region" aria-roledescription="carousel" aria-label="Featured content carousel" class="slider-wrapper" data-storepress-slider="">
+	<!-- Live region for announcements -->
+	<div aria-live="polite" aria-atomic="true" class="sr-only" id="carousel-status"></div>
+
+	<!-- Accessible carousel instructions for screen readers -->
+	<div class="sr-only" id="carousel-instructions">
+		Use the previous and next buttons to navigate slides, or use the slide tabs to jump to a specific slide. You can also use arrow keys when focused on the carousel.
+	</div>
+
+	<!-- Slide counter for visual reference -->
+	<div class="slide-counter" aria-hidden="true">
+		<span id="current-slide">1-2</span> / <span id="total-slides">7</span>
+	</div>
+
+	<div class="storepress-slider-container">
+		<div class="storepress-slider"
+			 role="group"
+			 aria-label="Carousel slides - showing 2 slides at a time"
+			 aria-describedby="carousel-instructions"
+			 aria-roledescription="slide group"
+			 id="slider-track"
+			 tabindex="0">
+			<!-- Clone of last 2 slides for infinite effect -->
+			<article class="slide slide-clone" style="background-color: #2b6091" aria-hidden="true">
+				<span>06</span>
+			</article>
+			<article class="slide slide-clone" style="background-color: #bbbbbb" aria-hidden="true">
+				<span>07</span>
+			</article>
+
+			<!-- Original slides -->
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 1 of 7"
+					 id="slide-1"
+					 tabindex="-1"
+					 style="background-color: #ea0606">
+				<a href="#" aria-label="View slide 1 content">
+					01
+				</a>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 2 of 7"
+					 id="slide-2"
+					 tabindex="-1"
+					 style="background-color: #d780d7">
+				<div aria-label="Slide 2 content">
+					02
+				</div>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 3 of 7"
+					 id="slide-3"
+					 tabindex="-1"
+					 aria-hidden="true"
+					 style="background-color: #691414">
+				<div aria-label="Slide 3 content">
+					03
+				</div>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 4 of 7"
+					 id="slide-4"
+					 tabindex="-1"
+					 aria-hidden="true"
+					 style="background-color: #1a852f">
+				<div aria-label="Slide 4 content">
+					04
+				</div>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 5 of 7"
+					 id="slide-5"
+					 tabindex="-1"
+					 aria-hidden="true"
+					 style="background-color: #b051d0">
+				<div aria-label="Slide 5 content">
+					05
+				</div>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 6 of 7"
+					 id="slide-6"
+					 tabindex="-1"
+					 aria-hidden="true"
+					 style="background-color: #2b6091">
+				<div aria-label="Slide 6 content">
+					06
+				</div>
+			</article>
+			<article class="slide"
+					 role="group"
+					 aria-roledescription="slide"
+					 aria-label="Slide 7 of 7"
+					 id="slide-7"
+					 tabindex="-1"
+					 aria-hidden="true"
+					 style="background-color: #bbbbbb">
+				<div aria-label="Slide 7 content">
+					07
+				</div>
+			</article>
+
+			<!-- Clone of first 2 slides for infinite effect -->
+			<article class="slide slide-clone" style="background-color: #ea0606" aria-hidden="true">
+				<span>01</span>
+			</article>
+			<article class="slide slide-clone" style="background-color: #d780d7" aria-hidden="true">
+				<span>02</span>
+			</article>
+		</div>
+	</div>
+
+	<div class="storepress-slider-controls">
+		<div class="storepress-slider-navigation">
+			<button type="button" aria-label="Go to previous slide" class="storepress-slider-navigation-previous" id="prev-btn">
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
+				</svg>
+			</button>
+			<button type="button" aria-label="Go to next slide" class="storepress-slider-navigation-next" id="next-btn">
+				<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
+				</svg>
+			</button>
+		</div>
+
+		<nav role="tablist" aria-label="Slide navigation" class="storepress-slider-pagination">
+			<button type="button" role="tab" aria-selected="true" aria-controls="slide-1" id="tab-1" tabindex="0">
+				<span class="sr-only">Go to slide </span>1
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-2" id="tab-2" tabindex="-1">
+				<span class="sr-only">Go to slide </span>2
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-3" id="tab-3" tabindex="-1">
+				<span class="sr-only">Go to slide </span>3
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-4" id="tab-4" tabindex="-1">
+				<span class="sr-only">Go to slide </span>4
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-5" id="tab-5" tabindex="-1">
+				<span class="sr-only">Go to slide </span>5
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-6" id="tab-6" tabindex="-1">
+				<span class="sr-only">Go to slide </span>6
+			</button>
+			<button type="button" role="tab" aria-selected="false" aria-controls="slide-7" id="tab-7" tabindex="-1">
+				<span class="sr-only">Go to slide </span>7
+			</button>
+		</nav>
+	</div>
+</section>
+
+<script>
+	class AccessibleCarousel {
+		constructor (carouselElement) {
+			this.carousel = carouselElement
+			this.slider = this.carousel.querySelector('.storepress-slider')
+			this.slides = this.carousel.querySelectorAll('.slide:not(.slide-clone)') // Exclude clones
+			this.allSlides = this.carousel.querySelectorAll('.slide') // Include clones
+			this.prevBtn = this.carousel.querySelector('.storepress-slider-navigation-previous')
+			this.nextBtn = this.carousel.querySelector('.storepress-slider-navigation-next')
+			this.tablist = this.carousel.querySelector('[role="tablist"]')
+			this.tabs = this.carousel.querySelectorAll('[role="tab"]')
+			this.statusElement = this.carousel.querySelector('#carousel-status')
+			this.currentSlideElement = this.carousel.querySelector('#current-slide')
+
+			this.currentIndex = 0 // Logical index (0-based)
+			this.actualIndex = 1 // Physical index including clones (starts at first real slide)
+			this.totalSlides = this.slides.length
+			this.isTransitioning = false
+			this.visibleSlide = parseInt(window.getComputedStyle(this.carousel).getPropertyValue('--slides-to-show'), 10)
+
+			this.init()
+		}
+
+		init () {
+			this.bindEvents()
+			this.updateCarousel(0)
+			// Set initial position to first real slide (after first clone)
+
+			this.carousel.style.setProperty('--slider-index', this.actualIndex)
+
+			// this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+		}
+
+		bindEvents () {
+			// Navigation buttons
+			this.prevBtn.addEventListener('click', () => this.goToPrevious())
+			this.nextBtn.addEventListener('click', () => this.goToNext())
+
+			// Tab navigation
+			this.tabs.forEach((tab, index) => {
+				tab.addEventListener('click', () => this.goToSlide(index))
+				// tab.addEventListener('keydown', (e) => this.handleTabKeydown(e, index))
+			})
+
+			// Keyboard navigation for slides - now handling the main slider container
+			// this.slider.addEventListener('keydown', (e) => this.handleSliderKeydown(e))
+
+			// Listen for transition end to handle infinite loop
+			this.slider.addEventListener('transitionend', () => this.handleTransitionEnd())
+
+			// Touch/swipe support
+			let startX = 0
+			let endX = 0
+
+			/*this.slider.addEventListener('touchstart', (e) => {
+				startX = e.touches[0].clientX
+			})
+
+			this.slider.addEventListener('touchend', (e) => {
+				endX = e.changedTouches[0].clientX
+				this.handleSwipe(startX, endX)
+			})*/
+		}
+
+		handleSwipe (startX, endX) {
+			const threshold = 50
+			const diff = startX - endX
+
+			if (Math.abs(diff) > threshold) {
+				if (diff > 0) {
+					this.goToNext()
+				} else {
+					this.goToPrevious()
+				}
+			}
+		}
+
+		handleTabKeydown (e, index) {
+			let newIndex = index
+
+			switch (e.key) {
+				case 'ArrowLeft':
+					e.preventDefault()
+					newIndex = index > 0 ? index - 1 : this.totalSlides - 1
+					break
+				case 'ArrowRight':
+					e.preventDefault()
+					newIndex = index < this.totalSlides - 1 ? index + 1 : 0
+					break
+				case 'Home':
+					e.preventDefault()
+					newIndex = 0
+					break
+				case 'End':
+					e.preventDefault()
+					newIndex = this.totalSlides - 1
+					break
+				case 'Enter':
+				case ' ':
+					e.preventDefault()
+					this.goToSlide(index)
+					return
+				default:
+					return
+			}
+
+			this.tabs[newIndex].focus()
+		}
+
+		handleSliderKeydown (e) {
+			switch (e.key) {
+				case 'ArrowLeft':
+					e.preventDefault()
+					this.goToPrevious()
+					break
+				case 'ArrowRight':
+					e.preventDefault()
+					this.goToNext()
+					break
+				case 'Home':
+					e.preventDefault()
+					this.goToSlide(0)
+					break
+				case 'End':
+					e.preventDefault()
+					this.goToSlide(this.totalSlides - 1)
+					break
+				case 'Enter':
+				case ' ':
+					e.preventDefault()
+					// Focus on the current slide's interactive content if any
+					const currentSlide = this.slides[this.currentIndex]
+					const focusableElement = currentSlide.querySelector('a, button, [tabindex="0"]')
+					if (focusableElement) {
+						focusableElement.focus()
+					}
+					break
+			}
+		}
+
+		goToPrevious () {
+			if (this.isTransitioning) return
+
+			console.log(this.actualIndex)
+
+			this.isTransitioning = true
+			this.actualIndex--
+			this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.totalSlides - 1
+
+
+
+
+			this.carousel.style.setProperty('--slider-index', this.actualIndex)
+
+			//this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+			this.updateCarousel(this.currentIndex)
+			this.announceSlideChange()
+		}
+
+		goToNext () {
+			if (this.isTransitioning) return
+
+			this.isTransitioning = true
+			this.actualIndex++
+			this.currentIndex = this.currentIndex < this.totalSlides - 1 ? this.currentIndex + 1 : 0
+
+			const max = this.slides.length / this.visibleSlide
+
+			if (this.actualIndex > max) {
+				this.actualIndex = max
+			}
+
+			this.carousel.style.setProperty('--slider-index', this.actualIndex)
+			// this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+			this.updateCarousel(this.currentIndex)
+			this.announceSlideChange()
+		}
+
+		goToSlide (index) {
+			if (index === this.currentIndex || this.isTransitioning) return
+
+			this.isTransitioning = true
+			this.currentIndex = index
+			this.actualIndex = index + 1 // +1 because of the first clone
+
+			this.carousel.style.setProperty('--slider-index', this.actualIndex)
+			// this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+			this.updateCarousel(index)
+			this.announceSlideChange()
+		}
+
+		handleTransitionEnd () {
+			this.isTransitioning = false
+
+			// Handle infinite loop logic
+			if (this.actualIndex === 0) {
+				// We're at the clone of the last slide, jump to actual last slide
+				this.slider.classList.add('no-transition')
+				this.actualIndex = this.totalSlides
+				this.carousel.style.setProperty('--slider-index', this.actualIndex)
+				//this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+				// Force reflow
+				//this.slider.offsetHeight
+				this.slider.classList.remove('no-transition')
+			} else if (this.actualIndex === this.totalSlides + 1) {
+				// We're at the clone of the first slide, jump to actual first slide
+				this.slider.classList.add('no-transition')
+				this.actualIndex = 1
+				this.carousel.style.setProperty('--slider-index', this.actualIndex)
+				// this.slider.style.transform = `translateX(-${this.actualIndex * 100}%)`
+				// Force reflow
+				//this.slider.offsetHeight
+				this.slider.classList.remove('no-transition')
+			}
+		}
+
+		updateCarousel (index) {
+			// Update slides (only real slides, not clones)
+			this.slides.forEach((slide, i) => {
+				if (i === index) {
+					slide.tabIndex = -1 // Individual slides not focusable, container handles focus
+					slide.removeAttribute('aria-hidden')
+				} else {
+					slide.tabIndex = -1
+					slide.setAttribute('aria-hidden', 'true')
+				}
+			})
+
+			// Update main slider container focus
+			this.slider.tabIndex = 0
+
+			// Update tabs
+			this.tabs.forEach((tab, i) => {
+				if (i === index) {
+					tab.setAttribute('aria-selected', 'true')
+					tab.tabIndex = 0
+				} else {
+					tab.setAttribute('aria-selected', 'false')
+					tab.tabIndex = -1
+				}
+			})
+
+			// Navigation buttons are never disabled in infinite mode
+			this.prevBtn.disabled = false
+			this.nextBtn.disabled = false
+
+			// Update visual counter
+			this.currentSlideElement.textContent = index + 1
+		}
+
+		announceSlideChange () {
+			const slideNumber = this.currentIndex + 1
+			this.statusElement.textContent = `Slide ${slideNumber} of ${this.totalSlides}`
+		}
+	}
+
+	// Initialize carousel when DOM is loaded
+	document.addEventListener('DOMContentLoaded', () => {
+		const carouselElement = document.querySelector('[data-storepress-slider]')
+		if (carouselElement) {
+			new AccessibleCarousel(carouselElement)
+		}
+	})
+</script>
+
+</body>
+</html>

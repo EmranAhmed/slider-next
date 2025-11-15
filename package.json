@@ -1,6 +1,6 @@
 {
 	"name": "@storepress/slider",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "StorePress Slider Plugin",
 	"author": "Emran Ahmed",
 	"license": "GPL-2.0-or-later",
@@ -18,63 +18,66 @@
 	"bugs": {
 		"url": "https://github.com/EmranAhmed/slider-next/issues"
 	},
-	"lint-staged": {
-		"./src/*.scss": [
-			"npm run lint:css"
-		],
-		"./src/*.{js,ts,tsx}": [
-			"npm run lint:js"
-		],
-		"./*.md": [
-			"npm run lint:md:docs"
-		]
-	},
 	"files": [
-		"build/**",
 		"src/**"
+	],
+	"zip": [
+		"build/**",
+		"images/**",
+		"index.html",
+		"global-style.css"
 	],
 	"main": "build/index.js",
 	"module": "src/index.js",
-	"publishConfig" : {
-		"access" : "public"
-	},
-	"sideEffects" : [
+	"sideEffects": [
 		"src/**"
 	],
+	"dependencies": {
+		"@storepress/utils": "^0.12.2"
+	},
+	"devDependencies": {
+		"@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
+		"@woocommerce/eslint-plugin": "^2.3.0",
+		"@wordpress/base-styles": "^6.4.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.28.0",
+		"@wordpress/scripts": "^30.21.0",
+		"eslint-formatter-pretty": "5.0.0",
+		"eslint-plugin-prettier": "^5.5.4",
+		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
+		"fs-extra": "^11.3.1",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.1.5",
+		"prettier": "npm:wp-prettier@^3.0.3",
+		"rimraf": "^6.1.0",
+		"webpack-remove-empty-scripts": "^1.1.1"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"scripts": {
-		"clean": "rm -rf ./build",
-		"ready": "npm run clean && npm run build",
-		"build": "wp-scripts build --webpack-copy-php --experimental-modules",
+		"build": "npm run start -- --no-watch && wp-scripts build --webpack-copy-php --experimental-modules",
+		"format": "wp-scripts format ./src",
+		"lint:css": "wp-scripts lint-style './src/**/*.scss'",
+		"lint:js": "wp-scripts lint-js --format=pretty './src/**/*.js'",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "npm run package -- --zip",
+		"start": "rimraf build && wp-scripts start --webpack-copy-php --experimental-modules",
+		"postinstall": "git init -q && rm -rf ./.husky && npx husky init && echo \"npx lint-staged\" > .husky/pre-commit",
+		"prebuild": "rimraf build",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
-		"format": "wp-scripts format",
-		"lint:css": "wp-scripts lint-style",
+		"format:all": "npm run format:php && npm run format:css && npm run format:js",
+		"format:js": "wp-scripts format './src/**/*.js'",
+		"format:css": "wp-scripts format './src/**/*.scss'",
+		"lint:css:report": "npm run lint:css -- --output-file scss-report.txt",
 		"lint:css:fix": "npm run lint:css -- --fix",
-		"lint:js": "wp-scripts lint-js",
+		"lint:js:report": "npm run lint:js -- --format html --output-file lint-report.html",
 		"lint:js:fix": "npm run lint:js -- --fix",
 		"lint:md:docs": "wp-scripts lint-md-docs",
 		"lint:pkg-json": "wp-scripts lint-pkg-json",
-		"packages-update": "wp-scripts packages-update",
-		"plugin-zip": "wp-scripts plugin-zip",
-		"prepackage": "npm run ready",
-		"package": "./bin/package.js",
-		"prezip": "npm run ready",
-		"zip": "./bin/package.js --zip",
+		"prepackage": "rimraf ./${npm_package_name}.zip && npm run build",
+		"package": "./tools/package.js",
 		"test:e2e": "wp-scripts test-e2e",
-		"test:unit": "wp-scripts test-unit-js",
-		"start": "rm -rf ./build && wp-scripts start --webpack-copy-php --experimental-modules",
-		"husky": "husky install && npx husky add .husky/pre-commit \"npx lint-staged\""
-	},
-	"dependencies": {
-		"@storepress/utils": "^0.2.7"
-	},
-	"devDependencies": {
-		"@wordpress/eslint-plugin": "^21.4.0",
-		"@wordpress/scripts": "^30.4.0",
-		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
-		"fs-extra": "^11.2.0",
-		"webpack-remove-empty-scripts": "^1.0.4",
-		"husky": "^8.0.0",
-		"lint-staged": "^15.2.5"
+		"test:unit": "wp-scripts test-unit-js"
 	}
 }

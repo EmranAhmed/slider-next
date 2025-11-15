@@ -24,12 +24,11 @@
 			/*width: 100%;*/
 		}
 
-
 		.slider-wrapper {
 
-			--slides-to-show: 1;
+			--slides-to-show: 3;
 
-			--slides-to-scroll: 1;
+			--slides-to-scroll: 2;
 
 			margin-block: 50px;
 
@@ -51,11 +50,11 @@
 
 			--item-padding: 10px;
 
-			@media (max-width: 1600px) {
+			@media (width < 1600px) {
 
-				--slides-to-show: 2;
+				--slides-to-show: 1;
 
-				--slides-to-scroll: 2;
+				--slides-to-scroll: 1;
 
 				--is-horizontal: false;
 			}
@@ -68,18 +67,18 @@
 			/*padding-inline: 10px;
 			padding-block: 0;*/
 
-/*			padding-inline: 10px;
-			padding-block: 0;*/
+			/*			padding-inline: 10px;
+						padding-block: 0;*/
 
-/*			@container style(--is-horizontal: true) {
-				padding-inline: 10px;
-				padding-block: 0;
-			}
+			/*			@container style(--is-horizontal: true) {
+							padding-inline: 10px;
+							padding-block: 0;
+						}
 
-			@container style(--is-horizontal: false) {
-				padding-block: 10px;
-				padding-inline: 0;
-			}*/
+						@container style(--is-horizontal: false) {
+							padding-block: 10px;
+							padding-inline: 0;
+						}*/
 
 			/*padding-inline: 20px;
 			padding-block: 20px;*/
@@ -103,10 +102,80 @@
 			padding: 10px;
 			margin: 10px;
 		}*/
+
+
+		/*
+		@property --do {
+			syntax: "true|false";
+			inherits: true;
+			initial-value: true;
+		}
+		*/
+
+
+		.card {
+			--accent-color: blue;
+			width: 50px;
+			height: 50px;
+			display: block;
+		}
+
+		@container style(--accent-color: blue) {
+			.card {
+				border: 2px solid blue;
+			}
+		}
+
+		/*
+		.card {
+			--do: true;
+			width: 50px;
+			height: 50px;
+			display: block;
+			@media (width < 1600px) {
+				--do: false;
+			}
+
+			@container style(--do: true) {
+				border: 2px solid blue;
+			}
+
+			@container style(--do: false) {
+				border: 2px solid green;
+			}
+		}
+		*/
+
+		/*		@container style(--do: true) {
+					.card {
+						border: 2px solid blue;
+					}
+				}
+
+				@container style(--do: false) {
+					.card {
+						border: 2px solid green;
+					}
+				}
+
+
+				.card {
+					@container style(--do: true) {
+						border: 2px solid blue;
+					}
+				}
+
+				.card {
+					@container style(--do: false) {
+						border: 2px solid green;
+					}
+				}*/
 	</style>
 </head>
 
 <body>
+
+<div class="card"></div>
 
 <div class="container-2">
 
@@ -178,8 +247,7 @@
 		</div>
 	-->
 
-	<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
-
+	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 		<div class="storepress-slider-container">
 			<div class="storepress-slider">
 				<div class="active"><img src="images/beanie.jpg" /></div>
@@ -189,42 +257,13 @@
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
 				<div><img src="images/tshirt-2.jpg" /></div>
+				<div><div>08</div></div>
+				<div><div>09</div></div>
+				<div><div>10</div></div>
+				<div><div>11</div></div>
+				<!--<div><img src="images/hoodie.jpg" /></div>
+				<div><img src="images/polo-2.jpg" /></div>-->
 
-
-				<div class="active">
-					<div style="background-color: #ea0606"><a href="#"> 01</a></div>
-				</div>
-				<div>
-					<div style="background-color: #d780d7">02</div>
-				</div>
-				<div>
-					<div style="background-color: #691414">03</div>
-				</div>
-				<div>
-					<div style="background-color: #1a852f">04</div>
-				</div>
-				<div>
-					<div style="background-color: #b051d0">05</div>
-				</div>
-				<div>
-					<div style="background-color: #2b6091">06</div>
-				</div>
-				<div>
-					<div style="background-color: #bbbbbb">07</div>
-				</div>
-
-				<!--<div>
-					<div style="background-color: #161c80">08</div>
-				</div>-->
-
-
-				<!--
-											<div>08</div>
-											<div >09</div>
-											<div>10</div>
-											<div>11</div>
-											<div>12</div>
-											<div>13</div>-->
 			</div>
 		</div>
 
@@ -247,125 +286,123 @@
 			</nav>
 		</div>
 	</div>
-
 </div>
 
 
+<br />
 <a id="prev" href="#">PREV</a>
 <a id="next" href="#">NEXT</a>
 
---
+<br />
 
-Goto <a id="goto-one-1" href="#">Slide 1</a>
-Goto <a id="goto-one-2" href="#">Slide 2</a>
-Goto <a id="goto-one-3" href="#">Slide 3</a>
-Goto <a id="goto-one-4" href="#">Slide 4</a>
-Goto <a id="goto-one-5" href="#">Slide 5</a>
-Goto <a id="goto-one-6" href="#">Slide 6</a>
-Goto <a id="goto-one-7" href="#">Slide 7</a>
-Goto <a id="goto-one-8" href="#">Slide 8</a>
+Goto <a class="goto-slide" data-target="1" href="#">Slide 1</a>
+Goto <a class="goto-slide" data-target="2" href="#">Slide 2</a>
+Goto <a class="goto-slide" data-target="3" href="#">Slide 3</a>
+Goto <a class="goto-slide" data-target="4" href="#">Slide 4</a>
+Goto <a class="goto-slide" data-target="5" href="#">Slide 5</a>
+Goto <a class="goto-slide" data-target="6" href="#">Slide 6</a>
+Goto <a class="goto-slide" data-target="7" href="#">Slide 7</a>
+Goto <a class="goto-slide" data-target="8" href="#">Slide 8</a>
 
----
+<br />
 
-Goto <a class="go" data-target="1" href="#">Slide 1</a>
-Goto <a class="go" data-target="2" href="#">Slide 2</a>
-Goto <a class="go" data-target="3" href="#">Slide 3</a>
-Goto <a class="go" data-target="4" href="#">Slide 4</a>
-Goto <a class="go" data-target="5" href="#">Slide 5</a>
-Goto <a class="go" data-target="6" href="#">Slide 6</a>
-Goto <a class="go" data-target="7" href="#">Slide 7</a>
-Goto <a class="go" data-target="8" href="#">Slide 8</a>
+Goto <a class="goto-dot" data-target="1" href="#">Dot 1</a>
+Goto <a class="goto-dot" data-target="2" href="#">Dot 2</a>
+Goto <a class="goto-dot" data-target="3" href="#">Dot 3</a>
+Goto <a class="goto-dot" data-target="4" href="#">Dot 4</a>
+Goto <a class="goto-dot" data-target="5" href="#">Dot 5</a>
+Goto <a class="goto-dot" data-target="6" href="#">Dot 6</a>
+Goto <a class="goto-dot" data-target="7" href="#">Dot 7</a>
+Goto <a class="goto-dot" data-target="8" href="#">Dot 8</a>
 
-
+<br />
+<br />
+<br />
+<button id="clear">Clear</button>
+<button id="setup">Setup</button>
+<button id="destroy">Destroy</button>
+<button id="init">Init</button>
 <script type="text/javascript" src="./build/storepress-utils.js"></script>
 <script type="text/javascript" src="./build/slider.js"></script>
 
 <script type="text/javascript">
 
-	const $go = document.querySelectorAll('.go');
 
-	$go.forEach(($item)=>{
-		$item.addEventListener('click', ()=>{
-			StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-				element: ['[data-slider-settings]'],
-				index: parseInt($item.dataset.target, 10) + 1 ,
+	document.getElementById('destroy').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.destroy()
+	})
+
+	document.getElementById('init').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.init()
+	})
+
+	document.getElementById('setup').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.setup()
+	})
+	document.getElementById('clear').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.clear()
+	})
+
+	const $godot = document.querySelectorAll('.goto-dot')
+	const $goslide = document.querySelectorAll('.goto-slide')
+
+
+	$godot.forEach(($item) => {
+		$item.addEventListener('click', (event) => {
+			event.preventDefault()
+
+			const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+			const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+			const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+			const dot = event.currentTarget.dataset.target
+			$slider3.forEach((el) => {
+				el.goToDot(dot)
 			})
 		})
-	});
-
-
-	StorePress.Utils.triggerEvent(document, 'storepress_slider_init', {
-		element: ['.slider-2'],
-		settings: {},
 	})
 
-	document.getElementById('prev').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_prev', {
-			element: ['[data-slider-settings]'],
-			settings: {},
+	$goslide.forEach(($item) => {
+		$item.addEventListener('click', (event) => {
+			event.preventDefault()
+
+			const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+			const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+			const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+
+			const dot = event.currentTarget.dataset.target
+			$slider3.forEach((el) => {
+				el.goToSlide(dot)
+			})
 		})
 	})
 
-	document.getElementById('next').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_next', {
-			element: ['[data-slider-settings]'],
-			settings: {},
+
+
+	document.querySelector('#prev').addEventListener('click', (event) => {
+		event.preventDefault()
+		const $slider1 = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+		const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+		const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+		$slider3.forEach((el) => {
+			el.handlePrev()
 		})
 	})
 
-	document.getElementById('goto-one-1').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 1,
-		})
-	})
+	document.querySelector('#next').addEventListener('click', (event) => {
+		event.preventDefault()
+		const $slider1 = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+		const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+		const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
 
-	document.getElementById('goto-one-2').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 2,
-		})
-	})
-
-	document.getElementById('goto-one-3').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 3,
-		})
-	})
-
-	document.getElementById('goto-one-4').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 4,
-		})
-	})
-
-	document.getElementById('goto-one-5').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 5,
-		})
-	})
-
-	document.getElementById('goto-one-6').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 6,
-		})
-	})
-
-	document.getElementById('goto-one-7').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 7,
-		})
-	})
-
-	document.getElementById('goto-one-8').addEventListener('click', () => {
-		StorePress.Utils.triggerEvent(document, 'storepress_slider_goto_slider', {
-			element: ['[data-slider-settings]'],
-			index: 8,
+		$slider3.forEach((el) => {
+			el.handleNext()
 		})
 	})
 

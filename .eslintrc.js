@@ -159,6 +159,7 @@ module.exports = {
 			'@woocommerce/blocks-test-utils',
 			'@woocommerce/e2e-utils',
 			'lodash',
+			'@storepress/slider',
 		],
 		'import/resolver': {
 			node: {},
@@ -191,9 +192,9 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: ['storepress-base-plugin'],
+				allowedTextDomain: [ 'storepress-base-plugin' ],
 			},
 		],
-		'no-console': ['error', { allow: ['warn', 'info'] }],
+		'no-console': [ 'error', { allow: [ 'warn', 'info' ] } ],
 	},
 };

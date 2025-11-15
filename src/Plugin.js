@@ -7,7 +7,7 @@ import {
 	triggerEvent,
 } from '@storepress/utils';
 
-function Plugin(element, options) {
+function Plugin( element, options ) {
 	// Default Settings
 	const DEFAULTS = {
 		containerElement: '.storepress-slider-container',
@@ -42,7 +42,7 @@ function Plugin(element, options) {
 	};
 
 	// Collecting settings from html attribute
-	const ATTRIBUTE = 'slider-settings'; //
+	const ATTRIBUTE = 'storepress-slider'; // data-storepress-slider
 
 	const CLASSES = {
 		itemClassName: 'storepress-slider-item',
@@ -76,7 +76,7 @@ function Plugin(element, options) {
 		this.settings = {
 			...DEFAULTS,
 			...options,
-			...getOptionsFromAttribute(this.$element, ATTRIBUTE),
+			...getOptionsFromAttribute( this.$element, ATTRIBUTE ),
 			...PRIVATE,
 		};
 
@@ -86,8 +86,10 @@ function Plugin(element, options) {
 		this.$container = this.$element.querySelector(
 			this.settings.containerElement
 		);
-		this.$slider = this.$element.querySelector(this.settings.sliderElement);
-		this.$items = this.$slider.querySelectorAll(':scope > *'); // Select direct children
+		this.$slider = this.$element.querySelector(
+			this.settings.sliderElement
+		);
+		this.$items = this.$slider.querySelectorAll( ':scope > *' ); // Select direct children
 		this.sliderWidth = 0;
 		this.sliderHeight = 0;
 		this.totalItems = this.$items.length;
@@ -114,7 +116,8 @@ function Plugin(element, options) {
 		this.startDot = 0;
 		this.endDot = 0;
 		this.isAdaptiveSize = false;
-		this.itemsSize = {};
+		this.itemsSize = [];
+		this.controller = new AbortController();
 
 		// @TODO: hideControlOnEnd, adaptiveHeight
 		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
@@ -125,6 +128,8 @@ function Plugin(element, options) {
 
 		cloneItems();
 
+		prepareAdaptiveSize();
+
 		addClasses();
 
 		addEvents();
@@ -134,41 +139,60 @@ function Plugin(element, options) {
 		return expose();
 	};
 
+	const prepareAdaptiveSize = () => {
+		setTimeout( () => {
+			const $items = this.$slider.querySelectorAll( ':scope > *' );
+			$items.forEach( ( $item, index ) => {
+				const $itemInner = $item.querySelector( ':scope > *' );
+
+				this.itemsSize[ index ] = {
+					height: getComputedStyle( $itemInner, 'height' ),
+					// i: $item.dataset.index,
+					width: getComputedStyle( $itemInner, 'width' ),
+				};
+			} );
+
+			setAdaptiveSize();
+		}, 100 );
+	};
+
 	const noop = () => () => {};
 
-	const getElementComputedStyle = (cssProperty) => {
+	const getElementComputedStyle = ( cssProperty ) => {
 		return window
-			.getComputedStyle(this.$element)
-			.getPropertyValue(cssProperty);
+			.getComputedStyle( this.$element )
+			.getPropertyValue( cssProperty );
 	};
 
-	const getComputedStyle = ($element, property) => {
-		return window.getComputedStyle($element).getPropertyValue(property);
+	const getComputedStyle = ( $element, property ) => {
+		return window.getComputedStyle( $element ).getPropertyValue( property );
 	};
 
-	const getSliderComputedStyle = (cssProperty) => {
+	const getSliderComputedStyle = ( cssProperty ) => {
 		return window
-			.getComputedStyle(this.$slider)
-			.getPropertyValue(cssProperty);
+			.getComputedStyle( this.$slider )
+			.getPropertyValue( cssProperty );
 	};
 
 	const initial = () => {
-		// Add Container A11y
-		this.$container.setAttribute('aria-live', 'polite');
+		// Add Container A11y.
+		this.$container.setAttribute( 'aria-live', 'polite' );
 
-		// Slide To Show
+		// Slides To Show.
 		this.slidesToShow = parseInt(
-			getElementComputedStyle(this.settings.slidesToShowCSSProperty),
+			getElementComputedStyle( this.settings.slidesToShowCSSProperty ),
 			10
 		);
 
+		// Slides To Scroll.
 		this.slidesToScroll = parseInt(
-			getElementComputedStyle(this.settings.slidesToScrollCSSProperty),
+			getElementComputedStyle( this.settings.slidesToScrollCSSProperty ),
 			10
 		);
 
+		// Initial Slide.
 		this.initialSlide = parseInt(
-			getElementComputedStyle(this.settings.initialItemCSSProperty),
+			getElementComputedStyle( this.settings.initialItemCSSProperty ),
 			10
 		);
 
@@ -177,17 +201,17 @@ function Plugin(element, options) {
 			this.settings.canSwipeCSSProperty
 		).toLowerCase();
 
-		this.enableSwipe = cssVariableIsTrue(swipeString);
+		this.enableSwipe = cssVariableIsTrue( swipeString );
 
 		// Adaptive Size
 		const adaptiveSizeString = getElementComputedStyle(
 			this.settings.isAdaptiveSizeCSSProperty
 		).toLowerCase();
 
-		this.isAdaptiveSize = cssVariableIsTrue(adaptiveSizeString);
+		this.isAdaptiveSize = cssVariableIsTrue( adaptiveSizeString );
 
 		// scroll quantity should not max then visible quantity.
-		if (this.slidesToShow < this.slidesToScroll) {
+		if ( this.slidesToShow < this.slidesToScroll ) {
 			this.slidesToScroll = this.slidesToShow;
 			this.$element.style.setProperty(
 				this.settings.slidesToScrollCSSProperty,
@@ -200,10 +224,10 @@ function Plugin(element, options) {
 			this.settings.isInfiniteCSSProperty
 		).toLowerCase();
 
-		this.isInfinite = cssVariableIsTrue(infiniteString);
+		this.isInfinite = cssVariableIsTrue( infiniteString );
 
 		// Total items should more or equal to visible quantity.
-		if (this.slidesToShow >= this.totalItems) {
+		if ( this.slidesToShow >= this.totalItems ) {
 			this.isInfinite = false;
 			this.$element.style.setProperty(
 				this.settings.isInfiniteCSSProperty,
@@ -217,7 +241,7 @@ function Plugin(element, options) {
 		}
 
 		// Total items should more or equal to visible quantity and scroll quantity.
-		if (this.slidesToShow + this.slidesToScroll >= this.totalItems) {
+		if ( this.slidesToShow + this.slidesToScroll >= this.totalItems ) {
 			this.slidesToScroll = 1;
 			this.$element.style.setProperty(
 				this.settings.slidesToScrollCSSProperty,
@@ -230,7 +254,7 @@ function Plugin(element, options) {
 			this.settings.slidesAutoPlayCSSProperty
 		).toLowerCase();
 
-		this.isAutoPlay = cssVariableIsTrue(autoplayString);
+		this.isAutoPlay = cssVariableIsTrue( autoplayString );
 
 		this.autoPlayTimeout = parseInt(
 			getElementComputedStyle(
@@ -244,24 +268,24 @@ function Plugin(element, options) {
 			this.settings.isHorizontalCSSProperty
 		).toLowerCase();
 
-		this.isHorizontal = cssVariableIsTrue(horizontalString);
+		this.isHorizontal = cssVariableIsTrue( horizontalString );
 
 		// Always center
 		const alwaysCenterString = getElementComputedStyle(
 			this.settings.isAlwaysCenterCSSProperty
 		).toLowerCase();
 
-		this.isCenter = cssVariableIsTrue(alwaysCenterString);
+		this.isCenter = cssVariableIsTrue( alwaysCenterString );
 
 		// Goto Index on Item Click
 		const activeOnSelect = getElementComputedStyle(
 			this.settings.isActiveSelectCSSProperty
 		).toLowerCase();
 
-		this.isActiveOnSelect = cssVariableIsTrue(activeOnSelect);
+		this.isActiveOnSelect = cssVariableIsTrue( activeOnSelect );
 
 		// Item GAP
-		this.itemGap = parseInt(getSliderComputedStyle('gap'), 10);
+		this.itemGap = parseInt( getSliderComputedStyle( 'gap' ), 10 );
 
 		// Control from CSS
 		this.$element.classList.remove(
@@ -270,24 +294,24 @@ function Plugin(element, options) {
 			CLASSES.elementCenterClassName
 		);
 
-		if (this.isCenter) {
-			this.$element.classList.add(CLASSES.elementCenterClassName);
+		if ( this.isCenter ) {
+			this.$element.classList.add( CLASSES.elementCenterClassName );
 			this.slidesToScroll = 1;
-			this.centerItem = (this.slidesToShow - this.slidesToScroll) / 2;
+			this.centerItem = ( this.slidesToShow - this.slidesToScroll ) / 2;
 			this.$element.style.setProperty(
 				this.settings.slidesToScrollCSSProperty,
 				this.slidesToScroll
 			);
 		}
 
-		if (this.isInfinite) {
-			this.$element.classList.add(CLASSES.elementHasInfiniteClassName);
+		if ( this.isInfinite ) {
+			this.$element.classList.add( CLASSES.elementHasInfiniteClassName );
 		}
 
-		if (this.isHorizontal) {
-			this.$element.classList.add(CLASSES.elementHorizontalClassName);
+		if ( this.isHorizontal ) {
+			this.$element.classList.add( CLASSES.elementHorizontalClassName );
 		} else {
-			this.$element.classList.add(CLASSES.elementVerticalClassName);
+			this.$element.classList.add( CLASSES.elementVerticalClassName );
 		}
 
 		this.itemsToClone = this.isInfinite
@@ -308,14 +332,14 @@ function Plugin(element, options) {
 		this.dotsData = this.data.dotToItem;
 		this.itemsData = this.data.itemToDot;
 
-		const initialIndex = getBalancedIndex(getIndex(this.initialSlide));
-		const initialDot = getDotIndexByItemIndex(initialIndex);
+		const initialIndex = getBalancedIndex( getIndex( this.initialSlide ) );
+		const initialDot = getDotIndexByItemIndex( initialIndex );
 
 		// Add Item Index and Set Initial Slide.
 		setInitialItem();
 
-		setCurrentIndex(initialIndex);
-		setCurrentDot(initialDot);
+		setCurrentIndex( initialIndex, false );
+		setCurrentDot( initialDot );
 
 		this.sliderWidth = this.$slider.getBoundingClientRect().width;
 		this.sliderHeight = this.$slider.getBoundingClientRect().height;
@@ -325,10 +349,10 @@ function Plugin(element, options) {
 			this.settings.slidesShowControlPaginationCSSProperty
 		).toLowerCase();
 
-		this.hasPagination = cssVariableIsTrue(showPagination);
+		this.hasPagination = cssVariableIsTrue( showPagination );
 
-		if (this.hasPagination) {
-			this.$element.classList.add(CLASSES.elementHasDotClassName);
+		if ( this.hasPagination ) {
+			this.$element.classList.add( CLASSES.elementHasDotClassName );
 		}
 
 		// Navigation
@@ -336,55 +360,58 @@ function Plugin(element, options) {
 			this.settings.slidesShowControlNavigationCSSProperty
 		).toLowerCase();
 
-		this.hasNavigation = cssVariableIsTrue(showNavigation);
+		this.hasNavigation = cssVariableIsTrue( showNavigation );
 
-		if (this.hasNavigation) {
-			this.$element.classList.add(CLASSES.elementHasArrowClassName);
+		if ( this.hasNavigation ) {
+			this.$element.classList.add( CLASSES.elementHasArrowClassName );
 		}
 
-		triggerEvent(this.$element, 'afterInit', {
+		triggerEvent( this.$element, 'afterInit', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
 			totalDots: this.totalDots,
-		});
+		} );
 	};
 
 	const setInitialItem = () => {
-		this.$items.forEach(($item, index) => {
-			$item.classList.add(CLASSES.itemClassName);
+		this.itemsSize = [];
+
+		this.$items.forEach( ( $item, index ) => {
+			$item.classList.add( CLASSES.itemClassName );
 			//$item.setAttribute('aria-hidden', 'true');
-			$item.setAttribute('inert', true);
+			$item.setAttribute( 'inert', true );
 			$item.dataset.index = index + 1;
 
-			const $itemInner = $item.querySelector(':scope > *');
+			// const $itemInner = $item.querySelector( ':scope > *' );
 
-			this.itemsSize[getIndex(index)] = {
-				height: getComputedStyle($itemInner, 'height'),
-				width: getComputedStyle($itemInner, 'width'),
-			};
+			/*this.itemsSize[ getIndex( index ) ] = {
+				height: getComputedStyle( $itemInner, 'height' ),
+				width: getComputedStyle( $itemInner, 'width' ),
+			};*/
 
-			$item.setAttribute('inert', true);
+			/*this.itemsSize[ index ] = {
+				height: getComputedStyle( $itemInner, 'height' ),
+				width: getComputedStyle( $itemInner, 'width' ),
+			};*/
+
+			$item.setAttribute( 'inert', true );
 
 			// Disable Image dragging
-			$item.querySelectorAll('img').forEach(($img) => {
-				$img.setAttribute('draggable', false);
-			});
-		});
+			$item.querySelectorAll( 'img' ).forEach( ( $img ) => {
+				$img.setAttribute( 'draggable', false );
+			} );
+		} );
 
-		this.$items[this.initialSlide].classList.add(
+		this.$items[ this.initialSlide ].classList.add(
 			CLASSES.itemCurrentClassName
 		);
 	};
 
-	const getIndex = (index) => {
+	const getIndex = ( index ) => {
 		return this.isInfinite ? index + this.itemsToClone : index;
 	};
 
-	const getSize = (index) => {
-		return this.itemsSize[index];
-	};
-
-	const getCloneIndex = (index) => {
+	const getCloneIndex = ( index ) => {
 		const prevIndex = index + this.totalItems;
 		const nextIndex = index - this.totalItems;
 
@@ -392,53 +419,53 @@ function Plugin(element, options) {
 	};
 
 	const cloneItems = () => {
-		if (!this.isInfinite) {
+		if ( ! this.isInfinite ) {
 			return;
 		}
 
 		const lastItemsIndex = this.totalItems - 1;
 
-		for (let index = 0; index < this.itemsToClone; index++) {
-			const nodeForAppend = this.$items[index].cloneNode(true);
+		for ( let index = 0; index < this.itemsToClone; index++ ) {
+			const nodeForAppend = this.$items[ index ].cloneNode( true );
 			const nodeForPrepend =
-				this.$items[lastItemsIndex - index].cloneNode(true);
+				this.$items[ lastItemsIndex - index ].cloneNode( true );
 
 			// Append
 			nodeForAppend.classList.remove(
 				CLASSES.itemCurrentClassName,
 				CLASSES.itemVisibleClassName
 			);
-			nodeForAppend.classList.add(CLASSES.itemCloneClassName);
+			nodeForAppend.classList.add( CLASSES.itemCloneClassName );
 
 			// Prepend
 			nodeForPrepend.classList.remove(
 				CLASSES.itemCurrentClassName,
 				CLASSES.itemVisibleClassName
 			);
-			nodeForPrepend.classList.add(CLASSES.itemCloneClassName);
+			nodeForPrepend.classList.add( CLASSES.itemCloneClassName );
 
 			// Append First Items
-			this.$slider.append(nodeForAppend);
+			this.$slider.append( nodeForAppend );
 
 			// Prepend Last Items
-			this.$slider.prepend(nodeForPrepend);
+			this.$slider.prepend( nodeForPrepend );
 		}
 
-		const $items = this.$slider.querySelectorAll(':scope > *');
+		const $items = this.$slider.querySelectorAll( ':scope > *' );
 
-		this.itemsSize = {};
-		$items.forEach(($item, index) => {
-			const $itemInner = $item.querySelector(':scope > *');
+		this.itemsSize = [];
+		$items.forEach( ( $item, index ) => {
+			// const $itemInner = $item.querySelector( ':scope > *' );
 
-			this.itemsSize[index] = {
-				height: getComputedStyle($itemInner, 'height'),
-				width: getComputedStyle($itemInner, 'width'),
-			};
+			/*this.itemsSize[ index ] = {
+				height: getComputedStyle( $itemInner, 'height' ),
+				width: getComputedStyle( $itemInner, 'width' ),
+			};*/
 
-			if (index < this.startIndex || index > this.endIndex) {
+			if ( index < this.startIndex || index > this.endIndex ) {
 				$item.dataset.index = index * -1;
 			}
-		});
+		} );
 	};
 
 	const initialPaging = () => {
@@ -446,7 +473,7 @@ function Plugin(element, options) {
 			this.settings.sliderPagination
 		);
 
-		if (null === $buttons) {
+		if ( null === $buttons ) {
 			return;
 		}
 
@@ -454,48 +481,53 @@ function Plugin(element, options) {
 
 		const $parent = $buttons.parentElement;
 
-		for (let i = 1; i <= this.totalDots; i++) {
-			const $button = $buttons.cloneNode(true);
+		for ( let i = 1; i <= this.totalDots; i++ ) {
+			const $button = $buttons.cloneNode( true );
 
-			$button.classList.remove(CLASSES.dotCurrentClassName);
+			$button.classList.remove( CLASSES.dotCurrentClassName );
 
-			$button.removeAttribute('aria-current');
-			$button.removeAttribute('aria-hidden');
-			$button.removeAttribute('aria-selected');
-			$button.style.removeProperty('display');
+			$button.removeAttribute( 'aria-current' );
+			$button.removeAttribute( 'aria-hidden' );
+			$button.removeAttribute( 'aria-selected' );
+			$button.style.removeProperty( 'display' );
 
-			$button.setAttribute('role', 'tab');
-			$button.setAttribute('aria-setsize', this.totalDots);
-			$button.setAttribute('aria-posinset', i);
-			$button.setAttribute('aria-selected', 'false');
+			$button.setAttribute( 'role', 'tab' );
+			$button.setAttribute( 'aria-setsize', this.totalDots );
+			$button.setAttribute( 'aria-posinset', i );
+			$button.setAttribute( 'aria-selected', 'false' );
 
-			const itemIndex = getItemIndexByDotIndex(i);
+			const itemIndex = getItemIndexByDotIndex( i );
 
-			$button.classList.add(CLASSES.dotClassName);
+			$button.classList.add( CLASSES.dotClassName );
 
-			if (this.currentDot === i) {
+			if ( this.currentDot === i ) {
 				// $button.setAttribute('aria-current', 'true');
-				$button.setAttribute('aria-selected', 'true');
-				$button.classList.add(CLASSES.dotCurrentClassName);
+				$button.setAttribute( 'aria-selected', 'true' );
+				$button.classList.add( CLASSES.dotCurrentClassName );
 			}
 
 			$button.setAttribute(
 				'aria-label',
-				`${this.settings.sliderDotsTitle} ${getDotLabelIndex(itemIndex)}`
+				`${ this.settings.sliderDotsTitle } ${ getDotLabelIndex(
+					itemIndex
+				) }`
 			);
 
 			// $cloned.dataset.targetSlide = itemIndex;
 			$button.dataset.dotIndex = i.toString();
 
-			$button.innerText = getDotLabelIndex(itemIndex);
+			$button.innerText = getDotLabelIndex( itemIndex );
 
-			$button.addEventListener('click', handleDot);
+			$button.addEventListener( 'click', handleDot, {
+				passive: true,
+				signal: this.controller.signal,
+			} );
 
-			$parent.append($button);
+			$parent.append( $button );
 		}
 	};
 
-	const updatePaging = (currentDot) => {
+	const updatePaging = ( currentDot ) => {
 		const $buttons = this.$element.querySelectorAll(
 			this.settings.sliderPagination
 		);
@@ -503,186 +535,196 @@ function Plugin(element, options) {
 		let dot = currentDot;
 
 		// Next Reset
-		if (currentDot > this.endDot) {
+		if ( currentDot > this.endDot ) {
 			dot = this.startDot;
 		}
 
 		// Prev Reset
-		if (currentDot < this.startDot) {
+		if ( currentDot < this.startDot ) {
 			dot = this.endDot;
 		}
 
-		$buttons.forEach(($button, index) => {
+		$buttons.forEach( ( $button, index ) => {
 			//$button.removeAttribute('aria-current', 'true');
-			$button.removeAttribute('aria-selected', 'true');
-			$button.classList.remove(CLASSES.dotCurrentClassName);
+			$button.removeAttribute( 'aria-selected', 'true' );
+			$button.classList.remove( CLASSES.dotCurrentClassName );
 
-			if (dot === index) {
+			if ( dot === index ) {
 				// $button.setAttribute('aria-current', 'true');
-				$button.setAttribute('aria-selected', 'true');
-				$button.classList.add(CLASSES.dotCurrentClassName);
+				$button.setAttribute( 'aria-selected', 'true' );
+				$button.classList.add( CLASSES.dotCurrentClassName );
 			}
-		});
+		} );
 	};
 
-	const handleDot = (event) => {
-		const index = parseInt(event.target.dataset.dotIndex, 10);
+	const handleDot = ( event ) => {
+		const index = parseInt( event.target.dataset.dotIndex, 10 );
 
-		goToDot(index);
+		goToDot( index );
 	};
 
 	const resetIndex = () => {
-		if (!this.isInfinite) {
+		if ( ! this.isInfinite ) {
 			return;
 		}
 
 		const currentIndex = getCurrentIndex();
 
-		if (currentIndex < this.startIndex || currentIndex > this.endIndex) {
-			const ci = getCloneIndex(currentIndex);
+		if ( currentIndex < this.startIndex || currentIndex > this.endIndex ) {
+			const ci = getCloneIndex( currentIndex );
 
-			setCurrentIndex(ci);
+			// console.log( ci );
+
+			setCurrentIndex( ci, false );
 		}
 	};
 
 	const resetDot = () => {
 		// Reset Next
-		if (getCurrentDot() > this.totalDots) {
-			setCurrentDot(1);
-			const index = getItemIndexByDotIndex(1);
-			setCurrentIndex(index);
+		if ( getCurrentDot() > this.totalDots ) {
+			setCurrentDot( 1 );
+			const index = getItemIndexByDotIndex( 1 );
+			setCurrentIndex( index );
 		}
 
 		// Reset Prev
-		if (getCurrentDot() < 1) {
-			setCurrentDot(this.totalDots);
-			const index = getItemIndexByDotIndex(this.totalDots);
-			setCurrentIndex(index);
+		if ( getCurrentDot() < 1 ) {
+			setCurrentDot( this.totalDots );
+			const index = getItemIndexByDotIndex( this.totalDots );
+			setCurrentIndex( index );
 		}
 	};
 
-	const handleItem = (event) => {
-		if (this.isSwiping) {
+	const handleItem = ( event ) => {
+		if ( this.isSwiping ) {
 			return false;
 		}
 
-		const index = parseInt(event.currentTarget.dataset.index, 10);
+		const index = parseInt( event.currentTarget.dataset.index, 10 );
 
-		if (index > 0) {
-			goToSlide(index);
+		if ( index > 0 ) {
+			goToSlide( index );
 		} else {
-			goToClonedSlide(index);
+			goToClonedSlide( index );
 		}
 	};
 
-	const goToDot = (dotIndex) => {
-		if (isAnimating()) {
+	const goToDot = ( dotIndex ) => {
+		if ( isAnimating() ) {
 			return;
 		}
 
-		if (dotIndex < 1 || dotIndex > this.totalDots) {
+		const dot = parseInt( dotIndex, 10 );
+
+		if ( dot < 1 || dot > this.totalDots ) {
 			throw new RangeError(
-				`Dot index ${dotIndex} is not available. Available range ${1} - ${this.totalDots}`
+				`Dot index ${ dotIndex } is not available. Available range ${ 1 } - ${
+					this.totalDots
+				}`
 			);
 		}
 
-		if (dotIndex === this.currentDot) {
+		if ( dot === this.currentDot ) {
 			return;
 		}
 
 		addAnimatingClass();
 
-		const currentDot = dotIndex;
+		const currentDot = dot;
 
-		const index = getItemIndexByDotIndex(currentDot);
-		setCurrentIndex(index);
-		setCurrentDot(currentDot);
-		updatePaging(currentDot);
+		const index = getItemIndexByDotIndex( currentDot );
+		setCurrentIndex( index );
+		setCurrentDot( currentDot );
+		updatePaging( currentDot );
 
 		restartAutoPlay();
 
-		triggerEvent(this.$element, 'afterGotoSlide', {
+		triggerEvent( this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
-	const goToSlide = (slideIndex) => {
-		if (isAnimating()) {
+	const goToSlide = ( slideIndex ) => {
+		if ( isAnimating() ) {
 			return;
 		}
 
 		// we start slide index from 1
 
-		let currentIndex = getIndex(slideIndex - 1);
+		const slide = parseInt( slideIndex, 10 );
 
-		if (slideIndex < 1 || slideIndex > this.totalItems) {
+		let currentIndex = getIndex( slide - 1 );
+
+		if ( slide < 1 || slide > this.totalItems ) {
 			throw new RangeError(
-				`Item index ${slideIndex} is not available. Available range ${1} - ${this.totalItems}`
+				`Item index ${ slide } is not available. Available range ${ 1 } - ${
+					this.totalItems
+				}`
 			);
 		}
 
 		const limit = this.endIndex;
 
-		if (!this.isInfinite && currentIndex > limit) {
+		if ( ! this.isInfinite && currentIndex > limit ) {
 			currentIndex = limit;
 		}
 
-		if (currentIndex === getCurrentIndex()) {
+		if ( currentIndex === getCurrentIndex() ) {
 			return;
 		}
 
 		addAnimatingClass();
-		const dotIndex = getDotIndexByItemIndex(currentIndex);
+		const dotIndex = getDotIndexByItemIndex( currentIndex );
 
-		setCurrentDot(dotIndex);
-		updatePaging(dotIndex);
-		setCurrentIndex(currentIndex);
+		setCurrentDot( dotIndex );
+		updatePaging( dotIndex );
+		setCurrentIndex( currentIndex );
 		restartAutoPlay();
-		triggerEvent(this.$element, 'afterGotoSlide', {
+		triggerEvent( this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
-	const goToClonedSlide = (index) => {
-		if (isAnimating()) {
+	const goToClonedSlide = ( index ) => {
+		if ( isAnimating() ) {
 			return;
 		}
 
 		const currentIndex = index * -1;
 
-		const ci = getCloneIndex(currentIndex);
+		const ci = getCloneIndex( currentIndex );
 
-		const dotIndex = getDotIndexByItemIndex(ci);
+		const dotIndex = getDotIndexByItemIndex( ci );
 
 		addAnimatingClass();
-		setCurrentIndex(currentIndex);
-		setCurrentDot(dotIndex);
-		updatePaging(dotIndex);
+		setCurrentIndex( currentIndex );
+		setCurrentDot( dotIndex );
+		updatePaging( dotIndex );
 		restartAutoPlay();
 
-		triggerEvent(this.$element, 'afterGotoSlide', {
-			currentIndex: getCloneIndex(currentIndex),
+		triggerEvent( this.$element, 'afterGotoSlide', {
+			currentIndex: getCloneIndex( currentIndex ),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCloneIndex(currentIndex)),
-		});
+			itemIndex: getCurrentItemIndex( getCloneIndex( currentIndex ) ),
+		} );
 	};
 
 	const getTotalDots = () => {
-		if (this.isCenter) {
+		if ( this.isCenter ) {
 			return this.totalItems;
 		}
 
-		if (this.isInfinite) {
-			return Math.ceil(this.totalItems / this.slidesToScroll);
+		if ( this.isInfinite ) {
+			return Math.ceil( this.totalItems / this.slidesToScroll );
 		}
 
 		return (
 			Math.ceil(
-				(this.totalItems - this.slidesToShow) / this.slidesToScroll
+				( this.totalItems - this.slidesToShow ) / this.slidesToScroll
 			) + 1
 		);
 	};
@@ -697,48 +739,48 @@ function Plugin(element, options) {
 
 		let current = startIndex;
 
-		for (let i = 0; i < this.totalDots; i++) {
+		for ( let i = 0; i < this.totalDots; i++ ) {
 			const groupArray = [];
 
 			// For all groups except the last one
-			if (i < this.totalDots - 1) {
+			if ( i < this.totalDots - 1 ) {
 				for (
 					let j = 0;
 					j < this.slidesToScroll && current <= endIndex;
 					j++
 				) {
-					groupArray.push(current);
+					groupArray.push( current );
 					current++;
 				}
 			} else {
 				// For the last group, add all remaining items
-				while (current <= endIndex) {
-					groupArray.push(current);
+				while ( current <= endIndex ) {
+					groupArray.push( current );
 					current++;
 				}
 			}
 
-			data.push(groupArray);
+			data.push( groupArray );
 		}
 
 		const start = this.itemsToClone - 1;
 		const end = endIndex + 1;
 
-		data.unshift([start]);
-		data.push([end]);
+		data.unshift( [ start ] );
+		data.push( [ end ] );
 
 		// Dot To Item
-		for (let index = 0; index < data.length; index++) {
+		for ( let index = 0; index < data.length; index++ ) {
 			// dotToItem.push(data[index].at(0));
-			dotToItem[index] = data[index].at(0);
+			dotToItem[ index ] = data[ index ].at( 0 );
 		}
 
 		const dotStart = 1;
 		const dotEnd = this.totalDots;
 
-		for (let i = dotStart; i <= dotEnd; i++) {
-			for (let j = 0; j < data[i].length; j++) {
-				itemToDot[data[i][j]] = i;
+		for ( let i = dotStart; i <= dotEnd; i++ ) {
+			for ( let j = 0; j < data[ i ].length; j++ ) {
+				itemToDot[ data[ i ][ j ] ] = i;
 			}
 		}
 
@@ -766,48 +808,48 @@ function Plugin(element, options) {
 
 		let current = startIndex;
 
-		for (let i = 0; i < this.totalDots; i++) {
+		for ( let i = 0; i < this.totalDots; i++ ) {
 			const groupArray = [];
 
 			// For all groups except the last one
-			if (i < this.totalDots - 1) {
+			if ( i < this.totalDots - 1 ) {
 				for (
 					let j = 0;
 					j < this.slidesToScroll && current <= endIndex;
 					j++
 				) {
-					groupArray.push(current);
+					groupArray.push( current );
 					current++;
 				}
 			} else {
 				// For the last group, add all remaining items
-				while (current <= endIndex) {
-					groupArray.push(current);
+				while ( current <= endIndex ) {
+					groupArray.push( current );
 					current++;
 				}
 			}
 
-			data.push(groupArray);
+			data.push( groupArray );
 		}
 
 		const start = 0;
-		const end = data.at(-1).at(0);
+		const end = data.at( -1 ).at( 0 );
 
-		data.unshift([start]);
-		data.push([end]);
+		data.unshift( [ start ] );
+		data.push( [ end ] );
 
 		// Dot To Item
-		for (let index = 0; index < data.length; index++) {
+		for ( let index = 0; index < data.length; index++ ) {
 			// dotToItem.push(data[index].at(0));
-			dotToItem[index] = data[index].at(0);
+			dotToItem[ index ] = data[ index ].at( 0 );
 		}
 
 		const dotStart = 1;
 		const dotEnd = this.totalDots;
 
-		for (let i = dotStart; i <= dotEnd; i++) {
-			for (let j = 0; j < data[i].length; j++) {
-				itemToDot[data[i][j]] = i;
+		for ( let i = dotStart; i <= dotEnd; i++ ) {
+			for ( let j = 0; j < data[ i ].length; j++ ) {
+				itemToDot[ data[ i ][ j ] ] = i;
 			}
 		}
 
@@ -827,25 +869,25 @@ function Plugin(element, options) {
 		};
 	};
 
-	const getDotIndexByItemIndex = (index) => {
-		return this.itemsData[index];
+	const getDotIndexByItemIndex = ( index ) => {
+		return this.itemsData[ index ];
 	};
 
-	const getItemIndexByDotIndex = (index) => {
-		return this.dotsData[index];
+	const getItemIndexByDotIndex = ( index ) => {
+		return this.dotsData[ index ];
 	};
 
-	const getBalancedIndex = (index) => {
-		const dotIndex = this.itemsData[index];
-		return this.dotsData[dotIndex];
+	const getBalancedIndex = ( index ) => {
+		const dotIndex = this.itemsData[ index ];
+		return this.dotsData[ dotIndex ];
 	};
 
-	const cssVariableIsTrue = (string) => {
+	const cssVariableIsTrue = ( string ) => {
 		return string === 'true' || string === '1' || string === 'yes';
 	};
 
-	const setCurrentIndex = (index) => {
-		this.currentIndex = parseInt(index, 10);
+	const setCurrentIndex = ( index, applyAdaptiveSize = true ) => {
+		this.currentIndex = parseInt( index, 10 );
 
 		this.$element.style.setProperty(
 			this.settings.sliderCurrentIndexCSSProperty,
@@ -853,18 +895,21 @@ function Plugin(element, options) {
 		);
 
 		setPositionClass();
-		setAdaptiveSize();
+
+		if ( applyAdaptiveSize ) {
+			setAdaptiveSize();
+		}
 	};
 
 	const getCurrentIndex = () => {
 		return this.currentIndex;
 	};
 
-	const getCurrentItemIndex = (index) => {
+	const getCurrentItemIndex = ( index ) => {
 		return this.isInfinite ? index - this.itemsToClone + 1 : index + 1;
 	};
 
-	const getDotLabelIndex = (index) => {
+	const getDotLabelIndex = ( index ) => {
 		return this.isInfinite ? index - this.itemsToClone + 1 : index + 1;
 	};
 
@@ -875,7 +920,7 @@ function Plugin(element, options) {
 			CLASSES.sliderContainerPositionEndClassName
 		);
 
-		if (getCurrentIndex() === this.startIndex) {
+		if ( getCurrentIndex() === this.startIndex ) {
 			this.$container.classList.add(
 				CLASSES.sliderContainerPositionStartClassName
 			);
@@ -890,31 +935,56 @@ function Plugin(element, options) {
 			);
 		}
 
-		if (getCurrentIndex() === this.endIndex) {
+		if ( getCurrentIndex() === this.endIndex ) {
 			this.$container.classList.add(
 				CLASSES.sliderContainerPositionEndClassName
 			);
 		}
 	};
 
+	const getAdaptiveSize = ( index, kind ) => {
+		const itemsSizes = this.itemsSize.slice(
+			index,
+			index + this.slidesToShow
+		);
+
+		const sizeIndex = itemsSizes.reduce(
+			( maxIndex, currentValue, currentIndex, itemSizes ) => {
+				const max = parseInt( itemSizes[ maxIndex ][ kind ], 10 );
+				const current = parseInt( currentValue[ kind ], 10 );
+
+				return current > max ? currentIndex : maxIndex;
+			},
+			0
+		);
+
+		// return this.slidesToShow === 1 ? this.itemsSize[ index ] : 2;
+		return itemsSizes[ sizeIndex ];
+	};
+
 	const setAdaptiveSize = () => {
 		if (
-			this.slidesToShow > 1 ||
-			!this.isAdaptiveSize ||
-			!this.isHorizontal
+			//this.slidesToShow > 1 ||
+			! this.isAdaptiveSize ||
+			! this.isHorizontal
 		) {
 			return;
 		}
 
 		const index = getCurrentIndex();
 
-		const { height } = getSize(index);
+		// console.log( index, index + this.slidesToShow - 1 );
 
-		this.$element.style.setProperty('--_slider-adaptive-size', height);
+		const { height } = getAdaptiveSize( index, 'height' );
+
+		this.$element.style.setProperty(
+			this.settings.sliderAdaptiveSizeCSSProperty,
+			height
+		);
 	};
 
-	const setCurrentDot = (index) => {
-		this.currentDot = parseInt(index, 10);
+	const setCurrentDot = ( index ) => {
+		this.currentDot = parseInt( index, 10 );
 	};
 
 	const getCurrentDot = () => {
@@ -922,34 +992,36 @@ function Plugin(element, options) {
 	};
 
 	const addClasses = () => {
-		const $items = this.$slider.querySelectorAll(':scope > *');
+		const $items = this.$slider.querySelectorAll( ':scope > *' );
 
 		// $items[this.currentIndex].removeAttribute('aria-hidden');
-		$items[this.currentIndex].removeAttribute('inert');
-		$items[this.currentIndex].classList.add(CLASSES.itemCurrentClassName);
+		$items[ this.currentIndex ].removeAttribute( 'inert' );
+		$items[ this.currentIndex ].classList.add(
+			CLASSES.itemCurrentClassName
+		);
 
 		const start = this.currentIndex - this.centerItem;
 		const end = start + this.slidesToShow;
 
-		for (let i = start; i < end; i++) {
-			if (!$items[i]) {
+		for ( let i = start; i < end; i++ ) {
+			if ( ! $items[ i ] ) {
 				continue;
 			}
 
 			//$items[i].removeAttribute('aria-hidden', 'false');
-			$items[i].removeAttribute('inert');
-			$items[i].classList.add(CLASSES.itemVisibleClassName);
+			$items[ i ].removeAttribute( 'inert' );
+			$items[ i ].classList.add( CLASSES.itemVisibleClassName );
 		}
 	};
 
 	const removeClasses = () => {
-		const $items = this.$slider.querySelectorAll(':scope > *');
-		$items.forEach(($item) => {
-			$item.setAttribute('inert', true);
+		const $items = this.$slider.querySelectorAll( ':scope > *' );
+		$items.forEach( ( $item ) => {
+			$item.setAttribute( 'inert', true );
 			// $item.setAttribute('aria-hidden', 'true');
-			$item.classList.remove(CLASSES.itemCurrentClassName);
-			$item.classList.remove(CLASSES.itemVisibleClassName);
-		});
+			$item.classList.remove( CLASSES.itemCurrentClassName );
+			$item.classList.remove( CLASSES.itemVisibleClassName );
+		} );
 	};
 
 	const isAnimating = () => {
@@ -959,11 +1031,11 @@ function Plugin(element, options) {
 	};
 
 	const addAnimatingClass = () => {
-		this.$slider.classList.add(CLASSES.sliderAnimatingClassName);
+		this.$slider.classList.add( CLASSES.sliderAnimatingClassName );
 	};
 
 	const removeAnimatingClass = () => {
-		this.$slider.classList.remove(CLASSES.sliderAnimatingClassName);
+		this.$slider.classList.remove( CLASSES.sliderAnimatingClassName );
 	};
 
 	const addEvents = () => {
@@ -975,90 +1047,78 @@ function Plugin(element, options) {
 			this.settings.sliderNavigationNext
 		);
 
-		const $items = this.$slider.querySelectorAll(':scope > *');
+		const $items = this.$slider.querySelectorAll( ':scope > *' );
 
-		if (null !== $prevButton) {
-			$prevButton.addEventListener('click', handlePrev);
+		if ( null !== $prevButton ) {
+			$prevButton.addEventListener( 'click', handlePrev, {
+				passive: true,
+				signal: this.controller.signal,
+			} );
 		}
 
-		if (null !== $nextButton) {
-			$nextButton.addEventListener('click', handleNext);
+		if ( null !== $nextButton ) {
+			$nextButton.addEventListener( 'click', handleNext, {
+				passive: true,
+				signal: this.controller.signal,
+			} );
 		}
 
-		this.$slider.addEventListener('transitionstart', beforeSlide);
-		this.$slider.addEventListener('transitionend', afterSlide);
+		this.$slider.addEventListener( 'transitionstart', beforeSlide, {
+			passive: true,
+			signal: this.controller.signal,
+		} );
+		this.$slider.addEventListener( 'transitionend', afterSlide, {
+			passive: true,
+			signal: this.controller.signal,
+		} );
 
-		if (this.enableSwipe) {
-			this.cleanupSwipe = swipeEvent(this.$container, handleSwipe, {
+		if ( this.enableSwipe ) {
+			this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
 				offset: 50, // @TODO: Swipe Offset from CSS
-			});
+			} );
 		}
 
-		if (this.isActiveOnSelect) {
-			$items.forEach(($item) => {
-				$item.addEventListener('pointerup', handleItem, {
-					// useCapture: true,
-				});
-			});
+		if ( this.isActiveOnSelect ) {
+			$items.forEach( ( $item ) => {
+				$item.addEventListener( 'pointerup', handleItem, {
+					passive: true,
+					signal: this.controller.signal,
+				} );
+			} );
 		}
 
-		this.$container.addEventListener('pointerenter', stopAutoPlay);
+		this.$container.addEventListener( 'pointerenter', stopAutoPlay, {
+			passive: true,
+			signal: this.controller.signal,
+		} );
 
-		this.$container.addEventListener('pointerleave', startAutoPlay);
+		this.$container.addEventListener( 'pointerleave', startAutoPlay, {
+			passive: true,
+			signal: this.controller.signal,
+		} );
 	};
 
 	const removeEvents = () => {
-		const $dots = this.$element.querySelectorAll(
-			this.settings.sliderPagination
-		);
+		this.controller.abort();
 
-		const $items = this.$slider.querySelectorAll(':scope > *');
-
-		$dots.forEach(($dot) => {
-			$dot.removeEventListener('click', handleDot);
-
-			if ($dot.classList.contains(CLASSES.dotClassName)) {
-				$dot.remove();
-			}
-		});
-
-		$items.forEach(($item) => {
-			$item.removeEventListener('pointerup', handleItem);
-		});
-
-		this.$element
-			.querySelector(this.settings.sliderNavigationPrevious)
-			.removeEventListener('click', handlePrev);
-
-		this.$element
-			.querySelector(this.settings.sliderNavigationNext)
-			.removeEventListener('click', handleNext);
-
-		this.$slider.removeEventListener('transitionstart', beforeSlide);
-		this.$slider.removeEventListener('transitionend', afterSlide);
-
-		this.$container.removeEventListener('pointerenter', stopAutoPlay);
-
-		this.$container.removeEventListener('pointerleave', startAutoPlay);
-
-		if (this.enableSwipe) {
+		if ( this.enableSwipe ) {
 			this.cleanupSwipe();
 		}
 	};
 
 	const startAutoPlay = () => {
-		if (!this.isAutoPlay) {
+		if ( ! this.isAutoPlay ) {
 			return noop();
 		}
 
 		stopAutoPlay();
 
 		// @TODO: If non infinite react end it should start with prev
-		this.autoPlayId = setInterval(slideNext, this.autoPlayTimeout);
+		this.autoPlayId = setInterval( slideNext, this.autoPlayTimeout );
 	};
 
 	const stopAutoPlay = () => {
-		clearInterval(this.autoPlayId);
+		clearInterval( this.autoPlayId );
 	};
 
 	const restartAutoPlay = () => {
@@ -1068,11 +1128,11 @@ function Plugin(element, options) {
 
 	const beforeSlide = () => {
 		removeClasses();
-		triggerEvent(this.$element, 'beforeSlide', {
+		triggerEvent( this.$element, 'beforeSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
 	const afterSlide = () => {
@@ -1086,16 +1146,15 @@ function Plugin(element, options) {
 
 		addClasses();
 
-		triggerEvent(this.$element, 'afterSlide', {
+		triggerEvent( this.$element, 'afterSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
-	const handleNext = (event) => {
-		event.preventDefault();
-		if (isAnimating()) {
+	const handleNext = () => {
+		if ( isAnimating() ) {
 			return;
 		}
 
@@ -1103,9 +1162,8 @@ function Plugin(element, options) {
 		restartAutoPlay();
 	};
 
-	const handlePrev = (event) => {
-		event.preventDefault();
-		if (isAnimating()) {
+	const handlePrev = () => {
+		if ( isAnimating() ) {
 			return;
 		}
 
@@ -1116,46 +1174,46 @@ function Plugin(element, options) {
 	const slidePrev = () => {
 		const currentDot = getCurrentDot() - 1;
 
-		if (!this.isInfinite && currentDot <= 0) {
+		if ( ! this.isInfinite && currentDot <= 0 ) {
 			return;
 		}
 
 		addAnimatingClass();
-		const index = getItemIndexByDotIndex(currentDot);
-		setCurrentIndex(index);
-		setCurrentDot(currentDot);
-		updatePaging(currentDot);
+		const index = getItemIndexByDotIndex( currentDot );
+		setCurrentIndex( index );
+		setCurrentDot( currentDot );
+		updatePaging( currentDot );
 
-		triggerEvent(this.$element, 'afterGotoSlide', {
+		triggerEvent( this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
 	const slideNext = () => {
 		const currentDot = getCurrentDot() + 1;
 
-		if (!this.isInfinite && currentDot > this.totalDots) {
+		if ( ! this.isInfinite && currentDot > this.totalDots ) {
 			return;
 		}
 
 		addAnimatingClass();
 
-		const index = getItemIndexByDotIndex(currentDot);
-		setCurrentIndex(index);
-		setCurrentDot(currentDot);
-		updatePaging(currentDot);
+		const index = getItemIndexByDotIndex( currentDot );
+		setCurrentIndex( index );
+		setCurrentDot( currentDot );
+		updatePaging( currentDot );
 
-		triggerEvent(this.$element, 'afterGotoSlide', {
+		triggerEvent( this.$element, 'afterGotoSlide', {
 			currentIndex: getCurrentIndex(),
 			currentDot: getCurrentDot(),
-			itemIndex: getCurrentItemIndex(getCurrentIndex()),
-		});
+			itemIndex: getCurrentItemIndex( getCurrentIndex() ),
+		} );
 	};
 
-	const handleSwipe = (event) => {
-		if (isAnimating()) {
+	const handleSwipe = ( event ) => {
+		if ( isAnimating() ) {
 			return;
 		}
 
@@ -1163,66 +1221,67 @@ function Plugin(element, options) {
 
 		const gapCount = this.slidesToShow - 1;
 		const gapSize = this.isCenter
-			? ((this.itemGap / this.slidesToShow) * gapCount) / 2
+			? ( ( this.itemGap / this.slidesToShow ) * gapCount ) / 2
 			: 0;
 
 		const { x, y, left, right, top, bottom, moving, done } = event.detail;
 
-		const gapValue = getCurrentIndex() * (this.itemGap / this.slidesToShow);
+		const gapValue =
+			getCurrentIndex() * ( this.itemGap / this.slidesToShow );
 
 		const currentWidth =
-			((getCurrentIndex() - this.centerItem) * this.sliderWidth) /
+			( ( getCurrentIndex() - this.centerItem ) * this.sliderWidth ) /
 			this.slidesToShow;
 		const currentHeight =
-			((getCurrentIndex() - this.centerItem) * this.sliderHeight) /
+			( ( getCurrentIndex() - this.centerItem ) * this.sliderHeight ) /
 			this.slidesToShow;
 
 		const horizontalValue =
-			Math.ceil(currentWidth - gapSize + gapValue - x) * -1;
+			Math.ceil( currentWidth - gapSize + gapValue - x ) * -1;
 		const verticalValue =
-			Math.ceil(currentHeight - gapSize + gapValue - y) * -1;
+			Math.ceil( currentHeight - gapSize + gapValue - y ) * -1;
 		// Disable over swipe
-		if (!this.isInfinite) {
-			if (this.currentDot === this.totalDots && x < 0) {
+		if ( ! this.isInfinite ) {
+			if ( this.currentDot === this.totalDots && x < 0 ) {
 				return;
 			}
 
-			if (this.currentDot === 1 && x > 0) {
+			if ( this.currentDot === 1 && x > 0 ) {
 				return;
 			}
 		}
 
-		if (moving) {
+		if ( moving ) {
 			this.isSwiping = true;
-			this.$element.classList.add('swiping');
+			this.$element.classList.add( 'swiping' );
 
 			this.$slider.style.setProperty(
 				'--_horizontal-value',
-				`${horizontalValue}px`
+				`${ horizontalValue }px`
 			);
 
 			this.$slider.style.setProperty(
 				'--_vertical-value',
-				`${verticalValue}px`
+				`${ verticalValue }px`
 			);
 		}
 
-		if (done) {
+		if ( done ) {
 			addAnimatingClass();
-			this.$element.classList.remove('swiping');
-			this.$slider.style.removeProperty('--_horizontal-value');
-			this.$slider.style.removeProperty('--_vertical-value');
+			this.$element.classList.remove( 'swiping' );
+			this.$slider.style.removeProperty( '--_horizontal-value' );
+			this.$slider.style.removeProperty( '--_vertical-value' );
 			this.isSwiping = false;
 			startAutoPlay();
 		}
 
-		if (done && (left || top)) {
-			this.$element.classList.remove('swiping');
+		if ( done && ( left || top ) ) {
+			this.$element.classList.remove( 'swiping' );
 			slideNext();
 		}
 
-		if (done && (right || bottom)) {
-			this.$element.classList.remove('swiping');
+		if ( done && ( right || bottom ) ) {
+			this.$element.classList.remove( 'swiping' );
 			slidePrev();
 		}
 	};
@@ -1231,31 +1290,41 @@ function Plugin(element, options) {
 		removeEvents();
 		stopAutoPlay();
 
-		const cloneSelector = `:scope > .${CLASSES.itemCloneClassName}`;
+		const cloneSelector = `:scope > .${ CLASSES.itemCloneClassName }`;
 
-		this.$slider.querySelectorAll(cloneSelector).forEach(($cloned) => {
+		this.$slider.querySelectorAll( cloneSelector ).forEach( ( $cloned ) => {
 			$cloned.remove();
-		});
+		} );
+
+		this.$element
+			.querySelectorAll( this.settings.sliderPagination )
+			.forEach( ( $dot ) => {
+				if ( $dot.classList.contains( CLASSES.dotClassName ) ) {
+					$dot.remove();
+				}
+			} );
 
 		this.isInfinite = false;
-		setCurrentIndex(0);
-		setCurrentDot(0);
+		setCurrentIndex( 0, false );
+		setCurrentDot( 0 );
 
-		this.$slider.querySelectorAll(':scope > *').forEach(($item, index) => {
-			$item.classList.remove(
-				CLASSES.itemClassName,
-				CLASSES.itemCurrentClassName,
-				CLASSES.itemVisibleClassName
-			);
+		this.$slider
+			.querySelectorAll( ':scope > *' )
+			.forEach( ( $item, index ) => {
+				$item.classList.remove(
+					CLASSES.itemClassName,
+					CLASSES.itemCurrentClassName,
+					CLASSES.itemVisibleClassName
+				);
 
-			$item.removeAttribute('aria-hidden');
-			$item.removeAttribute('inert');
-			$item.removeAttribute('data-index');
+				$item.removeAttribute( 'aria-hidden' );
+				$item.removeAttribute( 'inert' );
+				$item.removeAttribute( 'data-index' );
 
-			if (index === this.initialSlide - 1) {
-				$item.classList.add(this.settings.defaultItemClassName);
-			}
-		});
+				if ( index === this.initialSlide - 1 ) {
+					$item.classList.add( this.settings.defaultItemClassName );
+				}
+			} );
 
 		this.$element.classList.remove(
 			CLASSES.elementHasInfiniteClassName,
@@ -1276,7 +1345,9 @@ function Plugin(element, options) {
 			this.settings.sliderPagination
 		);
 
-		this.$element.style.removeProperty(this.settings.isInfiniteCSSProperty);
+		this.$element.style.removeProperty(
+			this.settings.isInfiniteCSSProperty
+		);
 
 		this.$element.style.removeProperty(
 			this.settings.slidesToShowCSSProperty
@@ -1286,7 +1357,7 @@ function Plugin(element, options) {
 			this.settings.slidesToScrollCSSProperty
 		);
 
-		$button.style.removeProperty('display');
+		$button.style.removeProperty( 'display' );
 
 		this.$element.style.removeProperty(
 			this.settings.sliderAdaptiveSizeCSSProperty
@@ -1294,14 +1365,13 @@ function Plugin(element, options) {
 	};
 
 	// Expose to public.
-	const expose = () => ({
+	const expose = () => ( {
 		handlePrev,
 		handleNext,
-		removeEvents,
 		goToDot,
 		goToSlide,
 		reset,
-	});
+	} );
 
 	return init();
 }

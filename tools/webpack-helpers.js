@@ -2,30 +2,29 @@
 /**
  * External dependencies
  */
-const { getWordPressSrcDirectory } = require( '@wordpress/scripts/utils/config' );
-const { fromProjectRoot } = require( '@wordpress/scripts/utils/file' );
-const { sep } = require( 'path' );
+const { getProjectSourcePath } = require('@wordpress/scripts/utils/config')
+const { fromProjectRoot } = require('@wordpress/scripts/utils/file')
+const { sep } = require('path')
 
 // jquery --> window.jQuery
 // react-dom --> window.ReactDOM
+// Add `slick-carousel`, `@woocommerce/blocks-registry`,`@woocommerce/settings` on `.eslintrc.js` -> 'import/core-modules'
 const externalScriptsMap = {
-	'@storepress/utils' : ['StorePress','Utils'],
-};
+	'@storepress/utils': ['StorePress', 'Utils'],
+}
 
 // @babel/runtime/regenerator --> wp-polyfill
 const scriptHandleMap = {
-	//'slick-carousel' : 'slick-carousel',
-	 '@storepress/utils' : 'storepress-utils',
-};
+	'@storepress/utils': 'storepress-utils',
+}
 
 const externalModulesMap = {
-	// static import.
-	 // '@wordpress/interactivity': 'module @wordpress/interactivity',
-	//  '@storepress/utils': 'module @storepress/utils',
-	  // '@storepress/utils': 'import @storepress/utils',
+	//  static import.
+	// '@wordpress/interactivity': 'module @wordpress/interactivity',
 	// dynamic import.
-	//'@wordpress/interactivity-router': 'import @wordpress/interactivity-router',
-};
+	// @see: https://github.com/WordPress/gutenberg/blob/trunk/packages/block-library/src/query/view.js#L36
+	// '@wordpress/interactivity-router': 'import @wordpress/interactivity-router',
+}
 
 /**
  * Default request to global transformation
@@ -38,9 +37,9 @@ const externalModulesMap = {
  * @return {string|string[]|undefined} The resulting external definition. Return `undefined`
  *   to ignore the request. Return `string|string[]` to map the request to an external.
  */
-function requestToExternal( request ) {
-	if ( externalScriptsMap[ request ] ) {
-		return externalScriptsMap[ request ];
+function requestToExternal (request) {
+	if (externalScriptsMap[request]) {
+		return externalScriptsMap[request]
 	}
 }
 
@@ -55,17 +54,18 @@ function requestToExternal( request ) {
  * @return {string|undefined} WordPress script handle to map the request to. Return `undefined`
  *   to use the same name as the module.
  */
-function requestToHandle( request ) {
-	if ( scriptHandleMap[ request ] ) {
-		return scriptHandleMap[ request ];
+function requestToHandle (request) {
+	if (scriptHandleMap[request]) {
+		return scriptHandleMap[request]
 	}
 }
 
 /**
  * Default request to external module transformation
  *
- * Currently only @wordpress/interactivity and `@wordpress/interactivity-router`
- * are supported.
+ * Currently Supports:
+ * - @wordpress/interactivity
+ * - @wordpress/interactivity-router
  *
  * Do not use the boolean shorthand here, it's only handled for the
  * `requestToExternalModule` option.
@@ -76,29 +76,35 @@ function requestToHandle( request ) {
  *   - Return `string` to map the request to an external.
  *   - Return `Error` to emit an error.
  */
-function requestToExternalModule( request ) {
-	if ( externalModulesMap[ request ] ) {
-		return externalModulesMap[ request ];
+function requestToExternalModule (request) {
+	if (externalModulesMap[request]) {
+		return externalModulesMap[request]
 	}
 }
 
-function getFile( fileName ) {
-	return fromProjectRoot( getWordPressSrcDirectory() + sep + fileName );
+function getFile (fileName) {
+	return fromProjectRoot(getProjectSourcePath() + sep + fileName)
 }
 
-function getWebPackAlias() {
+function getRootFile (fileName) {
+	return fromProjectRoot(fileName)
+}
+
+function getWebPackAlias () {
 	return {
+		// '@utils': getFile('utils/Plugin'), // Add @utils on .eslintrc.js -> 'import/core-modules'
+		'@storepress/slider': getFile('index.js'),
 		//'@storepress/icons': getFile('packages/icons'),
 		//'@storepress/utils': getFile('packages/utils'),
 		//'@storepress/components': getFile('packages/components'),
-	};
+	}
 }
 
 module.exports = {
-	fromProjectRoot,
+	getRootFile,
 	getFile,
 	getWebPackAlias,
 	requestToExternal,
 	requestToHandle,
 	requestToExternalModule,
-};
+}

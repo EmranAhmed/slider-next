@@ -120,40 +120,101 @@ npm i @storepress/slider @storepress/utils --save
 import StorePressSlider from '@storepress/slider'
 import { triggerEvent } from '@storepress/utils'
 
-document.addEventListener('DOMContentLoaded', () => {
-  StorePressSlider();
-
-  triggerEvent(document, 'storepress_slider_init', {
-    element: ['[data-slider-settings]'],
-    settings: {},
-  });
-
-  let timeOutId;
-
-  window.addEventListener('resize', () => {
-    clearTimeout(timeOutId);
-
-    timeOutId = setTimeout(() => {
-      triggerEvent(document, 'storepress_slider_re_init', {
-        element: ['[data-slider-settings]'],
-        settings: {},
-      });
-    }, 300);
-  });
-});
-
-// OR
+/**
+ * External dependencies
+ */
+import StorePressSlider from '@storepress/slider'
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  StorePressSlider();
-  
-  document.dispatchEvent(new CustomEvent('storepress_slider_init', {
-    detail: {
-      element: ['[data-slider-settings]'],
-    },
-  }))
+  StorePressSlider.init()
 })
+```
+
+## External Controls
+
+```js
+
+	document.getElementById('destroy').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.destroy()
+	})
+
+	document.getElementById('init').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.init()
+	})
+
+  // Clear Instance with events.
+	document.getElementById('setup').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.setup()
+	})
+  
+  // Clear Instance with events.
+	document.getElementById('clear').addEventListener('click', () => {
+		const Slider = StorePress.Utils.getStorePressPlugin('slider')
+		Slider.clear()
+	})
+
+	const $godot = document.querySelectorAll('.goto-dot')
+	const $goslide = document.querySelectorAll('.goto-slide')
+
+  const $slider1 = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+  const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+  const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+  
+
+	$godot.forEach(($item) => {
+		$item.addEventListener('click', (event) => {
+			event.preventDefault()
+
+
+      
+			const dot = event.currentTarget.dataset.target
+			$slider3.forEach((el) => {
+				el.goToDot(dot)
+			})
+		})
+	})
+	$goslide.forEach(($item) => {
+		$item.addEventListener('click', (event) => {
+			event.preventDefault()
+
+			const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+			const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+			const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+			// console.log($slider, $slider2)
+			//return;
+
+			const dot = event.currentTarget.dataset.target
+			$slider3.forEach((el) => {
+				el.goToSlide(dot)
+			})
+		})
+	})
+
+	document.querySelector('#prev').addEventListener('click', (event) => {
+		event.preventDefault()
+		const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+		const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+		const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+		$slider3.forEach((el) => {
+			el.handlePrev()
+		})
+	})
+
+	document.querySelector('#next').addEventListener('click', (event) => {
+		event.preventDefault()
+		const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
+		const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
+		const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
+
+		$slider3.forEach((el) => {
+			el.handleNext()
+		})
+	})
 ```
 
 ## Controls

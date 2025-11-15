@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Slider BASE</title>
+
+
+	<style>
+		:where([data-storepress-slider]) {
+			display: flex;
+			flex-direction: column;
+			position: relative;
+
+			/*for horizontal*/
+			/*height: fit-content;*/
+
+
+			--slides-to-show: 1;
+			--is-horizontal: true;
+		}
+
+		:where([data-storepress-slider]) .controls {
+			display: flex;
+			flex-direction: column;
+		}
+
+		:where([data-storepress-slider]) .controls > .pagination {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			gap: 10px;
+			position: absolute;
+			width: 100%;
+		}
+
+		:where([data-storepress-slider]) .controls > .navigation {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			flex-basis: 100%;
+		}
+
+		:where([data-storepress-slider]) .controls > .navigation button {
+			position: absolute;
+			inset: 0;
+			width: 30px;
+			aspect-ratio: 1;
+		}
+
+		:where([data-storepress-slider]) .controls > .navigation button:nth-child(1) {
+			margin-block: auto;
+			margin-inline: 0 auto;
+		}
+
+		:where([data-storepress-slider]) .controls > .navigation button:nth-child(2) {
+			margin-block: auto;
+			margin-inline: auto 0;
+		}
+
+		:where([data-storepress-slider]) .container {
+			gap: 0;
+			padding: 0;
+			margin: 0;
+			overflow: hidden;
+			display: flex;
+
+			@container style(--is-horizontal:true) {
+				flex-direction: row;
+			}
+
+			@container style(--is-horizontal:false) {
+				flex-direction: column;
+			}
+		}
+
+		:where([data-storepress-slider]) .container > .items {
+			display: flex;
+			flex-grow: 0;
+			flex-shrink: 0;
+			flex-basis: 100%;
+			@container style(--is-horizontal:true) {
+				flex-direction: row;
+			}
+
+			@container style(--is-horizontal:false) {
+				flex-direction: column;
+			}
+		}
+
+		:where([data-storepress-slider]) .container >  * {
+			flex-grow: 0;
+			flex-shrink: 0;
+			flex-basis: calc(100% / var(--slides-to-show));
+		}
+
+		:where([data-storepress-slider]) .container > * img {
+			width: 100%;
+			display: block;
+		}
+
+	</style>
+
+	<style>
+
+		.main {
+			display: block;
+			margin-inline: auto;
+			width: 800px;
+		}
+
+		.wrapper {
+			width: 400px;
+			height: 400px;
+		}
+
+		.container {
+			box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
+			border-radius: 10px;
+		}
+	</style>
+
+</head>
+<body>
+
+<div class="main">
+
+
+	<div class="wrapper" data-storepress-slider>
+		<div class="container">
+			<!--<div class="items">-->
+			<div class="active"><img src="images/beanie.jpg" /></div>
+			<div><img src="images/belt.jpg" /></div>
+			<div><img src="images/cap.jpg" /></div>
+			<div><img src="images/hoodie-blue-1.jpg" /></div>
+			<div><img src="images/pennant-1.jpg" /></div>
+			<div><img src="images/sunglasses-2.jpg" /></div>
+			<div><img src="images/tshirt-2.jpg" /></div>
+			<!--</div>-->
+		</div>
+		<div class="controls">
+			<div class="navigation">
+				<button>LEFT</button>
+				<button>RIGHT</button>
+			</div>
+
+			<div class="pagination">
+				<button>1</button>
+				<button>2</button>
+				<button>3</button>
+				<button>4</button>
+			</div>
+		</div>
+	</div>
+
+	<div>Another div</div>
+
+</div>
+
+</body>
+</html>

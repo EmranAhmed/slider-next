@@ -27,12 +27,12 @@ const isZip = hasArgInCLI('--zip');
 
 let files = [];
 
-if (hasPackageProp('files')) {
+if (hasPackageProp('zip')) {
 	stdout.write(
 		'Using the `files` field from `package.json` to detect files:\n\n'
 	);
 
-	files = glob(getPackageProp('files'), {
+	files = glob(getPackageProp('zip'), {
 		caseSensitiveMatch: false,
 	});
 } else {
@@ -40,10 +40,17 @@ if (hasPackageProp('files')) {
 	// See https://developer.wordpress.org/plugins/plugin-basics/best-practices/#file-organization.
 	files = glob(
 		[
-			'assets/**',
-			'images/**',
-			'index*',
-			'user-control.js',
+			'admin/**',
+			'build/**',
+			'includes/**',
+			'languages/**',
+			'public/**',
+			`${npm_package_name}.php`,
+			'uninstall.php',
+			'block.json',
+			'changelog.*',
+			'license.*',
+			'readme.*',
 		],
 		{
 			caseSensitiveMatch: false,
