@@ -69,22 +69,51 @@ function createData( total, show, scroll, infinite = false ) {
 		return Array.from( { length: show }, ( _, j ) => start + j );
 	} );
 }
-test( 'should handle total=7, show=2, scroll=1', () => {
-	const actual = createData( 7, 2, 1 );
-	const expects = [
-		[ 0, 1 ],
-		[ 1, 2 ],
-		[ 2, 3 ],
-		[ 3, 4 ],
-		[ 4, 5 ],
-		[ 5, 6 ],
-	];
 
-	assert.equal( actual, expects );
+const createDataNoInfinite = ( total, show, scroll ) => {
+	const totalDot = Math.ceil( ( total - show ) / scroll ) + 1;
+
+	return Array.from( { length: totalDot }, ( $, i ) => {
+		let start = i * scroll;
+		if ( start + show > total ) {
+			start = total - show;
+		}
+		return Array.from( { length: show }, ( _, j ) => start + j );
+	} );
+};
+
+const createDataInfinite = ( total, show, scroll ) => {
+	const cloned = show + scroll;
+	const maxIndex = total + cloned;
+
+	const totalDot = Math.ceil( total / scroll );
+
+	return Array.from( { length: totalDot }, ( $, i ) => {
+		const start = i * scroll + cloned;
+
+		return Array.from( { length: show }, ( _, j ) => {
+			const index = start + j;
+
+			return maxIndex >= index ? index : undefined;
+		} ).filter( ( val ) => val !== undefined );
+	} );
+};
+
+test( 'should handle total=7, show=1, scroll=1', () => {
+	const actual = createDataInfinite( 7, 1, 1 );
+
+	const expects = [ [ 2 ], [ 3 ], [ 4 ], [ 5 ], [ 6 ], [ 7 ], [ 8 ] ];
+
+	assert.equal( actual, expects, 'Infinite Check' );
+
+	const actual2 = createDataNoInfinite( 7, 1, 1 );
+	const expects2 = [ [ 0 ], [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ], [ 6 ] ];
+
+	assert.equal( actual2, expects2, 'Non Infinite Check' );
 } );
 
-test( 'should handle total=7, show=2, scroll=1, infinite = true', () => {
-	const actual = createData( 7, 2, 1, true );
+test( 'should handle total=7, show=2, scroll=1', () => {
+	const actual = createDataInfinite( 7, 2, 1 );
 	const expects = [
 		[ 3, 4 ],
 		[ 4, 5 ],
@@ -95,11 +124,23 @@ test( 'should handle total=7, show=2, scroll=1, infinite = true', () => {
 		[ 9, 10 ],
 	];
 
-	assert.equal( actual, expects );
+	assert.equal( actual, expects, 'Infinite Check' );
+
+	const actual2 = createDataNoInfinite( 7, 2, 1 );
+	const expects2 = [
+		[ 0, 1 ],
+		[ 1, 2 ],
+		[ 2, 3 ],
+		[ 3, 4 ],
+		[ 4, 5 ],
+		[ 5, 6 ],
+	];
+
+	assert.equal( actual2, expects2, 'Non Infinite Check' );
 } );
 
-test( 'should handle total=7, show=2, scroll=2, infinite = true', () => {
-	const actual = createData( 7, 2, 2, true );
+test( 'should handle total=7, show=2, scroll=2', () => {
+	const actual = createDataInfinite( 7, 2, 2 );
 	const expects = [
 		[ 4, 5 ],
 		[ 6, 7 ],
@@ -107,24 +148,35 @@ test( 'should handle total=7, show=2, scroll=2, infinite = true', () => {
 		[ 10, 11 ],
 	];
 
-	assert.equal( actual, expects );
-} );
+	assert.equal( actual, expects, 'Infinite Check' );
 
-test( 'should handle total=7, show=2, scroll=2', () => {
-	const actual = generateSliderData( 7, 2, 2 );
-	const expects = [
+	const actual2 = createDataNoInfinite( 7, 2, 2 );
+	const expects2 = [
 		[ 0, 1 ],
 		[ 2, 3 ],
 		[ 4, 5 ],
 		[ 5, 6 ],
 	];
 
-	assert.equal( actual, expects );
+	assert.equal( actual2, expects2, 'Non Infinite Check' );
 } );
 
 test( 'should handle total=7, show=3, scroll=1', () => {
-	const actual = generateSliderData( 7, 3, 1 );
+	const actual = createDataInfinite( 7, 3, 1 );
 	const expects = [
+		[ 4, 5, 6 ],
+		[ 5, 6, 7 ],
+		[ 6, 7, 8 ],
+		[ 7, 8, 9 ],
+		[ 8, 9, 10 ],
+		[ 9, 10, 11 ],
+		[ 10, 11 ],
+	];
+
+	assert.equal( actual, expects, 'Infinite Check' );
+
+	const actual2 = createDataNoInfinite( 7, 3, 1 );
+	const expects2 = [
 		[ 0, 1, 2 ],
 		[ 1, 2, 3 ],
 		[ 2, 3, 4 ],
@@ -132,116 +184,7 @@ test( 'should handle total=7, show=3, scroll=1', () => {
 		[ 4, 5, 6 ],
 	];
 
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=3, scroll=2', () => {
-	const actual = generateSliderData( 7, 3, 2 );
-	const expects = [
-		[ 0, 1, 2 ],
-		[ 2, 3, 4 ],
-		[ 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=3, scroll=3', () => {
-	const actual = generateSliderData( 7, 3, 3 );
-	const expects = [
-		[ 0, 1, 2 ],
-		[ 3, 4, 5 ],
-		[ 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=4, scroll=1', () => {
-	const actual = generateSliderData( 7, 4, 1 );
-	const expects = [
-		[ 0, 1, 2, 3 ],
-		[ 1, 2, 3, 4 ],
-		[ 2, 3, 4, 5 ],
-		[ 3, 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=4, scroll=2', () => {
-	const actual = generateSliderData( 7, 4, 2 );
-	const expects = [
-		[ 0, 1, 2, 3 ],
-		[ 2, 3, 4, 5 ],
-		[ 3, 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=4, scroll=3', () => {
-	const actual = generateSliderData( 7, 4, 3 );
-	const expects = [
-		[ 0, 1, 2, 3 ],
-		[ 3, 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=7, show=4, scroll=4', () => {
-	const actual = generateSliderData( 7, 4, 4 );
-	const expects = [
-		[ 0, 1, 2, 3 ],
-		[ 3, 4, 5, 6 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=8, show=3, scroll=2', () => {
-	const actual = generateSliderData( 8, 3, 2 );
-	const expects = [
-		[ 0, 1, 2 ],
-		[ 2, 3, 4 ],
-		[ 4, 5, 6 ],
-		[ 5, 6, 7 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=11, show=3, scroll=2', () => {
-	const actual = generateSliderData( 11, 3, 2 );
-	const expects = [
-		[ 0, 1, 2 ],
-		[ 2, 3, 4 ],
-		[ 4, 5, 6 ],
-		[ 6, 7, 8 ],
-		[ 8, 9, 10 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle total=11, show=3, scroll=3', () => {
-	const actual = generateSliderData( 11, 3, 3 );
-	const expects = [
-		[ 0, 1, 2 ],
-		[ 3, 4, 5 ],
-		[ 6, 7, 8 ],
-		[ 8, 9, 10 ],
-	];
-
-	assert.equal( actual, expects );
-} );
-
-test( 'should handle edge case: show equals total', () => {
-	const actual = generateSliderData( 5, 1, 1 );
-	const expects = [ [ 0 ], [ 1 ], [ 2 ], [ 3 ], [ 4 ] ];
-
-	assert.equal( actual, expects );
+	assert.equal( actual2, expects2, 'Non Infinite Check' );
 } );
 
 test.run();

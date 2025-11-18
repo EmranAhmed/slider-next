@@ -148,7 +148,6 @@ function Plugin( element, options ) {
 
 				this.itemsSize[ index ] = {
 					height: getComputedStyle( $itemInner, 'height' ),
-					// i: $item.dataset.index,
 					width: getComputedStyle( $itemInner, 'width' ),
 				};
 			} );
@@ -322,8 +321,8 @@ function Plugin( element, options ) {
 		this.totalDots = getTotalDots();
 
 		this.data = this.isInfinite
-			? getDataForInfiniteNew()
-			: getDataForNonInfiniteNew();
+			? getDataForInfinite()
+			: getDataForNonInfinite();
 
 		this.startIndex = this.data.itemStartIndex;
 		this.endIndex = this.data.itemEndIndex;
@@ -730,149 +729,6 @@ function Plugin( element, options ) {
 	};
 
 	const getDataForInfinite = () => {
-		const data = [];
-		const dotToItem = {};
-		const itemToDot = {};
-
-		const startIndex = this.itemsToClone;
-		const endIndex = this.totalItems + this.itemsToClone - 1;
-
-		let current = startIndex;
-
-		for ( let i = 0; i < this.totalDots; i++ ) {
-			const groupArray = [];
-
-			// For all groups except the last one
-			if ( i < this.totalDots - 1 ) {
-				for (
-					let j = 0;
-					j < this.slidesToScroll && current <= endIndex;
-					j++
-				) {
-					groupArray.push( current );
-					current++;
-				}
-			} else {
-				// For the last group, add all remaining items
-				while ( current <= endIndex ) {
-					groupArray.push( current );
-					current++;
-				}
-			}
-
-			data.push( groupArray );
-		}
-
-		const start = this.itemsToClone - 1;
-		const end = endIndex + 1;
-
-		data.unshift( [ start ] );
-		data.push( [ end ] );
-
-		// Dot To Item
-		for ( let index = 0; index < data.length; index++ ) {
-			// dotToItem.push(data[index].at(0));
-			dotToItem[ index ] = data[ index ].at( 0 );
-		}
-
-		const dotStart = 1;
-		const dotEnd = this.totalDots;
-
-		for ( let i = dotStart; i <= dotEnd; i++ ) {
-			for ( let j = 0; j < data[ i ].length; j++ ) {
-				itemToDot[ data[ i ][ j ] ] = i;
-			}
-		}
-
-		const itemStartIndex = this.itemsToClone;
-		const itemEndIndex = this.totalItems + this.itemsToClone - 1;
-
-		return {
-			data,
-			dotToItem,
-			itemToDot,
-			itemStartIndex,
-			itemEndIndex,
-			dotStart,
-			dotEnd,
-		};
-	};
-
-	const getDataForNonInfinite = () => {
-		const data = [];
-
-		const dotToItem = [];
-		const itemToDot = [];
-
-		const startIndex = 0;
-		const endIndex = this.totalItems - 1; // 6
-
-		let current = startIndex;
-
-		// this.totalDots = 4
-
-		for ( let i = 0; i < this.totalDots; i++ ) {
-			const groupArray = [];
-
-			// For all groups except the last one
-			if ( i < this.totalDots - 1 ) {
-				for (
-					let j = 0;
-					j < this.slidesToScroll && current <= endIndex;
-					j++
-				) {
-					groupArray.push( current );
-					current++;
-				}
-			} else {
-				// For the last group, add all remaining items
-				while ( current <= endIndex ) {
-					groupArray.push( current );
-					current++;
-				}
-			}
-
-			data.push( groupArray );
-		}
-
-		const start = 0;
-		const end = data.at( -1 ).at( 0 );
-
-		data.unshift( [ start ] );
-		data.push( [ end ] );
-
-		// Dot To Item
-		for ( let index = 0; index < data.length; index++ ) {
-			// dotToItem.push(data[index].at(0));
-			dotToItem[ index ] = data[ index ].at( 0 );
-		}
-
-		const dotStart = 1;
-		const dotEnd = this.totalDots;
-
-		for ( let i = dotStart; i <= dotEnd; i++ ) {
-			for ( let j = 0; j < data[ i ].length; j++ ) {
-				itemToDot[ data[ i ][ j ] ] = i;
-			}
-		}
-
-		const itemStartIndex = 0;
-		const itemEndIndex = this.isCenter
-			? this.totalItems - 1
-			: this.totalItems - this.slidesToShow;
-
-		return {
-			data,
-			dotToItem,
-			itemToDot,
-			itemStartIndex,
-			itemEndIndex,
-			dotStart,
-			dotEnd,
-		};
-	};
-
-	const getDataForInfiniteNew = () => {
 		const data = createDataInfinite(
 			this.totalItems,
 			this.slidesToShow,
@@ -921,7 +777,7 @@ function Plugin( element, options ) {
 		};
 	};
 
-	const getDataForNonInfiniteNew = () => {
+	const getDataForNonInfinite = () => {
 		const data = createDataNoInfinite(
 			this.totalItems,
 			this.slidesToShow,
@@ -950,7 +806,6 @@ function Plugin( element, options ) {
 				} );
 				return dots;
 			}, [] )
-
 			.reduce( ( acc, val, key ) => {
 				if ( val !== null ) {
 					acc[ key ] = val;
