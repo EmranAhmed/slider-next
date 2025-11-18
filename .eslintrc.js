@@ -180,6 +180,7 @@ module.exports = {
 		StorePress: true,
 	},
 	rules: {
+		'no-unused-vars': 'off',
 		'@woocommerce/dependency-group': 'off',
 		'react/react-in-jsx-scope': 'off',
 		'no-restricted-imports': [

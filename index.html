@@ -26,9 +26,9 @@
 
 		.slider-wrapper {
 
-			--slides-to-show: 3;
+			--slides-to-show: 2;
 
-			--slides-to-scroll: 2;
+			--slides-to-scroll: 1;
 
 			margin-block: 50px;
 
@@ -36,7 +36,7 @@
 
 			--is-active-select: true;
 
-			--infinite-slides: true;
+			--infinite-slides: false;
 
 			--is-adaptive-size: true;
 
@@ -250,17 +250,34 @@
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 		<div class="storepress-slider-container">
 			<div class="storepress-slider">
-				<div class="active"><img src="images/beanie.jpg" /></div>
+				<!--<div class="active"><img src="images/beanie.jpg" /></div>
 				<div><img src="images/belt.jpg" /></div>
 				<div><img src="images/cap.jpg" /></div>
 				<div><img src="images/hoodie-blue-1.jpg" /></div>
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>
-				<div><div>08</div></div>
-				<div><div>09</div></div>
-				<div><div>10</div></div>
-				<div><div>11</div></div>
+				<div><img src="images/tshirt-2.jpg" /></div>-->
+				<div>
+					<div>01</div>
+				</div>
+				<div>
+					<div>02</div>
+				</div>
+				<div>
+					<div>03</div>
+				</div>
+				<div>
+					<div>04</div>
+				</div>
+				<div>
+					<div>05</div>
+				</div>
+				<div>
+					<div>06</div>
+				</div>
+				<div>
+					<div>07</div>
+				</div>
 				<!--<div><img src="images/hoodie.jpg" /></div>
 				<div><img src="images/polo-2.jpg" /></div>-->
 
@@ -350,7 +367,6 @@ Goto <a class="goto-dot" data-target="8" href="#">Dot 8</a>
 	const $godot = document.querySelectorAll('.goto-dot')
 	const $goslide = document.querySelectorAll('.goto-slide')
 
-
 	$godot.forEach(($item) => {
 		$item.addEventListener('click', (event) => {
 			event.preventDefault()
@@ -374,15 +390,12 @@ Goto <a class="goto-dot" data-target="8" href="#">Dot 8</a>
 			const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
 			const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
 
-
 			const dot = event.currentTarget.dataset.target
 			$slider3.forEach((el) => {
 				el.goToSlide(dot)
 			})
 		})
 	})
-
-
 
 	document.querySelector('#prev').addEventListener('click', (event) => {
 		event.preventDefault()
@@ -405,6 +418,25 @@ Goto <a class="goto-dot" data-target="8" href="#">Dot 8</a>
 			el.handleNext()
 		})
 	})
+
+	const createData = ( total, show, scroll, infinite = false ) => {
+		const totalDot = infinite
+			? Math.ceil( total / scroll )
+			: Math.ceil( ( total - show ) / scroll ) + 1;
+
+		const cloned = infinite ? show + scroll : 0;
+
+		return Array.from( { length: totalDot }, ( $, i ) => {
+			let start = i * scroll + cloned;
+			if ( ! infinite && start + show > total + cloned ) {
+				start = total + cloned - show;
+			}
+			return Array.from( { length: show }, ( _, j ) => start + j );
+		} );
+	};
+
+	// console.log('html->', createData(11, 2, 2, false))
+
 
 </script>
 

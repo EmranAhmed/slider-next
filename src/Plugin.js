@@ -93,6 +93,7 @@ function Plugin( element, options ) {
 		this.sliderWidth = 0;
 		this.sliderHeight = 0;
 		this.totalItems = this.$items.length;
+
 		this.initialSlide = 0;
 		this.currentIndex = 0;
 		this.currentDot = 0;
@@ -120,7 +121,7 @@ function Plugin( element, options ) {
 		this.controller = new AbortController();
 
 		// @TODO: hideControlOnEnd, adaptiveHeight
-		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue.
+		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue non infinite.
 
 		initial();
 
@@ -321,8 +322,8 @@ function Plugin( element, options ) {
 		this.totalDots = getTotalDots();
 
 		this.data = this.isInfinite
-			? getDataForInfinite()
-			: getDataForNonInfinite();
+			? getDataForInfiniteNew()
+			: getDataForNonInfiniteNew();
 
 		this.startIndex = this.data.itemStartIndex;
 		this.endIndex = this.data.itemEndIndex;
@@ -573,8 +574,6 @@ function Plugin( element, options ) {
 		if ( currentIndex < this.startIndex || currentIndex > this.endIndex ) {
 			const ci = getCloneIndex( currentIndex );
 
-			// console.log( ci );
-
 			setCurrentIndex( ci, false );
 		}
 	};
@@ -591,6 +590,7 @@ function Plugin( element, options ) {
 		if ( getCurrentDot() < 1 ) {
 			setCurrentDot( this.totalDots );
 			const index = getItemIndexByDotIndex( this.totalDots );
+
 			setCurrentIndex( index );
 		}
 	};
@@ -800,13 +800,16 @@ function Plugin( element, options ) {
 
 	const getDataForNonInfinite = () => {
 		const data = [];
-		const dotToItem = {};
-		const itemToDot = {};
+
+		const dotToItem = [];
+		const itemToDot = [];
 
 		const startIndex = 0;
-		const endIndex = this.totalItems - 1;
+		const endIndex = this.totalItems - 1; // 6
 
 		let current = startIndex;
+
+		// this.totalDots = 4
 
 		for ( let i = 0; i < this.totalDots; i++ ) {
 			const groupArray = [];
@@ -867,6 +870,137 @@ function Plugin( element, options ) {
 			dotStart,
 			dotEnd,
 		};
+	};
+
+	const getDataForInfiniteNew = () => {
+		const data = createDataInfinite(
+			this.totalItems,
+			this.slidesToShow,
+			this.slidesToScroll
+		);
+
+		const flatData = data.flat();
+
+		const dotStart = 1;
+		const dotEnd = data.length;
+
+		// Dot To Item, If clicked on dot slide to an item.
+		const dotToItem = data.map( ( item ) => {
+			return item.at( 0 );
+		} );
+
+		dotToItem.unshift( flatData.at( 0 ) - 1 );
+		dotToItem.push( this.totalItems + this.itemsToClone );
+
+		// Item to dot, If click an item, change dot.
+		const itemToDot = data
+			.reduce( ( dots, item, index ) => {
+				item.forEach( ( itemIndex ) => {
+					dots[ itemIndex ] = index + 1;
+				} );
+				return dots;
+			}, [] )
+			.reduce( ( acc, val, key ) => {
+				if ( val !== null ) {
+					acc[ key ] = val;
+				}
+				return acc;
+			}, {} );
+
+		const itemStartIndex = this.itemsToClone;
+		const itemEndIndex = this.totalItems + this.itemsToClone - 1;
+
+		return {
+			data,
+			dotToItem,
+			itemToDot,
+			itemStartIndex,
+			itemEndIndex,
+			dotStart,
+			dotEnd,
+		};
+	};
+
+	const getDataForNonInfiniteNew = () => {
+		const data = createDataNoInfinite(
+			this.totalItems,
+			this.slidesToShow,
+			this.slidesToScroll
+		);
+
+		const flatData = data.flat();
+
+		const dotStart = 1;
+		const dotEnd = data.length;
+
+		// Dot To Item, If clicked on dot slide to an item.
+		const dotToItem = data.map( ( item ) => {
+			return item.at( 0 );
+		} );
+
+		// Adding Extra Dots.
+		dotToItem.unshift( flatData.at( 0 ) - 1 );
+		dotToItem.push( this.totalItems );
+
+		// Item to dot, If click an item, change dot.
+		const itemToDot = data
+			.reduce( ( dots, item, index ) => {
+				item.forEach( ( itemIndex ) => {
+					dots[ itemIndex ] = index + 1;
+				} );
+				return dots;
+			}, [] )
+
+			.reduce( ( acc, val, key ) => {
+				if ( val !== null ) {
+					acc[ key ] = val;
+				}
+				return acc;
+			}, {} );
+
+		const itemStartIndex = 0;
+		const itemEndIndex = this.isCenter
+			? this.totalItems - 1
+			: this.totalItems - this.slidesToShow;
+
+		return {
+			data,
+			dotToItem,
+			itemToDot,
+			itemStartIndex,
+			itemEndIndex,
+			dotStart,
+			dotEnd,
+		};
+	};
+
+	const createDataNoInfinite = ( total, show, scroll ) => {
+		const totalDot = Math.ceil( ( total - show ) / scroll ) + 1;
+
+		return Array.from( { length: totalDot }, ( $, i ) => {
+			let start = i * scroll;
+			if ( start + show > total ) {
+				start = total - show;
+			}
+			return Array.from( { length: show }, ( _, j ) => start + j );
+		} );
+	};
+
+	const createDataInfinite = ( total, show, scroll ) => {
+		const cloned = show + scroll;
+		const maxIndex = total + cloned;
+
+		const totalDot = Math.ceil( total / scroll );
+
+		return Array.from( { length: totalDot }, ( $, i ) => {
+			const start = i * scroll + cloned;
+
+			return Array.from( { length: show }, ( _, j ) => {
+				const index = start + j;
+
+				return maxIndex >= index ? index : undefined;
+			} ).filter( ( val ) => val !== undefined );
+		} );
 	};
 
 	const getDotIndexByItemIndex = ( index ) => {
