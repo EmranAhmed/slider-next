@@ -136,9 +136,9 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 }
 
 @property --slider-min-item-size {
-	syntax: "<length>";
+	syntax: "<length>|<percentage>|auto";
 	inherits: true;
-	initial-value: 100px;
+	initial-value: auto;
 }
 
 @property --slider-can-swipe {
@@ -179,12 +179,13 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--show-control-navigation: true;
 		--slides-autoplay-timeout: 3000; // In Milliseconds.
 		--_current-slider-index: 0;
-		--_slider-adaptive-size: 100%;
+		--slider-min-item-size: 100%;
+		--_slider-adaptive-size: var(--slider-min-item-size, 100%);
 		--is-adaptive-size: false;
 		--slider-item-gap: 0px;
 		--control-navigation-color: #000;
 		--control-navigation-size: 30px;
-		--slider-min-item-size: 100px;
+
 		--sliding-duration: 500ms;
 		// Generate Transition: https://matthewlein.com/tools/ceaser
 		--sliding-timing-function: var(--ease-out-cubic); /* easeInOutExpo */

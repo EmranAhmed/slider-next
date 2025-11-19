@@ -735,8 +735,6 @@ function Plugin( element, options ) {
 			this.slidesToScroll
 		);
 
-		const flatData = data.flat();
-
 		const dotStart = 1;
 		const dotEnd = data.length;
 
@@ -745,7 +743,12 @@ function Plugin( element, options ) {
 			return item.at( 0 );
 		} );
 
-		dotToItem.unshift( flatData.at( 0 ) - 1 );
+		const firstIndex = data.at( 0 ).at( 0 );
+		const lastIndex = data.at( -1 ).at( 0 ) - this.itemsToClone;
+		const lastOriginalItems = this.totalItems - lastIndex;
+
+		dotToItem.unshift( firstIndex - lastOriginalItems );
+
 		dotToItem.push( this.totalItems + this.itemsToClone );
 
 		// Item to dot, If click an item, change dot.
@@ -778,11 +781,17 @@ function Plugin( element, options ) {
 	};
 
 	const getDataForNonInfinite = () => {
-		const data = createDataNoInfinite(
-			this.totalItems,
-			this.slidesToShow,
-			this.slidesToScroll
-		);
+		const data = this.isCenter
+			? createDataNoInfiniteCenter(
+					this.totalItems,
+					this.slidesToShow,
+					this.slidesToScroll
+			  )
+			: createDataNoInfinite(
+					this.totalItems,
+					this.slidesToShow,
+					this.slidesToScroll
+			  );
 
 		const flatData = data.flat();
 
@@ -827,6 +836,16 @@ function Plugin( element, options ) {
 			dotStart,
 			dotEnd,
 		};
+	};
+
+	const createDataNoInfiniteCenter = ( total, show, scroll ) => {
+		const totalDot = total;
+
+		return Array.from( { length: totalDot }, ( $, i ) => {
+			const start = i * scroll;
+
+			return Array.from( { length: show }, ( _, j ) => start + j );
+		} );
 	};
 
 	const createDataNoInfinite = ( total, show, scroll ) => {
@@ -932,10 +951,10 @@ function Plugin( element, options ) {
 	};
 
 	const getAdaptiveSize = ( index, kind ) => {
-		const itemsSizes = this.itemsSize.slice(
-			index,
-			index + this.slidesToShow
-		);
+		const start = index - this.centerItem;
+		const limit = start + this.slidesToShow;
+
+		const itemsSizes = this.itemsSize.slice( start, limit );
 
 		const sizeIndex = itemsSizes.reduce(
 			( maxIndex, currentValue, currentIndex, itemSizes ) => {
