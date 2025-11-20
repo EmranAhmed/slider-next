@@ -28,19 +28,19 @@
 
 			--slides-to-show: 3;
 
-			--slides-to-scroll: 3;
+			--slides-to-scroll: 1;
 
 			margin-block: 50px;
 
-			--slider-min-item-size: 100px;
+			/*--slider-min-item-size: 100px;*/
 
 			--is-active-select: true;
 
-			--infinite-slides: true;
+			--infinite-slides: false;
 
-			--is-adaptive-size: false;
+			--is-adaptive-size: true;
 
-			--is-always-center: false;
+			--is-always-center: true;
 
 			--slides-autoplay: false;
 
@@ -257,15 +257,26 @@
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
 				<div><img src="images/tshirt-2.jpg" /></div>-->
+
+
 				<div>
 					<div>01</div>
 				</div>
+
+				<div>
+					<img src="images/hoodie.jpg" />
+				</div>
+
 				<div>
 					<div>02</div>
 				</div>
+
 				<div>
 					<div>03</div>
 				</div>
+
+
+
 				<div>
 					<div>04</div>
 				</div>
@@ -278,16 +289,17 @@
 				<div>
 					<div>07</div>
 				</div>
+
 				<div>
 					<div>08</div>
 				</div>
-				<div>
+				<!--<div>
 					<div>09</div>
-				</div>
+				</div>-->
 				<!--<div>
 					<div>10</div>
 				</div>-->
-				<!--<div><img src="images/hoodie.jpg" /></div>-->
+
 
 			</div>
 		</div>
@@ -427,21 +439,21 @@ Goto <a class="goto-dot" data-target="8" href="#">Dot 8</a>
 		})
 	})
 
-	const createData = ( total, show, scroll, infinite = false ) => {
+	const createData = (total, show, scroll, infinite = false) => {
 		const totalDot = infinite
-			? Math.ceil( total / scroll )
-			: Math.ceil( ( total - show ) / scroll ) + 1;
+			? Math.ceil(total / scroll)
+			: Math.ceil((total - show) / scroll) + 1
 
-		const cloned = infinite ? show + scroll : 0;
+		const cloned = infinite ? show + scroll : 0
 
-		return Array.from( { length: totalDot }, ( $, i ) => {
-			let start = i * scroll + cloned;
-			if ( ! infinite && start + show > total + cloned ) {
-				start = total + cloned - show;
+		return Array.from({ length: totalDot }, ($, i) => {
+			let start = i * scroll + cloned
+			if (!infinite && start + show > total + cloned) {
+				start = total + cloned - show
 			}
-			return Array.from( { length: show }, ( _, j ) => start + j );
-		} );
-	};
+			return Array.from({ length: show }, (_, j) => start + j)
+		})
+	}
 
 	// console.log('html->', createData(11, 2, 2, false))
 

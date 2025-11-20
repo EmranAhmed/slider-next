@@ -804,7 +804,7 @@ function Plugin( element, options ) {
 		} );
 
 		// Adding Extra Dots.
-		dotToItem.unshift( flatData.at( 0 ) - 1 );
+		dotToItem.unshift( flatData.at( 0 ) - 2 );
 		dotToItem.push( this.totalItems );
 
 		// Item to dot, If click an item, change dot.
@@ -843,6 +843,10 @@ function Plugin( element, options ) {
 
 		return Array.from( { length: totalDot }, ( $, i ) => {
 			const start = i * scroll;
+
+			if ( start + show > total ) {
+				//start = total - show + this.centerItem;
+			}
 
 			return Array.from( { length: show }, ( _, j ) => start + j );
 		} );
@@ -954,7 +958,9 @@ function Plugin( element, options ) {
 		const start = index - this.centerItem;
 		const limit = start + this.slidesToShow;
 
-		const itemsSizes = this.itemsSize.slice( start, limit );
+		const itemsSizes = this.itemsSize.slice( start < 0 ? 0 : start, limit );
+
+		//	console.log( itemsSizes, start, limit );
 
 		const sizeIndex = itemsSizes.reduce(
 			( maxIndex, currentValue, currentIndex, itemSizes ) => {

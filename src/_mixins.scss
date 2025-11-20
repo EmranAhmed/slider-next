@@ -179,8 +179,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--show-control-navigation: true;
 		--slides-autoplay-timeout: 3000; // In Milliseconds.
 		--_current-slider-index: 0;
-		--slider-min-item-size: 100%;
-		--_slider-adaptive-size: var(--slider-min-item-size, 100%);
+		--slider-min-item-size: 100px;
+		--_slider-adaptive-size: 100%;
 		--is-adaptive-size: false;
 		--slider-item-gap: 0px;
 		--control-navigation-color: #000;
@@ -267,7 +267,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 		user-select: none;
 
-		height: var(--_slider-adaptive-size);
+		height: var(--_slider-adaptive-size) ;
 		width: 100%;
 		box-sizing: border-box;
 	}
