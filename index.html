@@ -28,19 +28,19 @@
 
 			--slides-to-show: 3;
 
-			--slides-to-scroll: 1;
+			--slides-to-scroll: 2;
 
 			margin-block: 50px;
 
-			/*--slider-min-item-size: 100px;*/
+			--slider-min-item-size: 100px;
 
-			--is-active-select: true;
+			--is-active-select: false;
 
-			--infinite-slides: false;
+			--infinite-slides: true;
 
-			--is-adaptive-size: true;
+			--is-adaptive-size: false;
 
-			--is-always-center: true;
+			--is-always-center: false;
 
 			--slides-autoplay: false;
 
@@ -48,7 +48,7 @@
 
 			--slider-item-gap: 2px;
 
-			--item-padding: 10px;
+			--item-padding-inline: 0px;
 
 			@media (width < 1600px) {
 
@@ -64,112 +64,23 @@
 			box-shadow: 0 0 20px 10px rgba(0, 0, 0, 0.51);
 			border-radius: 10px;
 
-			/*padding-inline: 10px;
-			padding-block: 0;*/
+			padding-inline: var(--item-padding-inline);
 
-			/*			padding-inline: 10px;
-						padding-block: 0;*/
-
-			/*			@container style(--is-horizontal: true) {
-							padding-inline: 10px;
-							padding-block: 0;
-						}
-
-						@container style(--is-horizontal: false) {
-							padding-block: 10px;
-							padding-inline: 0;
-						}*/
-
-			/*padding-inline: 20px;
-			padding-block: 20px;*/
-
-			/*&.position-start {
-				padding-inline-end: calc( var(--item-padding) * 2 );
+			&.position-start {
+				padding-inline-end: calc(var(--item-padding-inline) * 2);
 				padding-inline-start: 0;
 			}
 
 			&.position-middle {
-				padding-inline: var(--item-padding);
+				padding-inline: var(--item-padding-inline);
 			}
 
 			&.position-end {
 				padding-inline-end: 0;
-				padding-inline-start: calc( var(--item-padding) * 2 );
-			}*/
-		}
-
-		/*.storepress-slider > * > *{
-			padding: 10px;
-			margin: 10px;
-		}*/
-
-
-		/*
-		@property --do {
-			syntax: "true|false";
-			inherits: true;
-			initial-value: true;
-		}
-		*/
-
-
-		.card {
-			--accent-color: blue;
-			width: 50px;
-			height: 50px;
-			display: block;
-		}
-
-		@container style(--accent-color: blue) {
-			.card {
-				border: 2px solid blue;
+				padding-inline-start: calc(var(--item-padding-inline) * 2);
 			}
 		}
 
-		/*
-		.card {
-			--do: true;
-			width: 50px;
-			height: 50px;
-			display: block;
-			@media (width < 1600px) {
-				--do: false;
-			}
-
-			@container style(--do: true) {
-				border: 2px solid blue;
-			}
-
-			@container style(--do: false) {
-				border: 2px solid green;
-			}
-		}
-		*/
-
-		/*		@container style(--do: true) {
-					.card {
-						border: 2px solid blue;
-					}
-				}
-
-				@container style(--do: false) {
-					.card {
-						border: 2px solid green;
-					}
-				}
-
-
-				.card {
-					@container style(--do: true) {
-						border: 2px solid blue;
-					}
-				}
-
-				.card {
-					@container style(--do: false) {
-						border: 2px solid green;
-					}
-				}*/
 	</style>
 </head>
 
@@ -179,92 +90,71 @@
 
 <div class="container-2">
 
-	<!--
-		<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
 
-			<div class="storepress-slider-container">
-				<div class="storepress-slider">
-					<div class="active"><img src="images/beanie.jpg" /></div>
-					<div><img src="images/belt.jpg" /></div>
-					<div><img src="images/cap.jpg" /></div>
-					<div><img src="images/hoodie-blue-1.jpg" /></div>
-					<div><img src="images/pennant-1.jpg" /></div>
-					<div><img src="images/sunglasses-2.jpg" /></div>
-					<div><img src="images/tshirt-2.jpg" /></div>
+	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 
+		<div class="storepress-slider-container">
+			<div class="storepress-slider-track">
 
-					&lt;!&ndash;<div class="active" style="background-color: #bbbbbb">
-						<div>01</div>
-					</div>
-					<div style="background-color: #702222">
-						<div>02</div>
-					</div>
-					<div style="background-color: #b051d0">
-						<div>03</div>
-					</div>
-					<div style="background-color: #357c6b">
-						<div>04</div>
-					</div>
-					<div style="background-color: #9b1358">
-						<div>05</div>
-					</div>
-					<div style="background-color: #1a852f">
-						<div>06</div>
-					</div>
-					<div style="background-color: #2b6091">
-						<div>07</div>
-					</div>&ndash;&gt;
-
-
-					&lt;!&ndash;
-												<div>08</div>
-												<div >09</div>
-												<div>10</div>
-												<div>11</div>
-												<div>12</div>
-												<div>13</div>&ndash;&gt;
+				<div class="active" style="background-color: #bbbbbb">
+					<div>01</div>
 				</div>
-			</div>
-
-			<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
-				<div class="storepress-slider-navigation">
-					<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
-						<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-							<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
-						</svg>
-					</button>
-					<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
-						<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-							<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
-						</svg>
-					</button>
+				<div style="background-color: #702222">
+					<div>02</div>
 				</div>
-
-				<div class="storepress-slider-pagination">
-					<button>1</button>
+				<div style="background-color: #b051d0">
+					<div>03</div>
+				</div>
+				<div style="background-color: #357c6b">
+					<div>04</div>
+				</div>
+				<div style="background-color: #9b1358">
+					<div>05</div>
+				</div>
+				<div style="background-color: #1a852f">
+					<div>06</div>
+				</div>
+				<div style="background-color: #2b6091">
+					<div>07</div>
 				</div>
 			</div>
 		</div>
-	-->
+
+		<div role="group" aria-label="Slide controls" class="storepress-slider-controls">
+			<div class="storepress-slider-navigation">
+				<button role="button" aria-label="Previous slide" class="storepress-slider-navigation-previous">
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+						<path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" />
+					</svg>
+				</button>
+				<button role="button" aria-label="Next slide" class="storepress-slider-navigation-next">
+					<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+						<path d="M256 120.768L306.432 64 768 512l-461.568 448L256 903.232 659.072 512z" />
+					</svg>
+				</button>
+			</div>
+
+			<div class="storepress-slider-pagination">
+				<button>1</button>
+			</div>
+		</div>
+	</div>
+
 
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 		<div class="storepress-slider-container">
-			<div class="storepress-slider">
-				<!--<div class="active"><img src="images/beanie.jpg" /></div>
+			<div class="storepress-slider-track">
+				<div class="active"><img src="images/beanie.jpg" /></div>
 				<div><img src="images/belt.jpg" /></div>
 				<div><img src="images/cap.jpg" /></div>
 				<div><img src="images/hoodie-blue-1.jpg" /></div>
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
-				<div><img src="images/tshirt-2.jpg" /></div>-->
+				<div><img src="images/tshirt-2.jpg" /></div>
 
 
-				<div>
+				<!--<div>
 					<div>01</div>
-				</div>
-
-				<div>
-					<img src="images/hoodie.jpg" />
 				</div>
 
 				<div>
@@ -274,8 +164,6 @@
 				<div>
 					<div>03</div>
 				</div>
-
-
 
 				<div>
 					<div>04</div>
@@ -288,19 +176,7 @@
 				</div>
 				<div>
 					<div>07</div>
-				</div>
-
-				<div>
-					<div>08</div>
-				</div>
-				<!--<div>
-					<div>09</div>
 				</div>-->
-				<!--<div>
-					<div>10</div>
-				</div>-->
-
-
 			</div>
 		</div>
 

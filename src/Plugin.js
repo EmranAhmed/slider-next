@@ -11,7 +11,7 @@ function Plugin( element, options ) {
 	// Default Settings
 	const DEFAULTS = {
 		containerElement: '.storepress-slider-container',
-		sliderElement: '.storepress-slider',
+		sliderTrackElement: '.storepress-slider-track',
 		sliderDotsTitle: 'Goto Slider',
 		defaultItemClassName: 'active',
 	};
@@ -19,11 +19,14 @@ function Plugin( element, options ) {
 	const PRIVATE = {
 		sliderCurrentIndexCSSProperty: '--_current-slider-index',
 		sliderAdaptiveSizeCSSProperty: '--_slider-adaptive-size',
+		sliderHorizontalPositionCSSProperty: '--_horizontal-value',
+		sliderVerticalPositionCSSProperty: '--_vertical-value',
 		isAdaptiveSizeCSSProperty: '--is-adaptive-size',
 		slidesToScrollCSSProperty: '--slides-to-scroll',
 		slidesToShowCSSProperty: '--slides-to-show',
 		isInfiniteCSSProperty: '--infinite-slides',
 		canSwipeCSSProperty: '--slider-can-swipe',
+		sliderSwipeOffsetValueCSSProperty: '--slider-swipe-offset',
 		initialItemCSSProperty: '--slider-initial-item',
 		showDotsCSSProperty: '--show-pagination',
 		showArrowCSSProperty: '--show-navigation',
@@ -50,6 +53,7 @@ function Plugin( element, options ) {
 		itemCurrentClassName: 'current',
 		itemCloneClassName: 'clone',
 
+		elementSwipingClassName: 'is-swiping',
 		elementClassName: '',
 		elementVerticalClassName: 'is-vertical',
 		elementHorizontalClassName: 'is-horizontal',
@@ -87,7 +91,7 @@ function Plugin( element, options ) {
 			this.settings.containerElement
 		);
 		this.$slider = this.$element.querySelector(
-			this.settings.sliderElement
+			this.settings.sliderTrackElement
 		);
 		this.$items = this.$slider.querySelectorAll( ':scope > *' ); // Select direct children
 		this.sliderWidth = 0;
@@ -110,6 +114,7 @@ function Plugin( element, options ) {
 		this.autoPlayTimeout = 0;
 		this.autoPlayId = null;
 		this.enableSwipe = true;
+		this.swipeOffsetValue = 50;
 		this.cleanupSwipe = noop();
 		this.itemsToClone = 0;
 		this.startIndex = 0;
@@ -120,8 +125,7 @@ function Plugin( element, options ) {
 		this.itemsSize = [];
 		this.controller = new AbortController();
 
-		// @TODO: hideControlOnEnd, adaptiveHeight
-		// @TODO: we have to fix calculate 2,2 item 7 or 3,3 item 7 or 4,2 item 7 issue non infinite.
+		// @TODO: hideControlOnEnd
 
 		initial();
 
@@ -202,6 +206,15 @@ function Plugin( element, options ) {
 		).toLowerCase();
 
 		this.enableSwipe = cssVariableIsTrue( swipeString );
+
+		// Swipe Offset
+
+		this.swipeOffsetValue = parseInt(
+			getElementComputedStyle(
+				this.settings.sliderSwipeOffsetValueCSSProperty
+			),
+			10
+		);
 
 		// Adaptive Size
 		const adaptiveSizeString = getElementComputedStyle(
@@ -378,21 +391,9 @@ function Plugin( element, options ) {
 
 		this.$items.forEach( ( $item, index ) => {
 			$item.classList.add( CLASSES.itemClassName );
-			//$item.setAttribute('aria-hidden', 'true');
+
 			$item.setAttribute( 'inert', true );
 			$item.dataset.index = index + 1;
-
-			// const $itemInner = $item.querySelector( ':scope > *' );
-
-			/*this.itemsSize[ getIndex( index ) ] = {
-				height: getComputedStyle( $itemInner, 'height' ),
-				width: getComputedStyle( $itemInner, 'width' ),
-			};*/
-
-			/*this.itemsSize[ index ] = {
-				height: getComputedStyle( $itemInner, 'height' ),
-				width: getComputedStyle( $itemInner, 'width' ),
-			};*/
 
 			$item.setAttribute( 'inert', true );
 
@@ -455,13 +456,6 @@ function Plugin( element, options ) {
 
 		this.itemsSize = [];
 		$items.forEach( ( $item, index ) => {
-			// const $itemInner = $item.querySelector( ':scope > *' );
-
-			/*this.itemsSize[ index ] = {
-				height: getComputedStyle( $itemInner, 'height' ),
-				width: getComputedStyle( $itemInner, 'width' ),
-			};*/
-
 			if ( index < this.startIndex || index > this.endIndex ) {
 				$item.dataset.index = index * -1;
 			}
@@ -839,23 +833,17 @@ function Plugin( element, options ) {
 	};
 
 	const createDataNoInfiniteCenter = ( total, show, scroll ) => {
-		const totalDot = total;
-
-		return Array.from( { length: totalDot }, ( $, i ) => {
+		return Array.from( { length: total }, ( $, i ) => {
 			const start = i * scroll;
-
-			if ( start + show > total ) {
-				//start = total - show + this.centerItem;
-			}
 
 			return Array.from( { length: show }, ( _, j ) => start + j );
 		} );
 	};
 
 	const createDataNoInfinite = ( total, show, scroll ) => {
-		const totalDot = Math.ceil( ( total - show ) / scroll ) + 1;
+		const dots = Math.ceil( ( total - show ) / scroll ) + 1;
 
-		return Array.from( { length: totalDot }, ( $, i ) => {
+		return Array.from( { length: dots }, ( $, i ) => {
 			let start = i * scroll;
 			if ( start + show > total ) {
 				start = total - show;
@@ -868,9 +856,9 @@ function Plugin( element, options ) {
 		const cloned = show + scroll;
 		const maxIndex = total + cloned;
 
-		const totalDot = Math.ceil( total / scroll );
+		const dots = Math.ceil( total / scroll );
 
-		return Array.from( { length: totalDot }, ( $, i ) => {
+		return Array.from( { length: dots }, ( $, i ) => {
 			const start = i * scroll + cloned;
 
 			return Array.from( { length: show }, ( _, j ) => {
@@ -1088,7 +1076,7 @@ function Plugin( element, options ) {
 
 		if ( this.enableSwipe ) {
 			this.cleanupSwipe = swipeEvent( this.$container, handleSwipe, {
-				offset: 50, // @TODO: Swipe Offset from CSS
+				offset: this.swipeOffsetValue,
 			} );
 		}
 
@@ -1267,35 +1255,39 @@ function Plugin( element, options ) {
 
 		if ( moving ) {
 			this.isSwiping = true;
-			this.$element.classList.add( 'swiping' );
+			this.$element.classList.add( CLASSES.elementSwipingClassName );
 
 			this.$slider.style.setProperty(
-				'--_horizontal-value',
+				this.settings.sliderHorizontalPositionCSSProperty,
 				`${ horizontalValue }px`
 			);
 
 			this.$slider.style.setProperty(
-				'--_vertical-value',
+				this.settings.sliderVerticalPositionCSSProperty,
 				`${ verticalValue }px`
 			);
 		}
 
 		if ( done ) {
 			addAnimatingClass();
-			this.$element.classList.remove( 'swiping' );
-			this.$slider.style.removeProperty( '--_horizontal-value' );
-			this.$slider.style.removeProperty( '--_vertical-value' );
+			this.$element.classList.remove( CLASSES.elementSwipingClassName );
+			this.$slider.style.removeProperty(
+				this.settings.sliderHorizontalPositionCSSProperty
+			);
+			this.$slider.style.removeProperty(
+				this.settings.sliderVerticalPositionCSSProperty
+			);
 			this.isSwiping = false;
 			startAutoPlay();
 		}
 
 		if ( done && ( left || top ) ) {
-			this.$element.classList.remove( 'swiping' );
+			this.$element.classList.remove( CLASSES.elementSwipingClassName );
 			slideNext();
 		}
 
 		if ( done && ( right || bottom ) ) {
-			this.$element.classList.remove( 'swiping' );
+			this.$element.classList.remove( CLASSES.elementSwipingClassName );
 			slidePrev();
 		}
 	};
