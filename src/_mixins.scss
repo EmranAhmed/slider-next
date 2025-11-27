@@ -93,10 +93,17 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	initial-value: false;
 }
 
+
 @property --sliding-duration {
 	syntax: "<time>";
 	inherits: true;
 	initial-value: 500ms;
+}
+
+@property --sliding-timing-function {
+	syntax: "*";
+	inherits: true;
+	initial-value: ease-in-out;
 }
 
 @property --slider-item-gap {
@@ -210,17 +217,14 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		display: flex;
 		flex-direction: column;
 
-		height: fit-content;
 		width: 100%;
-
-		&.is-horizontal {
-			height: fit-content;
-			width: 100%;
-		}
 
 		&.is-vertical {
 			height: 100%;
-			width: fit-content;
+		}
+
+		&.is-horizontal {
+			height: fit-content;
 		}
 	}
 }
@@ -244,20 +248,22 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	}
 }
 
-@mixin base-style() {
+@mixin track-style() {
 	& {
 		/*will-change: auto;*/
+
+		--_is_rtl: -1; // is ltr set 1
 
 		--_item-width: calc(100% / var(--slides-to-show));
 		--_item-height: calc(100% / var(--slides-to-show));
 
 		--_column-gap-count: calc(var(--slides-to-show) - 1);
-		--_column-size: calc(calc(var(--slider-item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
+		--_column-size: calc((var(--slider-item-gap) / var(--slides-to-show)) * var(--_column-gap-count));
 
-		--_gap-value: calc(var(--_current-slider-index) * calc(var(--slider-item-gap) / var(--slides-to-show)));
+		--_gap-value: calc(var(--_current-slider-index) * (var(--slider-item-gap) / var(--slides-to-show)));
 
-		--_horizontal-value: calc(calc(var(--_item-width) * var(--_current-slider-index) + var(--_gap-value)) * -1);
-		--_vertical-value: calc(calc(var(--_item-height) * var(--_current-slider-index) + var(--_gap-value)) * -1);
+		--_horizontal-value: calc((var(--_item-width) * var(--_current-slider-index) + var(--_gap-value)) * var(--_is_rtl));
+		--_vertical-value: calc((var(--_item-height) * var(--_current-slider-index) + var(--_gap-value)) * var(--_is_rtl));
 
 
 		--_center-item-gap-value: calc(var(--_column-size) / 2);
@@ -268,54 +274,39 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		transform: translateX(var(--_horizontal-value));
 		// transform: translateY(var(--vertical-value));
-		will-change: transform;
+		// will-change: transform;
 
 		list-style: none;
 		display: grid;
+
 		gap: var(--slider-item-gap);
 
-		grid-auto-flow: column;
-		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 		user-select: none;
 
-		height: var(--_slider-adaptive-size, 100%);
-		width: 100%;
 		box-sizing: border-box;
+
+		&{
+			@include horizontal-style();
+		}
 	}
 }
 
 @mixin item-style() {
 	& {
-
-		/*align-items: center;
-		justify-content: center;
-		flex-direction: column;*/
 		position: relative;
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
 
-		@container style(--is-adaptive-size: true) {
-			display: block;
-		}
-
-		@container style(--is-adaptive-size: false) {
-			display: flex;
-		}
+		display: contents;
 
 		> * {
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			user-select: none;
-
 			object-fit: cover; // for image
-
 			width: 100%;
-			height: auto;
-			min-height: var(--slider-min-item-size);
-			min-width: auto;
-
 			box-sizing: border-box;
 		}
 	}
@@ -333,7 +324,10 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		transform: translateX(var(--_horizontal-value));
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
-		grid-auto-rows: auto;
+		grid-auto-rows: var(--slider-min-item-size, 100%);
+		// set 100% after adaptive size calculated.
+		height: var(--_slider-adaptive-size, var(--slider-min-item-size));
+		//grid-auto-rows: unset;
 	}
 }
 
@@ -342,7 +336,11 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		transform: translateY(var(--_vertical-value));
 		grid-auto-flow: row;
 		grid-auto-rows: calc(var(--_item-height) - var(--_column-size));
-		grid-auto-columns: auto;
+		grid-auto-columns: unset;
+
+		> * > *{
+			height: 100%;
+		}
 	}
 }
 
@@ -442,7 +440,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	// Slider
 	& :where(.storepress-slider-container > .storepress-slider-track) {
 
-		@include base-style();
+		@include track-style();
 
 		&.animating {
 			@include animating-style();
@@ -493,30 +491,16 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 	&.is-horizontal {
 		.storepress-slider-track {
 			@include horizontal-style();
+		}
 
-			// Slider item
-			> * > * {
-				width: 100%;
-				height: auto;
-				min-height: var(--slider-min-item-size);
-				min-width: auto;
-			}
+		.has-adaptive-size-calculated{
+			grid-auto-rows: 100%;
 		}
 	}
 
 	&.is-vertical {
 		.storepress-slider-track {
 			@include vertical-style();
-
-			// Slider item
-			> * > * {
-
-				width: auto;
-				height: 100%;
-
-				min-width: var(--slider-min-item-size);
-				min-height: auto;
-			}
 		}
 
 		.storepress-slider-navigation {
@@ -546,13 +530,33 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		}
 	}
 
-	@container style(--is-horizontal: true) {
-		height: fit-content;
-		width: 100%;
+	&.has-adaptive-size {
+		.storepress-slider-track {
+			> * {
+				display: contents;
+				align-items: baseline;
+				justify-content: center;
+			}
+		}
 	}
 
-	@container style(--is-horizontal: false) {
-		height: 100%;
-		width: fit-content;
+	&:not(.has-adaptive-size) {
+		.storepress-slider-track {
+
+			> * {
+				display: contents;
+
+			}
+		}
+	}
+
+	&:not(.has-adaptive-size):is(.is-horizontal) {
+		.storepress-slider-track {
+
+			grid-auto-rows: unset;
+			// set 100% after adaptive size calculated.
+			height: var(--_slider-adaptive-size, var(--slider-min-item-size));
+
+		}
 	}
 }

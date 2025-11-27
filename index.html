@@ -8,10 +8,17 @@
 	<link rel="stylesheet" href="./build/style-slider.css" />
 	<style>
 		.container-2 {
-			width: 400px;
 			height: 400px;
+			max-width: 600px;
 			margin: 50px auto;
 			display: block;
+
+
+			@media (width < 1600px) {
+				/*height: 600px;*/
+				/*width: 600px;
+				height: auto;*/
+			}
 		}
 
 		/** Use 100% height and width for full width and full height */
@@ -32,17 +39,17 @@
 
 			margin-block: 50px;
 
-			--slider-min-item-size: 100px;
+			--slider-min-item-size: 100%;
 
 			--is-active-select: false;
 
 			--infinite-slides: true;
 
-			--is-adaptive-size: false;
+			--is-adaptive-size: true;
 
 			--is-always-center: false;
 
-			--slides-autoplay: false;
+			--slides-autoplay: true;
 
 			--is-horizontal: true;
 
@@ -52,10 +59,9 @@
 
 			@media (width < 1600px) {
 
-				--slides-to-show: 1;
+				/*--slides-to-show: 1;
 
-				--slides-to-scroll: 1;
-
+				--slides-to-scroll: 1;*/
 				--is-horizontal: false;
 			}
 		}
@@ -86,37 +92,39 @@
 
 <body>
 
-<div class="card"></div>
 
 <div class="container-2">
-
-
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 
 		<div class="storepress-slider-container">
 			<div class="storepress-slider-track">
 
-				<div class="active" style="background-color: #bbbbbb">
-					<div>01</div>
+				<div><img src="images/belt.jpg" /></div>
+				<div class="active">
+					<div style="background-color: #bbbbbb">01</div>
 				</div>
-				<div style="background-color: #702222">
-					<div>02</div>
+				<div>
+					<div style="background-color: #702222">02</div>
 				</div>
-				<div style="background-color: #b051d0">
-					<div>03</div>
+				<div>
+					<div style="background-color: #b051d0">03</div>
 				</div>
-				<div style="background-color: #357c6b">
-					<div>04</div>
+				<div>
+					<div style="background-color: #357c6b">04</div>
 				</div>
-				<div style="background-color: #9b1358">
-					<div>05</div>
+				<div>
+					<div style="background-color: #9b1358">05</div>
 				</div>
-				<div style="background-color: #1a852f">
-					<div>06</div>
+				<div>
+					<div style="background-color: #1a852f">06</div>
 				</div>
-				<div style="background-color: #2b6091">
-					<div>07</div>
+				<div>
+					<div style="background-color: #2b6091">07</div>
 				</div>
+
+				<!--<div>
+					<div><img src="images/belt.jpg" /></div>
+				</div>-->
 			</div>
 		</div>
 
@@ -139,7 +147,12 @@
 			</div>
 		</div>
 	</div>
+</div>
 
+
+
+<!--
+<div class="container-2">
 
 	<div role="region" aria-label="Carousel" class="slider-wrapper" data-storepress-slider="">
 		<div class="storepress-slider-container">
@@ -151,32 +164,6 @@
 				<div><img src="images/pennant-1.jpg" /></div>
 				<div><img src="images/sunglasses-2.jpg" /></div>
 				<div><img src="images/tshirt-2.jpg" /></div>
-
-
-				<!--<div>
-					<div>01</div>
-				</div>
-
-				<div>
-					<div>02</div>
-				</div>
-
-				<div>
-					<div>03</div>
-				</div>
-
-				<div>
-					<div>04</div>
-				</div>
-				<div>
-					<div>05</div>
-				</div>
-				<div>
-					<div>06</div>
-				</div>
-				<div>
-					<div>07</div>
-				</div>-->
 			</div>
 		</div>
 
@@ -200,6 +187,7 @@
 		</div>
 	</div>
 </div>
+-->
 
 
 <br />

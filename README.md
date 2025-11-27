@@ -9,7 +9,7 @@ Simple CSS Variable Controlled Slider.
 - Load `./build/style-slider.css`
 - Load `./build/storepress-utils.js`
 - Load `./build/slider.js`
-- Add `data-storepress-tooltip="Tooltip Text"` attribute on any html element.
+- Add `data-storepress-slider=""` attribute on any html element.
 
 ## Development
 
@@ -28,7 +28,7 @@ npm i @storepress/slider @storepress/utils --save
 ```html
 <div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
   <div class="storepress-slider-container">
-    <div class="storepress-slider">
+    <div class="storepress-slider-track">
       <div class="active">
         <div style="background-color: #ea0606">01</div>
       </div>
@@ -86,26 +86,29 @@ npm i @storepress/slider @storepress/utils --save
   @include slider.slider-init();
 
   & {
-    --slides-to-show: 1;
-    --slides-to-scroll: 1;
-    --slider-can-swipe: true;
-    --slider-initial-item: 0;
-    --infinite-slides: true;
-    --is-horizontal: true;
+    --slides-to-show: 1; // Slide show at a time.
+    --slides-to-scroll: 1; // Slide scroll at a time
+    --slider-can-swipe: true; // Can user slide by swap
+    --slider-swipe-offset: 50; // Swipe offset
+    --slider-initial-item: 0; // Default active item
+    --infinite-slides: true; // Is infinite slide.
+    --is-horizontal: true; // is horizontal slide
     --is-always-center: false;
-    --is-active-select: false;
+    --is-active-select: false; // Is goto that slide if click
     --slides-autoplay: false;
     --show-control-pagination: true;
     --show-control-navigation: true;
     --slides-autoplay-timeout: 3000; // In Milliseconds.
-    --_current-slider-index: 0;
+    --slider-min-item-size: 100px;
+    --is-adaptive-size: false;
     --slider-item-gap: 0px;
     --control-navigation-color: #000;
     --control-navigation-size: 30px;
-    --slider-min-item-size: 100px;
+
     --sliding-duration: 500ms;
     // Generate Transition: https://matthewlein.com/tools/ceaser
-    --sliding-timing-function: var(--ease-out-cubic); /* easeInOutExpo */
+    --sliding-timing-function: var(--ease-in-out-expo); /* easeInOutExpo */
+
   }
 }
 
@@ -119,11 +122,6 @@ npm i @storepress/slider @storepress/utils --save
  */
 import StorePressSlider from '@storepress/slider'
 import { triggerEvent } from '@storepress/utils'
-
-/**
- * External dependencies
- */
-import StorePressSlider from '@storepress/slider'
 
 document.addEventListener('DOMContentLoaded', () => {
   StorePressSlider.init()

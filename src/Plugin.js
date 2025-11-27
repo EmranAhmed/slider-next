@@ -59,6 +59,8 @@ function Plugin( element, options ) {
 		elementHorizontalClassName: 'is-horizontal',
 		elementCenterClassName: 'is-active-center',
 		elementHasInfiniteClassName: 'has-infinite',
+		elementHasAdaptiveSizeClassName: 'has-adaptive-size',
+
 		elementHasDotClassName: 'has-dots',
 		elementHasArrowClassName: 'has-arrow',
 
@@ -69,6 +71,9 @@ function Plugin( element, options ) {
 
 		sliderClassName: '',
 		sliderAnimatingClassName: 'animating',
+
+		sliderHasAdaptiveSizeCalculatedClassName:
+			'has-adaptive-size-calculated',
 
 		dotClassName: 'dot',
 		dotCurrentClassName: 'current',
@@ -145,6 +150,10 @@ function Plugin( element, options ) {
 	};
 
 	const prepareAdaptiveSize = () => {
+		if ( ! this.isAdaptiveSize ) {
+			return;
+		}
+
 		setTimeout( () => {
 			const $items = this.$slider.querySelectorAll( ':scope > *' );
 			$items.forEach( ( $item, index ) => {
@@ -155,6 +164,10 @@ function Plugin( element, options ) {
 					width: getComputedStyle( $itemInner, 'width' ),
 				};
 			} );
+
+			this.$slider.classList.add(
+				CLASSES.sliderHasAdaptiveSizeCalculatedClassName
+			);
 
 			setAdaptiveSize();
 		}, 100 );
@@ -319,6 +332,12 @@ function Plugin( element, options ) {
 
 		if ( this.isInfinite ) {
 			this.$element.classList.add( CLASSES.elementHasInfiniteClassName );
+		}
+
+		if ( this.isAdaptiveSize ) {
+			this.$element.classList.add(
+				CLASSES.elementHasAdaptiveSizeClassName
+			);
 		}
 
 		if ( this.isHorizontal ) {
@@ -965,11 +984,7 @@ function Plugin( element, options ) {
 	};
 
 	const setAdaptiveSize = () => {
-		if (
-			//this.slidesToShow > 1 ||
-			! this.isAdaptiveSize ||
-			! this.isHorizontal
-		) {
+		if ( ! this.isAdaptiveSize || ! this.isHorizontal ) {
 			return;
 		}
 
@@ -1332,13 +1347,18 @@ function Plugin( element, options ) {
 				}
 			} );
 
+		this.$slider.classList.remove(
+			CLASSES.sliderHasAdaptiveSizeCalculatedClassName
+		);
+
 		this.$element.classList.remove(
 			CLASSES.elementHasInfiniteClassName,
 			CLASSES.elementHorizontalClassName,
 			CLASSES.elementVerticalClassName,
 			CLASSES.elementCenterClassName,
 			CLASSES.elementHasArrowClassName,
-			CLASSES.elementHasDotClassName
+			CLASSES.elementHasDotClassName,
+			CLASSES.elementHasAdaptiveSizeClassName
 		);
 
 		this.$container.classList.remove(

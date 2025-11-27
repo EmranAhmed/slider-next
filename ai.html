@@ -13,9 +13,9 @@
 			border-radius: 8px;
 			overflow: hidden;
 
-			--slides-to-show: 1;
+			--slides-to-show: 3;
 			--is-horizontal: true;
-			--slider-index: 1;
+			--slider-index: 2;
 		}
 
 		.storepress-slider-container {
@@ -24,15 +24,14 @@
 			height: 200px;
 		}
 
-		.storepress-slider {
+		.storepress-slider-track {
 			display: flex;
-
 			flex-wrap: nowrap;
 			transition: transform 0.3s ease-in-out;
 			height: 100%;
 			width: 100%;
 
-			@container style(--is-horizontal: true) {
+			/*@container style(--is-horizontal: true) {
 				flex-direction: row;
 				transform: translateX(calc(100% * var(--slider-index) * -1))
 			}
@@ -40,20 +39,42 @@
 			@container style(--is-horizontal: false) {
 				flex-direction: column;
 				transform: translateY(calc(100% * var(--slider-index) * -1))
-			}
+			}*/
 
 			will-change: transform;
 		}
 
-		.slide {
+		.slider-wrapper.is-horizontal .storepress-slider-track{
+			flex-direction: row;
+			transform: translateX(calc( (100% / var(--slides-to-show)) * var(--slider-index) * -1))
+		}
 
-			@container style(--is-horizontal: true) {
-				min-width: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
-			}
+		.slider-wrapper.is-vertical .storepress-slider-track{
+			flex-direction: column;
+			transform: translateY(calc((100% / var(--slides-to-show)) * var(--slider-index) * -1))
+		}
 
-			@container style(--is-horizontal: false) {
-				min-height: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
-			}
+		.slider-wrapper.is-horizontal .storepress-slider-track > * {
+			min-width: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
+		}
+
+		.slider-wrapper.is-vertical .storepress-slider-track > * {
+			min-height: calc(100% / var(--slides-to-show)); /* Show x slides at a time */
+		}
+
+		.storepress-slider-track img{
+			width: 100%;
+			display: flex;
+		}
+
+		.storepress-slider-track > *{
+			/*@container style(--is-horizontal: true) {
+			min-width: calc(100% / var(--slides-to-show)); !* Show x slides at a time *!
+		}
+
+		@container style(--is-horizontal: false) {
+			min-height: calc(100% / var(--slides-to-show)); !* Show x slides at a time *!
+		}*/
 
 			display: flex;
 			align-items: center;
@@ -63,13 +84,15 @@
 			color: white;
 			text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 			box-sizing: border-box;
-			padding: 0 5px; /* Small gap between slides */
+			padding: 0px; /* Small gap between slides */
 		}
+
+
 
 		.slide a {
 			color: inherit;
 			text-decoration: none;
-			padding: 20px;
+			/*padding: 20px;*/
 			display: block;
 			width: 100%;
 			height: 100%;
@@ -198,7 +221,7 @@
 </head>
 <body>
 
-<section role="region" aria-roledescription="carousel" aria-label="Featured content carousel" class="slider-wrapper" data-storepress-slider="">
+<section role="region" aria-roledescription="carousel" aria-label="Featured content carousel" class="slider-wrapper is-horizontal" data-storepress-slider="">
 	<!-- Live region for announcements -->
 	<div aria-live="polite" aria-atomic="true" class="sr-only" id="carousel-status"></div>
 
@@ -213,7 +236,7 @@
 	</div>
 
 	<div class="storepress-slider-container">
-		<div class="storepress-slider"
+		<div class="storepress-slider-track"
 			 role="group"
 			 aria-label="Carousel slides - showing 2 slides at a time"
 			 aria-describedby="carousel-instructions"
@@ -247,9 +270,8 @@
 					 id="slide-2"
 					 tabindex="-1"
 					 style="background-color: #d780d7">
-				<div aria-label="Slide 2 content">
-					02
-				</div>
+
+				<img src="images/album.jpg" />
 			</article>
 			<article class="slide"
 					 role="group"
@@ -366,7 +388,7 @@
 	class AccessibleCarousel {
 		constructor (carouselElement) {
 			this.carousel = carouselElement
-			this.slider = this.carousel.querySelector('.storepress-slider')
+			this.slider = this.carousel.querySelector('.storepress-slider-track')
 			this.slides = this.carousel.querySelectorAll('.slide:not(.slide-clone)') // Exclude clones
 			this.allSlides = this.carousel.querySelectorAll('.slide') // Include clones
 			this.prevBtn = this.carousel.querySelector('.storepress-slider-navigation-previous')
@@ -622,7 +644,7 @@
 	document.addEventListener('DOMContentLoaded', () => {
 		const carouselElement = document.querySelector('[data-storepress-slider]')
 		if (carouselElement) {
-			new AccessibleCarousel(carouselElement)
+		//	new AccessibleCarousel(carouselElement)
 		}
 	})
 </script>
