@@ -324,6 +324,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		transform: translateX(var(--_horizontal-value));
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
+
+
 		grid-auto-rows: var(--slider-min-item-size, 100%);
 		// set 100% after adaptive size calculated.
 		height: var(--_slider-adaptive-size, var(--slider-min-item-size));
