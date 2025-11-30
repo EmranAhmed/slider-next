@@ -244,7 +244,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin track-style() {
 	& {
-		/*will-change: auto;*/
 
 		--_is_rtl: -1; // is ltr set 1
 
@@ -269,9 +268,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		transform: translateX(var(--_horizontal-value));
 
 
-		// transform: translateY(var(--vertical-value));
-		// will-change: transform;
-
 		list-style: none;
 		display: grid;
 
@@ -282,6 +278,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		box-sizing: border-box;
 
 		& {
+			// Set default as horizontal style.
 			@include horizontal-style();
 		}
 	}
