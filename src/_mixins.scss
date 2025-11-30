@@ -218,21 +218,12 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		flex-direction: column;
 
 		width: 100%;
-
-		&.is-vertical {
-			height: 100%;
-		}
-
-		&.is-horizontal {
-			height: fit-content;
-			/*height: 100%;*/
-		}
+		height: 100%;
 	}
 }
 
 @mixin animating-style() {
 	& {
-		/*will-change: transform;*/
 		transition-duration: var(--sliding-duration, 500ms);
 		transition-property: all;
 		transition-timing-function: var(--sliding-timing-function, ease);
@@ -311,11 +302,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			user-select: none;
 			box-sizing: border-box;
 		}
-
-		img{
-			object-fit: cover;
-			display: block;
-		}
 	}
 }
 
@@ -335,7 +321,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		min-height: var(--slider-min-item-size, 100%);
 		width: 100%;
 
-		img{
+		img {
 			width: 100%;
 		}
 	}
@@ -350,7 +336,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		min-width: var(--slider-min-item-size, 100%);
 		height: 100%;
 
-		img{
+		img {
 			height: 100%;
 		}
 	}
@@ -461,6 +447,11 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		// Slider Items
 		> * {
 			@include item-style();
+		}
+
+		img {
+			object-fit: cover;
+			display: block;
 		}
 	}
 
