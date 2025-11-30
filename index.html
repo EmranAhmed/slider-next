@@ -9,26 +9,14 @@
 	<style>
 		.container-2 {
 			height: 400px;
-			width: 600px;
+			max-width: 600px;
 			margin: 50px auto;
 			display: block;
 
-
 			@media (width < 1600px) {
-				/*height: 600px;*/
-				/*width: 600px;
-				height: auto;*/
+				height: 600px;
+				max-width: 400px;
 			}
-		}
-
-		/** Use 100% height and width for full width and full height */
-		.slider-wrapper:not(:has(.storepress-slider img)),
-		.slider-wrapper.is-horizontal:not(:has(.storepress-slider img)) {
-			/*height: 100%;*/
-		}
-
-		.slider-wrapper.is-vertical:not(:has(.storepress-slider img)) {
-			/*width: 100%;*/
 		}
 
 		.slider-wrapper {
@@ -39,13 +27,13 @@
 
 			margin-block: 50px;
 
-			--slider-min-item-size: 100px;
-
 			--is-active-select: false;
 
-			--infinite-slides: false;
+			--infinite-slides: true;
 
-			--is-adaptive-size: true;
+			--is-adaptive-size: false;
+
+			--slider-min-item-size: 100px;
 
 			--is-always-center: false;
 
@@ -63,6 +51,7 @@
 
 				--slides-to-scroll: 1;*/
 				--is-horizontal: false;
+
 			}
 		}
 
@@ -99,7 +88,10 @@
 		<div class="storepress-slider-container">
 			<div class="storepress-slider-track">
 
+
+				<!--<div><div><img src="images/belt.jpg" /></div></div>-->
 				<div><img src="images/belt.jpg" /></div>
+
 				<div class="active">
 					<div style="background-color: #bbbbbb">01</div>
 				</div>
@@ -122,9 +114,9 @@
 					<div style="background-color: #2b6091">07</div>
 				</div>
 
-				<!--<div>
+				<div>
 					<div><img src="images/belt.jpg" /></div>
-				</div>-->
+				</div>
 			</div>
 		</div>
 

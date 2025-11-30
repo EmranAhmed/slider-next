@@ -70,7 +70,7 @@ function Plugin( element, options ) {
 		sliderContainerPositionEndClassName: 'position-end',
 
 		sliderClassName: '',
-		sliderAnimatingClassName: 'animating',
+		sliderIsAnimatingClassName: 'is-animating',
 
 		sliderHasAdaptiveSizeCalculatedClassName:
 			'has-adaptive-size-calculated',
@@ -165,9 +165,11 @@ function Plugin( element, options ) {
 				};
 			} );
 
-			this.$slider.classList.add(
-				CLASSES.sliderHasAdaptiveSizeCalculatedClassName
-			);
+			if ( this.isHorizontal ) {
+				this.$slider.classList.add(
+					CLASSES.sliderHasAdaptiveSizeCalculatedClassName
+				);
+			}
 
 			setAdaptiveSize();
 		}, 100 );
@@ -334,7 +336,7 @@ function Plugin( element, options ) {
 			this.$element.classList.add( CLASSES.elementHasInfiniteClassName );
 		}
 
-		if ( this.isAdaptiveSize ) {
+		if ( this.isAdaptiveSize && this.isHorizontal ) {
 			this.$element.classList.add(
 				CLASSES.elementHasAdaptiveSizeClassName
 			);
@@ -1043,16 +1045,16 @@ function Plugin( element, options ) {
 
 	const isAnimating = () => {
 		return this.$slider.classList.contains(
-			CLASSES.sliderAnimatingClassName
+			CLASSES.sliderIsAnimatingClassName
 		);
 	};
 
 	const addAnimatingClass = () => {
-		this.$slider.classList.add( CLASSES.sliderAnimatingClassName );
+		this.$slider.classList.add( CLASSES.sliderIsAnimatingClassName );
 	};
 
 	const removeAnimatingClass = () => {
-		this.$slider.classList.remove( CLASSES.sliderAnimatingClassName );
+		this.$slider.classList.remove( CLASSES.sliderIsAnimatingClassName );
 	};
 
 	const addEvents = () => {
