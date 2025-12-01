@@ -204,7 +204,7 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		--sliding-timing-function: var(--ease-in-out-expo); /* easeInOutExpo */
 
 		// Private Variables.
-		// --_current-slider-index: 0;
+		--_current-slider-index: 0;
 		// --_slider-adaptive-size:var(--slider-min-item-size);
 
 	}
@@ -298,6 +298,8 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 			align-items: center;
 			user-select: none;
 			box-sizing: border-box;
+
+			min-height: var(--slider-min-item-size, 100%);;
 		}
 	}
 }
@@ -315,7 +317,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		grid-auto-flow: column;
 		grid-auto-columns: calc(var(--_item-width) - var(--_column-size));
 		grid-auto-rows: unset;
-		min-height: var(--slider-min-item-size, 100%);
 		width: 100%;
 
 		img {
@@ -496,6 +497,20 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		.has-adaptive-size-calculated {
 			grid-auto-rows: var(--_slider-adaptive-size, var(--slider-min-item-size));
 		}
+
+		&:is(.has-adaptive-size) {
+			&:is(.has-visible-items-is-small) {
+				.storepress-slider-track:not(.has-adaptive-size-calculated) {
+					// If small items is visible first then add this class on wrapper..
+					grid-auto-rows: var(--slider-min-item-size, 100%);
+				}
+			}
+
+
+			.storepress-slider-track:not(.has-adaptive-size-calculated) {
+				align-items: start;
+			}
+		}
 	}
 
 	&.is-vertical {
@@ -527,12 +542,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		.storepress-slider-track {
 			pointer-events: none;
 			user-select: none;
-		}
-	}
-
-	&:is(.has-adaptive-size):is(.is-horizontal) {
-		.storepress-slider-track:not(.has-adaptive-size-calculated) {
-			grid-auto-rows: var(--slider-min-item-size, 100%);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@storepress/slider",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "StorePress Slider Plugin",
 	"author": "Emran Ahmed",
 	"license": "GPL-2.0-or-later",
@@ -36,20 +36,18 @@
 		"@storepress/utils": "^0.12.2"
 	},
 	"devDependencies": {
-		"@woocommerce/dependency-extraction-webpack-plugin": "^3.0.1",
+		"@woocommerce/dependency-extraction-webpack-plugin": "^4.0.0",
 		"@woocommerce/eslint-plugin": "^2.3.0",
-		"@wordpress/base-styles": "^6.4.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "^6.28.0",
-		"@wordpress/scripts": "^30.21.0",
+		"@wordpress/base-styles": "^6.12.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.36.0",
+		"@wordpress/scripts": "^31.1.0",
 		"eslint-formatter-pretty": "5.0.0",
 		"eslint-plugin-prettier": "^5.5.4",
-		"eslint-plugin-you-dont-need-lodash-underscore": "^6.14.0",
-		"fs-extra": "^11.3.1",
+		"fs-extra": "^11.3.2",
 		"husky": "^9.1.7",
-		"lint-staged": "^16.1.5",
+		"lint-staged": "^16.2.7",
 		"prettier": "npm:wp-prettier@^3.0.3",
-		"rimraf": "^6.1.0",
-		"uvu": "^0.5.6",
+		"rimraf": "^6.1.2",
 		"webpack-remove-empty-scripts": "^1.1.1"
 	},
 	"publishConfig": {
@@ -63,7 +61,7 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run package -- --zip",
 		"start": "rimraf build && wp-scripts start --webpack-copy-php --experimental-modules",
-		"postinstall": "git init -q && rm -rf ./.husky && npx husky init && echo \"npx lint-staged\" > .husky/pre-commit",
+		"postinstall": "git init -q && rimraf .husky && npx husky init && echo \"npx lint-staged\" > .husky/pre-commit",
 		"prebuild": "rimraf build",
 		"check-engines": "wp-scripts check-engines",
 		"check-licenses": "wp-scripts check-licenses",
@@ -78,7 +76,6 @@
 		"lint:pkg-json": "wp-scripts lint-pkg-json",
 		"prepackage": "rimraf ./${npm_package_name}.zip && npm run build",
 		"package": "./tools/package.js",
-		"test": "uvu tests",
 		"test:e2e": "wp-scripts test-e2e",
 		"test:unit": "wp-scripts test-unit-js"
 	}

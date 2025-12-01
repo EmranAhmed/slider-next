@@ -26,7 +26,16 @@ npm i @storepress/slider @storepress/utils --save
 - Lets create slider markup.
 
 ```html
-<div role="region" aria-label="Carousel" class="slider-wrapper" data-slider-settings="">
+
+<!--
+
+If first visible items is small but hidden items is large on adaptive size: true
+
+Add `has-visible-items-is-small` class
+
+-->
+
+<div role="region" aria-label="Carousel" class="slider-wrapper has-visible-items-is-small" data-slider-settings="">
   <div class="storepress-slider-container">
     <div class="storepress-slider-track">
       <div class="active">
