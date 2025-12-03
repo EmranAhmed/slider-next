@@ -212,13 +212,19 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 @mixin wrapper-style() {
 	& {
-		// container-name: slider;
 		position: relative;
 		display: flex;
 		flex-direction: column;
 
 		width: 100%;
 		height: 100%;
+
+		&:not(.has-adaptive-size) {
+			.storepress-slider-container,
+			.storepress-slider-track {
+				height: 100%;
+			}
+		}
 	}
 }
 
@@ -236,7 +242,6 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 		position: relative;
 		overflow: hidden;
 		width: 100%;
-		/*height: 100%;*/
 		display: block;
 		box-sizing: border-box;
 	}
@@ -496,6 +501,12 @@ $easeInOutBack: cubic-bezier(0.680, -0.550, 0.265, 1.550);
 
 		.has-adaptive-size-calculated {
 			grid-auto-rows: var(--_slider-adaptive-size, var(--slider-min-item-size));
+		}
+
+		&:not(.has-adaptive-size) {
+			.storepress-slider-container, .storepress-slider-track {
+				height: 100%;
+			}
 		}
 
 		&:is(.has-adaptive-size) {
