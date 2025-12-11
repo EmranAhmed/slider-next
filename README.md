@@ -35,7 +35,7 @@ Add `has-visible-items-is-small` class
 
 -->
 
-<div role="region" aria-label="Carousel" class="slider-wrapper has-visible-items-is-small" data-slider-settings="">
+<div role="region" aria-label="Carousel" class="slider-wrapper has-visible-items-is-small" data-slider-settings="{'sliderDotsTitle':'Goto Slider'}">
   <div class="storepress-slider-container">
     <div class="storepress-slider-track">
       <div class="active">
@@ -92,7 +92,7 @@ Add `has-visible-items-is-small` class
 
 [data-slider-settings] {
 
-  @include slider.slider-init();
+  @include slider.init();
 
   & {
     --slides-to-show: 1; // Slide show at a time.
@@ -174,8 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	$godot.forEach(($item) => {
 		$item.addEventListener('click', (event) => {
 			event.preventDefault()
-
-
       
 			const dot = event.currentTarget.dataset.target
 			$slider3.forEach((el) => {
@@ -190,10 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const $slider = StorePress.Utils.getPluginInstance('.slider-wrapper', 'slider')
 			const $slider2 = StorePress.Utils.getStorePressPlugin('slider').get('.slider-wrapper')
 			const $slider3 = StorePress.Utils.getStorePressPlugin('slider').get()
-
-			// console.log($slider, $slider2)
-			//return;
-
+      
 			const dot = event.currentTarget.dataset.target
 			$slider3.forEach((el) => {
 				el.goToSlide(dot)
@@ -306,76 +301,17 @@ document.addEventListener('DOMContentLoaded', () => {
 - Option can be added on html attribute.
 
 ```html
-<div data-slider-settings="{'sliderDotsTitle':'Goto Slider'}"></div>
+<div data-storepress-slider="{'sliderDotsTitle':'Goto Slider'}"></div>
 ```
 
 - OR
 
 ```html
-<div data-slider-settings--slider-dots-title="Goto Slider"></div>
+<div data-storepress-slider--slider-dots-title="Goto Slider"></div>
 ```
 
 - [Check Example](https://emranahmed.github.io/storepress-packages/?path=/docs/utils-plugin-example--docs) 
 
-## Control Events
-
-- To Init
-
-```js
-triggerEvent(document, 'storepress_slider_init', {
-  element: ['.slider-wrapper'],
-  settings: {
-    sliderDotsTitle: 'Goto Slider'
-  },
-});
-```
-
-- To Destroy 
-
-```js
-triggerEvent(document, 'storepress_slider_destroy', {
-  element: ['.slider-wrapper'],
-  settings: {},
-});
-```
-
-- To Next
-
-```js
-triggerEvent(document, 'storepress_slider_next', {
-  element: ['[data-slider-settings]'],
-  settings: {},
-});
-```
-
-- To Prev
-
-```js
-triggerEvent(document, 'storepress_slider_prev', {
-  element: ['[data-slider-settings]'],
-  settings: {},
-});
-```
-
-- Go To Slide. Slide Index Start from `1`
-
-```js
-triggerEvent(document, 'storepress_slider_goto_slider', {
-  element: ['[data-slider-settings]'],
-  settings: {},
-  index: 1
-});
-```
-
-- Go To Dot. Dot Index Start from `1`
-
-```js
-triggerEvent(document, 'storepress_slider_goto_dot', {
-  element: ['[data-slider-settings]'],
-  settings: {},
-  index: 1
-});
-```
 
 ## Triggered Event
 
@@ -384,3 +320,9 @@ triggerEvent(document, 'storepress_slider_goto_dot', {
 - `beforeSlide`. Example: `document.querySelector('[data-slider-settings]').addEventListener('beforeSlide', (event)=>{ console.log(event.detail) })`
 - `afterGotoSlide`. Example: `document.querySelector('[data-slider-settings]').addEventListener('afterGotoSlide', (event)=>{ console.log(event.detail) })`
 - `afterSlide`. Example: `document.querySelector('[data-slider-settings]').addEventListener('afterSlide', (event)=>{ console.log(event.detail) })`
+
+## Publish
+
+- Add Tag - `git tag $(node -p "require('./package.json').version") && git push origin "$_"`
+- Delete Tag - `git tag -d $(node -p "require('./package.json').version") && git push origin --delete "$_"`
+- Publish - `npm publish`

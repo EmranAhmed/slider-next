@@ -1,3 +1,6 @@
+const { getWebPackAlias } = require( './tools/webpack-helpers' );
+const aliases = Object.keys( getWebPackAlias() );
+
 const restrictedImports = [
 	{
 		name: 'lodash',
@@ -45,12 +48,12 @@ module.exports = {
 			'@wordpress/element',
 			'@woocommerce/blocks-test-utils',
 			'@woocommerce/e2e-utils',
-			'lodash',
-			'@storepress/slider',
+			...aliases,
 		],
 		'import/resolver': {
-			node: {},
-			webpack: {},
+			node: {
+				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
+			},
 		},
 	},
 	env: {

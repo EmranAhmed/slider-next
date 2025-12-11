@@ -1,6 +1,6 @@
 {
 	"name": "@storepress/slider",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"description": "StorePress Slider Plugin",
 	"author": "Emran Ahmed",
 	"license": "GPL-2.0-or-later",
@@ -27,7 +27,6 @@
 		"index.html",
 		"global-style.css"
 	],
-	"main": "build/index.js",
 	"module": "src/index.js",
 	"sideEffects": [
 		"src/**"
@@ -57,7 +56,7 @@
 		"build": "npm run start -- --no-watch && wp-scripts build --webpack-copy-php --experimental-modules",
 		"format": "wp-scripts format ./src",
 		"lint:css": "wp-scripts lint-style './src/**/*.scss'",
-		"lint:js": "wp-scripts lint-js --format=pretty './src/**/*.js'",
+		"lint:js": "wp-scripts lint-js --format=pretty './src/**/*.js' './script.js'",
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "npm run package -- --zip",
 		"start": "rimraf build && wp-scripts start --webpack-copy-php --experimental-modules",
