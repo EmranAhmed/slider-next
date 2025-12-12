@@ -105,6 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 The slider requires a specific HTML structure:
 
+- NOTE: To prevent loading jump if first visible items is small but hidden items is large on `adaptive size: true`
+- add `has-visible-items-is-small` class
+
 ```html
 <div 
   role="region" 
