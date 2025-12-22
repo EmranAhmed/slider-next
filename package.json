@@ -76,7 +76,6 @@
 		"prepackage": "rimraf ./${npm_package_name}.zip && npm run build",
 		"package": "./tools/package.js",
 		"test:e2e": "wp-scripts test-e2e",
-		"test:unit": "wp-scripts test-unit-js",
-		"prepare": "husky"
+		"test:unit": "wp-scripts test-unit-js"
 	}
 }
