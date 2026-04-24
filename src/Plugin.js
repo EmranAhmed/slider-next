@@ -1086,6 +1086,7 @@ function Plugin( element, options ) {
 			passive: true,
 			signal: this.controller.signal,
 		} );
+
 		this.$slider.addEventListener( 'transitionend', afterSlide, {
 			passive: true,
 			signal: this.controller.signal,
@@ -1145,7 +1146,11 @@ function Plugin( element, options ) {
 		startAutoPlay();
 	};
 
-	const beforeSlide = () => {
+	const beforeSlide = ( event ) => {
+		if ( event.target !== event.currentTarget ) {
+			return;
+		}
+
 		removeClasses();
 		triggerEvent( this.$element, 'beforeSlide', {
 			currentIndex: getCurrentIndex(),
@@ -1154,7 +1159,11 @@ function Plugin( element, options ) {
 		} );
 	};
 
-	const afterSlide = () => {
+	const afterSlide = ( event ) => {
+		if ( event.target !== event.currentTarget ) {
+			return;
+		}
+
 		removeAnimatingClass();
 
 		// Clone Index

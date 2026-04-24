@@ -21,9 +21,9 @@
 
 		.slider-wrapper {
 
-			--slides-to-show: 3;
+			--slides-to-show: 1;
 
-			--slides-to-scroll: 2;
+			--slides-to-scroll: 1;
 
 			margin-block: 50px;
 
@@ -76,6 +76,16 @@
 			}
 		}
 
+
+
+		#item{
+			background-color: #ffccff;
+			transition: background-color 0.3s ease;
+		}
+
+		#item:hover{
+			background-color: #2980b9;
+		}
 	</style>
 </head>
 
@@ -90,10 +100,12 @@
 
 
 				<!--<div><div><img src="images/belt.jpg" /></div></div>-->
-				<div><img src="images/belt.jpg" /></div>
+				<div><img src="images/belt.jpg"  alt=""/></div>
 
 				<div class="active">
-					<div style="background-color: #bbbbbb">01</div>
+					<div style="background-color: #bbbbbb">
+						<div id="item"> ITEM is <a href="#">Click</a> </div>
+					</div>
 				</div>
 				<div>
 					<div style="background-color: #702222">02</div>
